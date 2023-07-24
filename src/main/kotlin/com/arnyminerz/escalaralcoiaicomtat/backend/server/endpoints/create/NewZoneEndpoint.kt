@@ -1,0 +1,89 @@
+package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
+
+import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.DataPoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Area
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointBase
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.MissingData
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
+import io.ktor.server.request.receiveMultipart
+import io.ktor.util.pipeline.PipelineContext
+import java.io.File
+import java.net.URL
+
+object NewZoneEndpoint : EndpointBase() {
+    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+        val multipart = call.receiveMultipart()
+
+        var displayName: String? = null
+        var webUrl: String? = null
+        var point: LatLng? = null
+        var points: Set<DataPoint>? = null
+        var area: Area? = null
+
+        var imageFile: File? = null
+        var kmzFile: File? = null
+
+        multipart.forEachPart { partData ->
+            when (partData) {
+                is PartData.FormItem -> {
+                    when (partData.name) {
+                        "displayName" -> displayName = partData.value
+                        "webUrl" -> webUrl = partData.value
+                        "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
+                        "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
+                        "area" -> ServerDatabase.instance.query {
+                            area = Area.findById(partData.value.toInt())
+                        }
+                    }
+                }
+                is PartData.FileItem -> {
+                    when (partData.name) {
+                        "image" -> imageFile = partData.save(Storage.ImagesDir)
+                        "kmz" -> kmzFile = partData.save(Storage.TracksDir)
+                    }
+                }
+                else -> Unit
+            }
+        }
+
+        if (displayName == null || webUrl == null || imageFile == null || kmzFile == null || area == null) {
+            imageFile?.delete()
+            kmzFile?.delete()
+            return respondFailure(MissingData)
+        }
+
+        if (points == null) points = emptySet()
+
+        val zone = ServerDatabase.instance.query {
+            Zone.new {
+                this.displayName = displayName!!
+                this.webUrl = URL(webUrl!!)
+                this.image = imageFile!!
+                this.kmz = kmzFile!!
+                this.point = point
+                this.pointsSet = points!!.map { it.toJson().toString() }
+                this.area = area!!
+            }
+        }
+
+        respondSuccess(
+            jsonOf("zone_id" to zone.id.value),
+            httpStatusCode = HttpStatusCode.Created
+        )
+    }
+}

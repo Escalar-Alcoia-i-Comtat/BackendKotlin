@@ -1,0 +1,126 @@
+package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints
+
+import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.DataPoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.testing.ApplicationTestBuilder
+import kotlin.test.assertNotNull
+
+object DataProvider {
+    object SampleArea {
+        val displayName = "Testing Area"
+        val webUrl = "https://example.com"
+    }
+
+    context(ApplicationTestBuilder)
+    suspend fun provideSampleArea(
+        skipDisplayName: Boolean = false,
+        skipWebUrl: Boolean = false,
+        skipImage: Boolean = false,
+        assertion: suspend HttpResponse.() -> Int? = {
+            var areaId: Int? = null
+            assertSuccess(HttpStatusCode.Created) { data ->
+                assertNotNull(data)
+                areaId = data.getIntOrNull("area_id")
+            }
+            areaId
+        }
+    ): Int? {
+        val image = this::class.java.getResourceAsStream("/images/alcoi.jpg")!!.use {
+            it.readBytes()
+        }
+
+        var areaId: Int?
+
+        client.submitFormWithBinaryData(
+            url = "/area",
+            formData = formData {
+                if (!skipDisplayName)
+                    append("displayName", SampleArea.displayName)
+                if (!skipWebUrl)
+                    append("webUrl", SampleArea.webUrl)
+                if (!skipImage)
+                    append("image", image, Headers.build {
+                        append(HttpHeaders.ContentType, "image/jpeg")
+                        append(HttpHeaders.ContentDisposition, "filename=area.jpg")
+                    })
+            }
+        ).apply {
+            areaId = assertion()
+        }
+
+        return areaId
+    }
+
+    object SampleZone {
+        val displayName = "Testing Zone"
+        val webUrl = "https://example.com"
+        val point = LatLng(0.12345, 0.67890)
+        val points = setOf(
+            DataPoint(LatLng(0.12345, 0.67890), "Label 1", "testing-icon"),
+            DataPoint(LatLng(0.12345, 0.67890), "Label 2", "testing-icon")
+        )
+    }
+
+    context(ApplicationTestBuilder)
+    suspend fun provideSampleZone(
+        areaId: Int?,
+        skipDisplayName: Boolean = false,
+        skipWebUrl: Boolean = false,
+        skipImage: Boolean = false,
+        skipKmz: Boolean = false,
+        assertion: suspend HttpResponse.() -> Int? = {
+            var zoneId: Int? = null
+            assertSuccess(HttpStatusCode.Created) { data ->
+                assertNotNull(data)
+                zoneId = data.getIntOrNull("zone_id")
+            }
+            zoneId
+        }
+    ): Int? {
+        val image = this::class.java.getResourceAsStream("/images/uixola.jpg")!!.use {
+            it.readBytes()
+        }
+        val kmz = this::class.java.getResourceAsStream("/tracks/testing.kmz")!!.use {
+            it.readBytes()
+        }
+
+        var zoneId: Int?
+
+        client.submitFormWithBinaryData(
+            url = "/zone",
+            formData = formData {
+                if (areaId != null)
+                    append("area", areaId)
+                if (!skipDisplayName)
+                    append("displayName", SampleZone.displayName)
+                if (!skipWebUrl)
+                    append("webUrl", SampleZone.webUrl)
+                append("point", SampleZone.point.toJson().toString())
+                append("points", SampleZone.points.toJson().toString())
+                if (!skipImage)
+                    append("image", image, Headers.build {
+                        append(HttpHeaders.ContentType, "image/jpeg")
+                        append(HttpHeaders.ContentDisposition, "filename=zone.jpg")
+                    })
+                if (!skipKmz)
+                    append("kmz", kmz, Headers.build {
+                        append(HttpHeaders.ContentType, "application/vnd")
+                        append(HttpHeaders.ContentDisposition, "filename=zone.kmz")
+                    })
+            }
+        ).apply {
+            zoneId = assertion()
+        }
+
+        return zoneId
+    }
+}
