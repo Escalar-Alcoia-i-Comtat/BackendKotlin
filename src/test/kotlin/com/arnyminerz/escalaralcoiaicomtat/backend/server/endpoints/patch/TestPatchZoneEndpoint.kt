@@ -7,11 +7,16 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.HashUtils
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.MessageDigestAlgorithm
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.request.get
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -126,7 +131,6 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
         ServerDatabase.instance.query {
             val zone = Zone[zoneId]
             assertNotNull(zone)
-            println("Points: ${zone.points.joinToString(",") { it.toJson().toString() }}")
             assertEquals(1, zone.points.size)
             assertEquals(
                 DataPoint(LatLng(0.12345, 0.67890), "Label 2", "testing-icon"),
@@ -159,12 +163,27 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             assertSuccess()
         }
 
+        var zoneImage: String? = null
+
         ServerDatabase.instance.query {
             val zone = Zone[zoneId]
             assertNotNull(zone)
 
             val imageFile = zone.image
+            zoneImage = imageFile.toRelativeString(Storage.ImagesDir)
             assertTrue(imageFile.exists())
+        }
+
+        client.get("/file/$zoneImage").apply {
+            assertSuccess { data ->
+                assertNotNull(data)
+                val serverHash = data.getString("hash")
+                val localHash = HashUtils.getCheckSumFromStream(
+                    MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256),
+                    this::class.java.getResourceAsStream("/images/cocentaina.jpg")!!
+                )
+                assertEquals(localHash, serverHash)
+            }
         }
     }
 
@@ -192,12 +211,27 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             assertSuccess()
         }
 
+        var zoneTrack: String? = null
+
         ServerDatabase.instance.query {
             val zone = Zone[zoneId]
             assertNotNull(zone)
 
             val trackFile = zone.kmz
+            zoneTrack = trackFile.toRelativeString(Storage.TracksDir)
             assertTrue(trackFile.exists())
+        }
+
+        client.get("/file/$zoneTrack").apply {
+            assertSuccess { data ->
+                assertNotNull(data)
+                val serverHash = data.getString("hash")
+                val localHash = HashUtils.getCheckSumFromStream(
+                    MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256),
+                    this::class.java.getResourceAsStream("/tracks/balconet.kmz")!!
+                )
+                assertEquals(localHash, serverHash)
+            }
         }
     }
 }

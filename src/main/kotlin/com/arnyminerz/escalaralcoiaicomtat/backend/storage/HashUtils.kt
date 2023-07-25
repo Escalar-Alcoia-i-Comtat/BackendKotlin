@@ -23,6 +23,18 @@ object HashUtils {
         return String(hexCode)
     }
 
+    fun getCheckSumFromBytes(digest: MessageDigest, bytes: ByteArray): String {
+        val byteArray = bytes.inputStream().use { updateDigest(digest, it).digest() }
+        val hexCode = encodeHex(byteArray, true)
+        return String(hexCode)
+    }
+
+    fun getCheckSumFromStream(digest: MessageDigest, stream: InputStream): String {
+        val byteArray = updateDigest(digest, stream).digest()
+        val hexCode = encodeHex(byteArray, true)
+        return String(hexCode)
+    }
+
     /**
      * Reads through an InputStream and updates the digest for the data
      *
