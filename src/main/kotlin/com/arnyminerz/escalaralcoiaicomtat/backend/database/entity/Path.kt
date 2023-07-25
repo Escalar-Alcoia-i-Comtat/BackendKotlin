@@ -1,11 +1,15 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.database.entity
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializable
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import java.time.Instant
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -46,11 +50,23 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     var pitonRequired: Boolean by Paths.pitonRequired
     var stapesRequired: Boolean by Paths.stapesRequired
 
+    var showDescription: Boolean by Paths.showDescription
+    var description: String? by Paths.description
+
+    var builder: Builder?
+        get() = _builder?.json?.let { Builder.fromJson(it) }
+        set(value) { _builder = value?.toJson().toString() }
+    var reBuilder: List<Builder>?
+        get() = _reBuilder?.jsonArray?.serialize(Builder)
+        set(value) { _reBuilder = value?.toJson()?.toString() }
+
     var sector by Sector referencedOn Paths.sector
 
 
     private var _grade: String? by Paths.grade
     private var _pitches: String? by Paths.pitches
+    private var _builder: String? by Paths.builder
+    private var _reBuilder: String? by Paths.reBuilder
 
     override fun toJson(): JSONObject = jsonOf(
         "id" to id.value,
@@ -78,6 +94,12 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         "nail_required" to nailRequired,
         "piton_required" to pitonRequired,
         "stapes_required" to stapesRequired,
+
+        "show_description" to showDescription,
+        "description" to description,
+
+        "builder" to builder,
+        "re_builder" to reBuilder,
 
         "sector_id" to sector.id.value
     )

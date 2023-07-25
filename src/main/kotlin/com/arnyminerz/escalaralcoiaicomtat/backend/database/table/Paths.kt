@@ -27,5 +27,11 @@ object Paths: BaseTable() {
     val pitonRequired = bool("piton_required")
     val stapesRequired = bool("stapes_required")
 
+    val showDescription = bool("show_description").default(false)
+    val description = varchar("description", SqlConsts.DESCRIPTION_LENGTH).nullable()
+
+    val builder = varchar("builder", SqlConsts.BUILDER_LENGTH).nullable()
+    val reBuilder = varchar("re_builder", SqlConsts.RE_BUILDER_LENGTH).nullable()
+
     val sector = reference("sector", Sectors)
 }

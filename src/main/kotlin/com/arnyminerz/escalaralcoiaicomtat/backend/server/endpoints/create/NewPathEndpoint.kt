@@ -1,6 +1,7 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
@@ -9,6 +10,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.MissingData
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
@@ -45,6 +47,10 @@ object NewPathEndpoint : EndpointBase() {
         var stringCount: UInt? = null
         val counts: Array<UInt?> = Array(COUNTS_LENGTH) { null }
         val requirements: Array<Boolean?> = Array(REQUIREMENTS_LENGTH) { false }
+        var showDescription: Boolean? = null
+        var description: String? = null
+        var builder: Builder? = null
+        val reBuilder: MutableList<Builder> = mutableListOf()
         var sector: Sector? = null
 
         receiveMultipart(
@@ -72,6 +78,12 @@ object NewPathEndpoint : EndpointBase() {
                     "nail_required" -> requirements[INDEX_REQUIRE_NAIL] = partData.value.toBoolean()
                     "piton_required" -> requirements[INDEX_REQUIRE_PITON] = partData.value.toBoolean()
                     "stapes_required" -> requirements[INDEX_REQUIRE_STAPES] = partData.value.toBoolean()
+
+                    "show_description" -> showDescription = partData.value.toBoolean()
+                    "description" -> description = partData.value
+
+                    "builder" -> builder = partData.value.let { Builder.fromJson(it.json) }
+                    "re_builder" -> reBuilder.addAll(partData.value.jsonArray.serialize(Builder))
 
                     "sector" -> ServerDatabase.instance.query {
                         sector = Sector.findById(partData.value.toInt())
@@ -103,6 +115,10 @@ object NewPathEndpoint : EndpointBase() {
                 this.nailRequired = requirements[INDEX_REQUIRE_NAIL]!!
                 this.pitonRequired = requirements[INDEX_REQUIRE_PITON]!!
                 this.stapesRequired = requirements[INDEX_REQUIRE_STAPES]!!
+                this.showDescription = showDescription ?: false
+                this.description = description
+                this.builder = builder
+                this.reBuilder = reBuilder
                 this.sector = sector!!
             }
         }

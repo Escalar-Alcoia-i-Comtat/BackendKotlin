@@ -7,6 +7,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBa
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -50,6 +51,9 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
             assertEquals(DataProvider.SamplePath.nailRequired, path.nailRequired)
             assertEquals(DataProvider.SamplePath.pitonRequired, path.pitonRequired)
             assertEquals(DataProvider.SamplePath.stapesRequired, path.stapesRequired)
+
+            assertEquals(DataProvider.SamplePath.builder, path.builder)
+            assertContentEquals(DataProvider.SamplePath.reBuilder, path.reBuilder)
         }
     }
 

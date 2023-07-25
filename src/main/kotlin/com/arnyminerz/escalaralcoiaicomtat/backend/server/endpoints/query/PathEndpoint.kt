@@ -18,7 +18,6 @@ object PathEndpoint : EndpointBase() {
         val path = ServerDatabase.instance.query { Path.findById(pathId) }
             ?: return respondFailure(Errors.ObjectNotFound)
         val pathJson = ServerDatabase.instance.query { path.toJson() }
-        ServerDatabase.instance.query { println("Pitches: ${path.pitches}") }
 
         respondSuccess(pathJson)
     }

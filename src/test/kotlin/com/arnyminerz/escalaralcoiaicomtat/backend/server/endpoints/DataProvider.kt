@@ -1,6 +1,7 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.DataPoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.EndingInclination
@@ -219,6 +220,12 @@ object DataProvider {
         val nailRequired = true
         val pitonRequired = false
         val stapesRequired = true
+
+        val builder: Builder = Builder("Name", "April 2023")
+        val reBuilder: List<Builder> = listOf(
+            Builder("Name 1 ", "April 2023"),
+            Builder("Name 2", "June 2023")
+        )
     }
 
     context(ApplicationTestBuilder)
@@ -261,6 +268,8 @@ object DataProvider {
                 append("nail_required", SamplePath.nailRequired)
                 append("piton_required", SamplePath.pitonRequired)
                 append("stapes_required", SamplePath.stapesRequired)
+                append("builder", SamplePath.builder.toJson().toString())
+                append("re_builder", SamplePath.reBuilder.toJson().toString())
             }
         ).apply {
             pathId = assertion()
