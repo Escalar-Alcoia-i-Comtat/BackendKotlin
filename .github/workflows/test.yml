@@ -1,0 +1,79 @@
+name: Run Tests
+
+on: [push, pull_request]
+
+permissions:
+  checks: write
+  pull-requests: write
+
+jobs:
+  run_detekt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run detekt review
+        uses: alaegin/Detekt-Action@v1.23.0
+        if: github.event_name == 'pull_request'
+        with:
+          github_token: ${{ secrets.github_token }}
+          detekt_config: config/detekt/detekt.yml
+          reviewdog_reporter: github-pr-review
+          reviewdog_level: error
+      - name: Run detekt
+        uses: alaegin/Detekt-Action@v1.23.0
+        if: github.event_name != 'pull_request'
+        with:
+          github_token: ${{ secrets.github_token }}
+          detekt_config: config/detekt/detekt.yml
+          reviewdog_reporter: github-check
+          reviewdog_level: error
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@064a97fb0b4cef86a65f09898c572382f3af10e0
+      - name: Run tests
+        uses: gradle/gradle-build-action@40b6781dcdec2762ad36556682ac74e31030cfe2
+        with:
+          arguments: check
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            build/test-results/**/*.xml
+            build/test-results/**/*.trx
+            build/test-results/**/*.json
+  coverage_report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@064a97fb0b4cef86a65f09898c572382f3af10e0
+      - name: Run Kover
+        uses: gradle/gradle-build-action@40b6781dcdec2762ad36556682ac74e31030cfe2
+        with:
+          arguments: koverXmlReport
+      - name: Add coverage report to PR
+        id: kover
+        uses: mi-kas/kover-report@v1
+        with:
+          path: ${{ github.workspace }}/build/reports/kover/report.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Code Coverage
+          update-comment: true
+          min-coverage-overall: 80
+          min-coverage-changed-files: 80
+          coverage-counter-type: LINE

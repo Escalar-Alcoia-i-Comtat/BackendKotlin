@@ -1,0 +1,30 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  checks: write
+  pull-requests: write
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@064a97fb0b4cef86a65f09898c572382f3af10e0
+      - name: Build and publish image
+        uses: gradle/gradle-build-action@40b6781dcdec2762ad36556682ac74e31030cfe2
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        with:
+          arguments: publishImage

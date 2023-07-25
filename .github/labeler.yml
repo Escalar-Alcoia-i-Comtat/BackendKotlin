@@ -1,0 +1,22 @@
+java:
+  - src/**/*.kt
+
+main:
+  - src/main/kotlin/**/*.kt
+
+testing:
+  - src/test/kotlin/**/*.kt
+
+documentation:
+  - '**/*.md'
+  - src/main/resources/openapi/*.yaml
+
+github_actions:
+  - .github
+
+detekt:
+  - config/detekt/detekt.yml
+
+gradle:
+  - '**/*.gradle.kts'
+  - gradle.properties
