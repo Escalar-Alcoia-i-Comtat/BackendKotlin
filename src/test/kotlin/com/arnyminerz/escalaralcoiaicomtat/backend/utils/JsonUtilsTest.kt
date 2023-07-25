@@ -18,8 +18,8 @@ class JsonUtilsTest {
             ABC, DEF, GHI
         }
 
-        data class Serializable(val value: String): JsonSerializable {
-            companion object: JsonSerializer<Serializable> {
+        data class Serializable(val value: String) : JsonSerializable {
+            companion object : JsonSerializer<Serializable> {
                 override fun fromJson(json: JSONObject): Serializable = Serializable(json.getString("test"))
             }
 
@@ -151,5 +151,15 @@ class JsonUtilsTest {
         assertNull(json.getUShortOrNull("test2"))
         assertNull(json.getUShortOrNull("test3"))
         assertNull(json.getUShortOrNull("null"))
+    }
+
+    @Test
+    fun `test JSONObject_putIterable`() {
+        val json = JSONObject()
+        json.putIterable("test", listOf("abc", jsonOf("key" to "value")))
+        val test = json.getJSONArray("test")
+        assertEquals(2, test.length())
+        assertEquals("abc", test.getString(0))
+        assertContentEquals(jsonOf("key" to "value"), test.getJSONObject(1))
     }
 }

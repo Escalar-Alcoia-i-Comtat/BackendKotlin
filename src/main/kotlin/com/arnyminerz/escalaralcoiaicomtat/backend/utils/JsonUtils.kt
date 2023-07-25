@@ -35,23 +35,35 @@ fun JSONObject.putAll(pairs: Map<String, Any?>): JSONObject {
             is JsonSerializable -> put(key, value.toJson())
             is JSONArray -> put(key, value)
             is Instant -> put(key, value.toEpochMilli())
-            is Iterable<*> -> if (value.none())
-                put(key, JSONArray())
-            else
-                JSONArray().apply {
-                    for (item in value) {
-                        when (item) {
-                            is JsonSerializable -> put(item.toJson())
-                            else -> put(item)
-                        }
-                    }
-                }.let { put(key, it) }
+            is Iterable<*> -> putIterable(key, value)
 
             else -> put(key, value)
         }
     }
     return this
 }
+
+/**
+ * Adds all the contents of [iterable] after converting them into a JSON array.
+ *
+ * @param key The key for the key-value pair in the JSONObject.
+ * @param iterable The Iterable of objects to be added as the value.
+ */
+fun JSONObject.putIterable(key: String, iterable: Iterable<Any?>): JSONObject =
+    if (iterable.none())
+        put(key, JSONArray())
+    else {
+        val array = JSONArray()
+
+        for (item in iterable) {
+            when (item) {
+                is JsonSerializable -> array.put(item.toJson())
+                else -> array.put(item)
+            }
+        }
+
+        put(key, array)
+    }
 
 /**
  * Constructs a JSON object from a map of key-value pairs.
