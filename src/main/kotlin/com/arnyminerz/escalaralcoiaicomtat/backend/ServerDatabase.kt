@@ -29,24 +29,47 @@ class ServerDatabase private constructor() {
         var driver: String = "org.sqlite.JDBC"
 
         /** The username to use for connecting to the database. */
-        var user: String = ""
+        var username: String = ""
 
         /** The password to use for connecting to the database. */
         var password: String = ""
 
         /**
          * Gives access to the database instance. Gets initialized lazily the first time it's fetched. Uses the
-         * configuration set in [url], [driver], [user] and [password]. Once fetched, updates to these properties are
-         * ignored.
+         * configuration set in [url], [driver], [username] and [password]. Once fetched, updates to these properties
+         * are ignored.
          */
         val instance by lazy { ServerDatabase() }
 
         /** All the tables to be created in the database. */
         private val tables: Array<Table> = arrayOf(Areas, Zones, Sectors, Paths, BlockingTable)
+
+        /**
+         * Configures the database connection parameters from the environment variables.
+         *
+         * The method reads the following environment variables:
+         * - `DATABASE_URL`: The URL of the database server.
+         * - `DATABASE_DRIVER`: The driver class name for connecting to the database.
+         * - `DATABASE_USERNAME`: The username for authenticating the database connection.
+         * - `DATABASE_PASSWORD`: The password for authenticating the database connection.
+         *
+         * If any of the environment variables are not set or empty, the corresponding
+         * connection parameter for the database is not changed.
+         *
+         * Usage:
+         * ```
+         * configureFromEnvironment()
+         **/
+        fun configureFromEnvironment() {
+            System.getenv("DATABASE_URL")?.let { url = it }
+            System.getenv("DATABASE_DRIVER")?.let { driver = it }
+            System.getenv("DATABASE_USERNAME")?.let { username = it }
+            System.getenv("DATABASE_PASSWORD")?.let { password = it }
+        }
     }
 
     private val database by lazy {
-        Database.connect(url, driver, user, password)
+        Database.connect(url, driver, username, password)
     }
 
     init {

@@ -7,6 +7,8 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 
 fun main() {
+    ServerDatabase.configureFromEnvironment()
+
     Logger.info("Connecting to the database, and creating tables...")
     ServerDatabase.instance
 
