@@ -1,6 +1,7 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.utils
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializable
+import java.time.Instant
 import kotlin.reflect.KClass
 import org.json.JSONArray
 import org.json.JSONException
@@ -22,6 +23,7 @@ val String.json: JSONObject get() = JSONObject(this)
  * 7. [String]
  * 8. [JSONObject.NULL]
  * 9. [JsonSerializable]
+ * 10. [Instant]
  *
  * @throws JSONException If the value is non-finite number.
  *
@@ -32,17 +34,18 @@ fun JSONObject.putAll(pairs: Map<String, Any?>): JSONObject {
         when (value) {
             is JsonSerializable -> put(key, value.toJson())
             is JSONArray -> put(key, value)
+            is Instant -> put(key, value.toEpochMilli())
             is Iterable<*> -> if (value.none())
                 put(key, JSONArray())
             else
                 JSONArray().apply {
                     for (item in value) {
                         when (item) {
-                            is JsonSerializable -> put(item)
+                            is JsonSerializable -> put(item.toJson())
                             else -> put(item)
                         }
                     }
-                }
+                }.let { put(key, it) }
 
             else -> put(key, value)
         }

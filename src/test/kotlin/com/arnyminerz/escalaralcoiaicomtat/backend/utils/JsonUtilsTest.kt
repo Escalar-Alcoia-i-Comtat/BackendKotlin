@@ -1,6 +1,9 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.utils
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertContentEquals
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializable
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializer
+import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -14,6 +17,14 @@ class JsonUtilsTest {
         enum class TestEnum {
             ABC, DEF, GHI
         }
+
+        data class Serializable(val value: String): JsonSerializable {
+            companion object: JsonSerializer<Serializable> {
+                override fun fromJson(json: JSONObject): Serializable = Serializable(json.getString("test"))
+            }
+
+            override fun toJson(): JSONObject = jsonOf("test" to value)
+        }
     }
 
     @Test
@@ -25,6 +36,7 @@ class JsonUtilsTest {
     @Test
     fun `test putAll`() {
         val json = JSONObject()
+        val instant = Instant.now()
         json.putAll(
             mapOf(
                 "boolean" to true,
@@ -34,10 +46,12 @@ class JsonUtilsTest {
                 "object" to JSONObject(),
                 "long" to 5L,
                 "string" to "abc",
-                "null" to JSONObject.NULL
+                "null" to JSONObject.NULL,
+                "instant" to instant,
+                "list" to listOf(Assistance.Serializable("value"))
             )
         )
-        assertEquals(8, json.length())
+        assertEquals(10, json.length())
         assertEquals(true, json.getBoolean("boolean"))
         assertEquals(3.76, json.getDouble("double"))
         assertEquals(9, json.getInt("integer"))
@@ -49,6 +63,11 @@ class JsonUtilsTest {
         assertEquals(5L, json.getLong("long"))
         assertEquals("abc", json.getString("string"))
         assertEquals(JSONObject.NULL, json.get("null"))
+        assertEquals(instant.toEpochMilli(), json.getLong("instant"))
+        json.getJSONArray("list").also { println("List: $it") }.serialize(Assistance.Serializable).let { list ->
+            assertEquals(1, list.size)
+            assertEquals("value", list[0].value)
+        }
     }
 
     @Test
