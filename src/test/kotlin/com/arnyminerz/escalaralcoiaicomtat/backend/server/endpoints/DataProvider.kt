@@ -20,6 +20,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.ApplicationTestBuilder
 import kotlin.test.assertNotNull
 
+@Suppress("LongParameterList", "MayBeConst", "MayBeConstant")
 object DataProvider {
     object SampleArea {
         val displayName = "Testing Area"
@@ -194,7 +195,14 @@ object DataProvider {
         val grade = SportsGrade.G6A
 
         val pitches = listOf(
-            PitchInfo(1U, SportsGrade.G7A_PLUS, 12U, Ending.CHAIN_CARABINER, EndingInfo.EQUIPPED, EndingInclination.DIAGONAL)
+            PitchInfo(
+                1U,
+                SportsGrade.G7A_PLUS,
+                12U,
+                Ending.CHAIN_CARABINER,
+                EndingInfo.EQUIPPED,
+                EndingInclination.DIAGONAL
+            )
         )
 
         val stringCount = 13U

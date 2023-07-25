@@ -5,6 +5,7 @@ import io.ktor.http.HttpStatusCode
 /**
  * Singleton class representing common error types.
  */
+@Suppress("MagicNumber")
 object Errors {
     val EndpointNotFound = Error(1, "The target endpoint was not found.", HttpStatusCode.NotFound)
     val ObjectNotFound = Error(2, "The requested data was not found.", HttpStatusCode.Gone)

@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.arnyminerz.escalaralcoiaicomtat.backend.utils
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializable
@@ -217,7 +219,8 @@ fun JSONObject.getUIntOrNull(key: String): UInt? =
  * @param kClass the class object of the enum type.
  * @param key the key to retrieve the enum value from the JSONObject.
  *
- * @return the enum value corresponding to the key, or null if the key is not present or cannot be parsed as an enum value.
+ * @return the enum value corresponding to the key, or null if the key is not present or cannot be parsed as an enum
+ * value.
  */
 fun <E : Enum<E>> JSONObject.getEnumOrNull(kClass: KClass<E>, key: String): E? =
     try {

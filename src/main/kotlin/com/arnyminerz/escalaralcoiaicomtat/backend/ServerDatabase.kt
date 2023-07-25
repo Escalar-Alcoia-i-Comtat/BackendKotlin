@@ -1,6 +1,5 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend
 
-import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase.Companion.tables
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Areas
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
@@ -9,13 +8,12 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Zones
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
- * A utility class for interacting with the database. Once initialized, automatically creates all the tables defined in
- * [tables]. Must only be initialized once, so [ServerDatabase.instance] must be used to access the instance.
+ * A utility class for interacting with the database.
+ *
+ * Must only be initialized once, so [ServerDatabase.instance] must be used to access the instance.
  */
 class ServerDatabase private constructor() {
     companion object {
@@ -40,9 +38,6 @@ class ServerDatabase private constructor() {
          * are ignored.
          */
         val instance by lazy { ServerDatabase() }
-
-        /** All the tables to be created in the database. */
-        private val tables: Array<Table> = arrayOf(Areas, Zones, Sectors, Paths, BlockingTable)
 
         /**
          * Configures the database connection parameters from the environment variables.
@@ -72,14 +67,8 @@ class ServerDatabase private constructor() {
         Database.connect(url, driver, username, password)
     }
 
-    init {
-        transaction(database) {
-            SchemaUtils.create(*tables)
-        }
-    }
-
     suspend fun <T> query(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
-        SchemaUtils.create(*tables)
+        SchemaUtils.create(Areas, Zones, Sectors, Paths, BlockingTable)
 
         block()
     }

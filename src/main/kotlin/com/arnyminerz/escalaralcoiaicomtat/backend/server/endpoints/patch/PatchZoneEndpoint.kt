@@ -11,15 +11,13 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
-import io.ktor.server.request.receiveMultipart
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
@@ -27,12 +25,12 @@ import java.net.URL
 import java.util.UUID
 
 object PatchZoneEndpoint : EndpointBase() {
+    @Suppress("DuplicatedCode")
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val zoneId: Int by call.parameters
 
-        val zone = ServerDatabase.instance.query { Zone.findById(zoneId) } ?: return respondFailure(Errors.ObjectNotFound)
-
-        val multipart = call.receiveMultipart()
+        val zone = ServerDatabase.instance.query { Zone.findById(zoneId) }
+            ?: return respondFailure(Errors.ObjectNotFound)
 
         var displayName: String? = null
         var webUrl: String? = null
@@ -43,38 +41,35 @@ object PatchZoneEndpoint : EndpointBase() {
         var imageFile: File? = null
         var kmzFile: File? = null
 
-        multipart.forEachPart { partData ->
-            when (partData) {
-                is PartData.FormItem -> {
-                    when (partData.name) {
-                        "displayName" -> displayName = partData.value
-                        "webUrl" -> webUrl = partData.value
-                        "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
-                        "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
-                        "area" -> ServerDatabase.instance.query {
-                            area = Area.findById(partData.value.toInt())
-                        }
+        receiveMultipart(
+            forEachFormItem = { partData ->
+                when (partData.name) {
+                    "displayName" -> displayName = partData.value
+                    "webUrl" -> webUrl = partData.value
+                    "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
+                    "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
+                    "area" -> ServerDatabase.instance.query {
+                        area = Area.findById(partData.value.toInt())
                     }
                 }
-                is PartData.FileItem -> {
-                    when (partData.name) {
-                        "image" -> {
-                            val uuid = ServerDatabase.instance.query { zone.image.nameWithoutExtension }
-                            imageFile = partData.save(Storage.ImagesDir, UUID.fromString(uuid))
-                        }
-                        "kmz" -> {
-                            val uuid = ServerDatabase.instance.query { zone.kmz.nameWithoutExtension }
-                            kmzFile = partData.save(Storage.TracksDir, UUID.fromString(uuid))
-                        }
+            },
+            forEachFileItem = { partData ->
+                when (partData.name) {
+                    "image" -> {
+                        val uuid = ServerDatabase.instance.query { zone.image.nameWithoutExtension }
+                        imageFile = partData.save(Storage.ImagesDir, UUID.fromString(uuid))
+                    }
+                    "kmz" -> {
+                        val uuid = ServerDatabase.instance.query { zone.kmz.nameWithoutExtension }
+                        kmzFile = partData.save(Storage.TracksDir, UUID.fromString(uuid))
                     }
                 }
-                else -> Unit
             }
-        }
+        )
 
         points?.let { p -> println("New Points: [${p.joinToString { it.toJson().toString() }}]") }
 
-        if (displayName == null && webUrl == null && point == null && points == null && imageFile == null && kmzFile == null) {
+        if (areAllNull(displayName, webUrl, point, points, imageFile, kmzFile)) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 

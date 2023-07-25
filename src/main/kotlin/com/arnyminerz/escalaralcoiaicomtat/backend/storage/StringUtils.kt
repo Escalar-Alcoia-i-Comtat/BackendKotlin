@@ -37,6 +37,7 @@ object StringUtils {
      * @return A char[] containing the appropriate characters from the alphabet
      *         For best results, this should be either upper- or lower-case hex.
      */
+    @Suppress("MagicNumber")
     fun encodeHex(data: ByteArray, toDigits: CharArray): CharArray {
         val l = data.size
         val out = CharArray(l shl 1)

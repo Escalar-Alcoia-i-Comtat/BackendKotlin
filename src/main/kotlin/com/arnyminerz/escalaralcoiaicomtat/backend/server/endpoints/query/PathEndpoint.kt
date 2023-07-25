@@ -15,7 +15,8 @@ object PathEndpoint : EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val pathId: Int by call.parameters
 
-        val path = ServerDatabase.instance.query { Path.findById(pathId) } ?: return respondFailure(Errors.ObjectNotFound)
+        val path = ServerDatabase.instance.query { Path.findById(pathId) }
+            ?: return respondFailure(Errors.ObjectNotFound)
         val pathJson = ServerDatabase.instance.query { path.toJson() }
         ServerDatabase.instance.query { println("Pitches: ${path.pitches}") }
 

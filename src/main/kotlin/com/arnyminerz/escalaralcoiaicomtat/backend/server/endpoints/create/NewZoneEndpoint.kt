@@ -11,24 +11,20 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.isAnyNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
-import io.ktor.server.request.receiveMultipart
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
 
 object NewZoneEndpoint : EndpointBase() {
+    @Suppress("DuplicatedCode")
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
-        val multipart = call.receiveMultipart()
-
         var displayName: String? = null
         var webUrl: String? = null
         var point: LatLng? = null
@@ -38,30 +34,27 @@ object NewZoneEndpoint : EndpointBase() {
         var imageFile: File? = null
         var kmzFile: File? = null
 
-        multipart.forEachPart { partData ->
-            when (partData) {
-                is PartData.FormItem -> {
-                    when (partData.name) {
-                        "displayName" -> displayName = partData.value
-                        "webUrl" -> webUrl = partData.value
-                        "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
-                        "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
-                        "area" -> ServerDatabase.instance.query {
-                            area = Area.findById(partData.value.toInt())
-                        }
+        receiveMultipart(
+            forEachFormItem = { partData ->
+                when (partData.name) {
+                    "displayName" -> displayName = partData.value
+                    "webUrl" -> webUrl = partData.value
+                    "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
+                    "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
+                    "area" -> ServerDatabase.instance.query {
+                        area = Area.findById(partData.value.toInt())
                     }
                 }
-                is PartData.FileItem -> {
-                    when (partData.name) {
-                        "image" -> imageFile = partData.save(Storage.ImagesDir)
-                        "kmz" -> kmzFile = partData.save(Storage.TracksDir)
-                    }
+            },
+            forEachFileItem = { partData ->
+                when (partData.name) {
+                    "image" -> imageFile = partData.save(Storage.ImagesDir)
+                    "kmz" -> kmzFile = partData.save(Storage.TracksDir)
                 }
-                else -> Unit
             }
-        }
+        )
 
-        if (displayName == null || webUrl == null || imageFile == null || kmzFile == null || area == null) {
+        if (isAnyNull(displayName, webUrl, imageFile, kmzFile, area)) {
             imageFile?.delete()
             kmzFile?.delete()
             return respondFailure(MissingData)

@@ -10,21 +10,16 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.isAnyNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
-import io.ktor.server.request.receiveMultipart
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 
 object NewSectorEndpoint : EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
-        val multipart = call.receiveMultipart()
-
         var displayName: String? = null
         var point: LatLng? = null
         var kidsApt: Boolean? = null
@@ -34,30 +29,27 @@ object NewSectorEndpoint : EndpointBase() {
 
         var imageFile: File? = null
 
-        multipart.forEachPart { partData ->
-            when (partData) {
-                is PartData.FormItem -> {
-                    when (partData.name) {
-                        "displayName" -> displayName = partData.value
-                        "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
-                        "kids_apt" -> kidsApt = partData.value.toBoolean()
-                        "sun_time" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
-                        "walking_time" -> walkingTime = partData.value.toUIntOrNull()
-                        "zone" -> ServerDatabase.instance.query {
-                            zone = Zone.findById(partData.value.toInt())
-                        }
+        receiveMultipart(
+            forEachFormItem = { partData ->
+                when (partData.name) {
+                    "displayName" -> displayName = partData.value
+                    "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
+                    "kids_apt" -> kidsApt = partData.value.toBoolean()
+                    "sun_time" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
+                    "walking_time" -> walkingTime = partData.value.toUIntOrNull()
+                    "zone" -> ServerDatabase.instance.query {
+                        zone = Zone.findById(partData.value.toInt())
                     }
                 }
-                is PartData.FileItem -> {
-                    when (partData.name) {
-                        "image" -> imageFile = partData.save(Storage.ImagesDir)
-                    }
+            },
+            forEachFileItem = { partData ->
+                when (partData.name) {
+                    "image" -> imageFile = partData.save(Storage.ImagesDir)
                 }
-                else -> Unit
             }
-        }
+        )
 
-        if (displayName == null || imageFile == null || kidsApt == null || sunTime == null || zone == null) {
+        if (isAnyNull(displayName, imageFile, kidsApt, sunTime, zone)) {
             imageFile?.delete()
             return respondFailure(MissingData)
         }

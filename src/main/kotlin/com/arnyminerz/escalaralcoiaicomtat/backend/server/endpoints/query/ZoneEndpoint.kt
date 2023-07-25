@@ -15,7 +15,8 @@ object ZoneEndpoint : EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val zoneId: Int by call.parameters
 
-        val zone = ServerDatabase.instance.query { Zone.findById(zoneId) } ?: return respondFailure(Errors.ObjectNotFound)
+        val zone = ServerDatabase.instance.query { Zone.findById(zoneId) }
+            ?: return respondFailure(Errors.ObjectNotFound)
         val zoneJson = ServerDatabase.instance.query { zone.toJson() }
 
         respondSuccess(zoneJson)

@@ -8,7 +8,7 @@ object Paths: BaseTable() {
     val sketchId = uinteger("sketch_id")
 
     val height = uinteger("height").nullable()
-    val grade = varchar("grade", 4).nullable()
+    val grade = varchar("grade", SqlConsts.GRADE_LENGTH).nullable()
 
     val pitches = varchar("pitches", SqlConsts.PITCH_INFO_LENGTH).nullable()
 

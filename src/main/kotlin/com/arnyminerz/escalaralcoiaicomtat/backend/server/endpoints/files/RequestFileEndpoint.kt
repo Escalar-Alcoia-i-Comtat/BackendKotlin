@@ -19,12 +19,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object RequestFileEndpoint : EndpointBase() {
+    private const val DEFAULT_HTTP_PORT = 80
+
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val uuid: String by call.parameters
 
         val file = Storage.find(uuid) ?: return respondFailure(Errors.FileNotFound)
         val downloadAddress = call.request.origin.let { p ->
-            "${p.scheme}://${p.serverHost}${p.serverPort.takeIf { it != 80 }?.let { ":$it" } ?: ""}/download/$uuid"
+            val port = p.serverPort.takeIf { it != DEFAULT_HTTP_PORT }?.let { ":$it" } ?: ""
+            "${p.scheme}://${p.serverHost}$port/download/$uuid"
         }
         val size = withContext(Dispatchers.IO) { Files.size(file.toPath()) }
 

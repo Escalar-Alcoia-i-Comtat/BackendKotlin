@@ -24,7 +24,8 @@ object PatchAreaEndpoint : EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val areaId: Int by call.parameters
 
-        val area = ServerDatabase.instance.query { Area.findById(areaId) } ?: return respondFailure(Errors.ObjectNotFound)
+        val area = ServerDatabase.instance.query { Area.findById(areaId) }
+            ?: return respondFailure(Errors.ObjectNotFound)
 
         val multipart = call.receiveMultipart()
 

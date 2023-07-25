@@ -15,7 +15,8 @@ object SectorEndpoint : EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val sectorId: Int by call.parameters
 
-        val sector = ServerDatabase.instance.query { Sector.findById(sectorId) } ?: return respondFailure(Errors.ObjectNotFound)
+        val sector = ServerDatabase.instance.query { Sector.findById(sectorId) }
+            ?: return respondFailure(Errors.ObjectNotFound)
         val sectorJson = ServerDatabase.instance.query { sector.toJson() }
 
         respondSuccess(sectorJson)
