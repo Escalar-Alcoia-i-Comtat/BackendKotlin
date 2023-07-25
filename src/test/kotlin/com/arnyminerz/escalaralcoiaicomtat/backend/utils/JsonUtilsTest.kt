@@ -30,7 +30,7 @@ class JsonUtilsTest {
                 "boolean" to true,
                 "double" to 3.76,
                 "integer" to 9,
-                "array" to JSONArray(),
+                "array" to JSONArray().apply { put(123) },
                 "object" to JSONObject(),
                 "long" to 5L,
                 "string" to "abc",
@@ -41,7 +41,10 @@ class JsonUtilsTest {
         assertEquals(true, json.getBoolean("boolean"))
         assertEquals(3.76, json.getDouble("double"))
         assertEquals(9, json.getInt("integer"))
-        assertContentEquals(JSONArray(), json.getJSONArray("array"))
+        json.getJSONArray("array").let { arr ->
+            assertEquals(1, arr.length())
+            assertEquals(123, arr.getInt(0))
+        }
         assertContentEquals(JSONObject(), json.getJSONObject("object"))
         assertEquals(5L, json.getLong("long"))
         assertEquals("abc", json.getString("string"))

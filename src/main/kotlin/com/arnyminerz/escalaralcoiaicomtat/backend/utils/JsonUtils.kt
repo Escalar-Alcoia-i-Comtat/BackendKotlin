@@ -31,6 +31,7 @@ fun JSONObject.putAll(pairs: Map<String, Any?>): JSONObject {
     for ((key, value) in pairs) {
         when (value) {
             is JsonSerializable -> put(key, value.toJson())
+            is JSONArray -> put(key, value)
             is Iterable<*> -> if (value.none())
                 put(key, JSONArray())
             else
