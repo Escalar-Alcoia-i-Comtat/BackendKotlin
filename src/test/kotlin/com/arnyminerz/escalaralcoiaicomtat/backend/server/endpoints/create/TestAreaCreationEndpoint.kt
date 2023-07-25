@@ -18,7 +18,6 @@ class TestAreaCreationEndpoint: ApplicationTestBase() {
         val areaId: Int? = DataProvider.provideSampleArea()
         assertNotNull(areaId)
 
-        assertNotNull(areaId)
         ServerDatabase.instance.query {
             val area = Area[areaId]
             assertNotNull(area)
