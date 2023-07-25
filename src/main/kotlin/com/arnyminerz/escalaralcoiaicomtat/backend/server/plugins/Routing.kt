@@ -2,10 +2,12 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.RootEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewAreaEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewPathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewSectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.RequestFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.AreaEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.PathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.SectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.ZoneEndpoint
 import io.ktor.server.application.Application
@@ -32,6 +34,9 @@ fun Application.configureEndpoints() {
 
         get("/sector/{sectorId}") { SectorEndpoint.call(this) }
         post("/sector") { NewSectorEndpoint.call(this) }
+
+        get("/path/{pathId}") { PathEndpoint.call(this) }
+        post("/path") { NewPathEndpoint.call(this) }
 
         get("/file/{uuid}") { RequestFileEndpoint.call(this) }
     }

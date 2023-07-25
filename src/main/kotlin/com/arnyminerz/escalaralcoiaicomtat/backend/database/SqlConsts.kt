@@ -20,4 +20,11 @@ object SqlConsts {
      * @since 1.0.0
      */
     const val POINTS_LENGTH = 4096
+
+    const val PITCH_INFO_LENGTH = 10240
+
+    const val BUILDER_LENGTH = 4096
+    const val RE_BUILDER_LENGTH = 4096
+
+    const val DESCRIPTION_LENGTH = 10240
 }

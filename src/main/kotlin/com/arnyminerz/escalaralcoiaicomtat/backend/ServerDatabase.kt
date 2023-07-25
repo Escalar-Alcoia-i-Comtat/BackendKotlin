@@ -2,6 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase.Companion.tables
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Areas
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Sectors
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Zones
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,7 @@ class ServerDatabase private constructor() {
         val instance by lazy { ServerDatabase() }
 
         /** All the tables to be created in the database. */
-        private val tables: Array<Table> = arrayOf(Areas, Zones, Sectors)
+        private val tables: Array<Table> = arrayOf(Areas, Zones, Sectors, Paths)
     }
 
     private val database by lazy {

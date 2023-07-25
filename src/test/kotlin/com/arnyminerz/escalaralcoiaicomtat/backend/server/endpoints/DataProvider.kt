@@ -2,7 +2,12 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.DataPoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.EndingInclination
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.EndingInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Sports
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
@@ -179,5 +184,80 @@ object DataProvider {
         }
 
         return sectorId
+    }
+
+    object SamplePath {
+        val displayName = "Sample Path"
+        val sketchId = 3U
+
+        val height = 123U
+        val grade = Sports.G6A
+
+        val pitches = listOf(
+            PitchInfo(1U, Sports.G7A_PLUS, 12U, Ending.CHAIN_CARABINER, EndingInfo.EQUIPPED, EndingInclination.DIAGONAL)
+        )
+
+        val stringCount = 13U
+
+        val paraboltCount = 3U
+        val burilCount = 2U
+        val pitonCount = 3U
+        val spitCount = 2U
+        val tensorCount = 3U
+
+        val crackerRequired = true
+        val friendRequired = false
+        val lanyardRequired = true
+        val nailRequired = true
+        val pitonRequired = false
+        val stapesRequired = true
+    }
+
+    context(ApplicationTestBuilder)
+    suspend fun provideSamplePath(
+        sectorId: Int?,
+        skipDisplayName: Boolean = false,
+        skipSketchId: Boolean = false,
+        assertion: suspend HttpResponse.() -> Int? = {
+            var pathId: Int? = null
+            assertSuccess(HttpStatusCode.Created) { data ->
+                assertNotNull(data)
+                pathId = data.getIntOrNull("path_id")
+            }
+            pathId
+        }
+    ): Int? {
+        var pathId: Int?
+
+        client.submitFormWithBinaryData(
+            url = "/path",
+            formData = formData {
+                if (sectorId != null)
+                    append("sector", sectorId)
+                if (!skipDisplayName)
+                    append("displayName", SamplePath.displayName)
+                if (!skipSketchId)
+                    append("sketch_id", SamplePath.sketchId.toInt())
+                append("height", SamplePath.height.toInt())
+                append("grade", SamplePath.grade.name)
+                append("pitches", SamplePath.pitches.toJson().toString())
+                append("string_count", SamplePath.stringCount.toInt())
+                append("parabolt_count", SamplePath.paraboltCount.toInt())
+                append("buril_count", SamplePath.burilCount.toInt())
+                append("piton_count", SamplePath.pitonCount.toInt())
+                append("spit_count", SamplePath.spitCount.toInt())
+                append("tensor_count", SamplePath.tensorCount.toInt())
+                append("cracker_required", SamplePath.crackerRequired)
+                append("friend_required", SamplePath.friendRequired)
+                append("lanyard_required", SamplePath.lanyardRequired)
+                append("nail_required", SamplePath.nailRequired)
+                append("piton_required", SamplePath.pitonRequired)
+                append("stapes_required", SamplePath.stapesRequired)
+            }
+        ).apply {
+            pathId = assertion()
+        }
+
+        return pathId
     }
 }
