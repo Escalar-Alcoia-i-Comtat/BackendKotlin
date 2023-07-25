@@ -176,3 +176,19 @@ fun <E: Enum<E>> JSONObject.getEnumOrNull(kClass: KClass<E>, key: String): E? =
     } catch (_: NumberFormatException) {
         null
     }
+
+/**
+ * Returns the boolean value associated with the specified key, or null if there is no such key or the value is not
+ * a boolean.
+ *
+ * @param key the key to look up
+ *
+ * @return the boolean value associated with the specified key, or null if the key is not found or the value is not
+ * a boolean
+ */
+fun JSONObject.getBooleanOrNull(key: String): Boolean? =
+    try {
+        if (has(key)) getBoolean(key) else null
+    } catch (_: JSONException) {
+        null
+    }

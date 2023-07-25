@@ -102,4 +102,15 @@ class JsonUtilsTest {
         assertNull(json.getEnumOrNull(Assistance.TestEnum::class, "null"))
         assertEquals(Assistance.TestEnum.ABC, json.getEnumOrNull(Assistance.TestEnum::class, "test"))
     }
+
+    @Test
+    fun `test JSONObject_getBooleanOrNull`() {
+        val json = jsonOf("test" to 0, "test2" to 1, "test3" to true, "test4" to "true", "test5" to "invalid")
+        assertNull(json.getBooleanOrNull("null"))
+        assertNull(json.getBooleanOrNull("test"))
+        assertNull(json.getBooleanOrNull("test2"))
+        assertEquals(true, json.getBooleanOrNull("test3"))
+        assertEquals(true, json.getBooleanOrNull("test4"))
+        assertNull(json.getBooleanOrNull("test5"))
+    }
 }
