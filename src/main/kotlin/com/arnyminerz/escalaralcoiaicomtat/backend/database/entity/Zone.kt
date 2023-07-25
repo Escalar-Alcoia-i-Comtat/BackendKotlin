@@ -1,5 +1,6 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.database.entity
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.DataPoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Zones
@@ -108,10 +109,32 @@ class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
 
     private var _points: String by Zones.points
 
+    /**
+     * Converts the object to a JSON representation.
+     *
+     * **Must be in a database transaction**.
+     *
+     * See [ServerDatabase.query].
+     *
+     * Structure:
+     * - `id`: [id] ([Int])
+     * - `timestamp`: [timestamp] ([Long])
+     * - `display_name`: [displayName] ([String])
+     * - `image`: [image] ([String])
+     * - `kmz`: [kmz] ([String])
+     * - `web_url`: [webUrl] ([String])
+     * - `point`: [point] ([String])
+     * - `points`: [points] ([String])
+     * - `area_id`: [area] ([Int])
+     *
+     * @return The JSON object representing the object.
+     */
     override fun toJson(): JSONObject = jsonOf(
         "id" to id.value,
         "timestamp" to timestamp.toEpochMilli(),
         "display_name" to displayName,
+        "image" to _image,
+        "kmz" to _kmz,
         "web_url" to webUrl,
         "point" to point,
         "points" to points,

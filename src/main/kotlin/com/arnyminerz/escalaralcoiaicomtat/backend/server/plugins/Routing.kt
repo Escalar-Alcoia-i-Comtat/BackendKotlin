@@ -23,7 +23,7 @@ fun Application.configureEndpoints() {
         get("/") { RootEndpoint.call(this) }
         get("/area/{areaId}") { AreaEndpoint.call(this) }
         post("/area") { NewAreaEndpoint.call(this) }
-        get("/zone/{areaId}") { ZoneEndpoint.call(this) }
+        get("/zone/{zoneId}") { ZoneEndpoint.call(this) }
         post("/zone") { NewZoneEndpoint.call(this) }
         get("/file/{uuid}") { RequestFileEndpoint.call(this) }
     }
