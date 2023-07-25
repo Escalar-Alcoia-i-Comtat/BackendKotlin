@@ -65,4 +65,11 @@ class JsonUtilsTest {
         assertNull(json.getIntOrNull("null"))
         assertEquals(7, json.getIntOrNull("test"))
     }
+
+    @Test
+    fun `test JSONObject_getLongOrNull`() {
+        val json = jsonOf("test" to 123456789L)
+        assertNull(json.getLongOrNull("null"))
+        assertEquals(123456789L, json.getLongOrNull("test"))
+    }
 }

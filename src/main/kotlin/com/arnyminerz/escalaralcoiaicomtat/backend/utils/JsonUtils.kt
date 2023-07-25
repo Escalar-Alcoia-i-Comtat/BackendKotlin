@@ -97,6 +97,21 @@ fun JSONObject.getIntOrNull(key: String): Int? =
     }
 
 /**
+ * Returns the long value associated with the specified key, or null if the key is not found, or the value is not a
+ * long.
+ *
+ * @param key the key to look up in the JSONObject
+ *
+ * @return the long value associated with the key, or null if the key is not found or the value is not a long
+ */
+fun JSONObject.getLongOrNull(key: String): Long? =
+    try {
+        if (has(key)) getLong(key) else null
+    } catch (e: JSONException) {
+        null
+    }
+
+/**
  * Returns the string value associated with the specified key, or null if the key is not found or the value is not a
  * string.
  *

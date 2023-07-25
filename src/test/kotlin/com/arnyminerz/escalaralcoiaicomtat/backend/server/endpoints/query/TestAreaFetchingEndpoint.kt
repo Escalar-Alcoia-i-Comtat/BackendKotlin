@@ -5,6 +5,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getLongOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import io.ktor.client.request.get
 import java.time.Instant
@@ -41,6 +42,7 @@ class TestAreaFetchingEndpoint: ApplicationTestBase() {
                 assertNotNull(data?.getStringOrNull("download"))
                 assertNotNull(data?.getStringOrNull("filename"))
                 assertNotNull(data?.getStringOrNull("hash"))
+                assertNotNull(data?.getLongOrNull("size"))
             }
         }
     }
