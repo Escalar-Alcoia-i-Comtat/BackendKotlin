@@ -18,7 +18,7 @@ import java.security.MessageDigest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-object RequestFileEndpoint: EndpointBase() {
+object RequestFileEndpoint : EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val uuid: String by call.parameters
 

@@ -8,6 +8,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewAr
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewPathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewSectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewZoneEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.DownloadFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.RequestFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.AreaEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.PathEndpoint
@@ -47,5 +48,6 @@ fun Application.configureEndpoints() {
         delete("/block/{blockId}") { DeleteBlockEndpoint.call(this) }
 
         get("/file/{uuid}") { RequestFileEndpoint.call(this) }
+        get("/download/{uuid}") { DownloadFileEndpoint.call(this) }
     }
 }
