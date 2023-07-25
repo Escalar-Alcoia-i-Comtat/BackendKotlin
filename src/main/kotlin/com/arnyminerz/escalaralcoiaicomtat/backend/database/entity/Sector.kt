@@ -27,7 +27,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
 
     var kidsApt: Boolean by Sectors.kidsApt
     var sunTime: SunTime by Sectors.sunTime
-    var walkingTime: Int? by Sectors.walkingTime
+    var walkingTime: UInt? by Sectors.walkingTime
 
     var image: File
         get() = File(Storage.ImagesDir, _image)

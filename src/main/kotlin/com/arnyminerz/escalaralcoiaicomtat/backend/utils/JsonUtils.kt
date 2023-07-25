@@ -77,7 +77,7 @@ fun jsonOf(vararg pairs: Pair<String, Any?>): JSONObject = jsonOf(pairs.toMap())
 fun JSONObject.getJSONObjectOrNull(key: String): JSONObject? =
     try {
         if (has(key)) getJSONObject(key) else null
-    } catch (e: JSONException) {
+    } catch (_: JSONException) {
         null
     }
 
@@ -92,7 +92,7 @@ fun JSONObject.getJSONObjectOrNull(key: String): JSONObject? =
 fun JSONObject.getIntOrNull(key: String): Int? =
     try {
         if (has(key)) getInt(key) else null
-    } catch (e: JSONException) {
+    } catch (_: JSONException) {
         null
     }
 
@@ -107,7 +107,7 @@ fun JSONObject.getIntOrNull(key: String): Int? =
 fun JSONObject.getLongOrNull(key: String): Long? =
     try {
         if (has(key)) getLong(key) else null
-    } catch (e: JSONException) {
+    } catch (_: JSONException) {
         null
     }
 
@@ -122,6 +122,39 @@ fun JSONObject.getLongOrNull(key: String): Long? =
 fun JSONObject.getStringOrNull(key: String): String? =
     try {
         if (has(key)) getString(key) else null
-    } catch (e: JSONException) {
+    } catch (_: JSONException) {
+        null
+    }
+
+/**
+ * Retrieves the unsigned integer value associated with the specified key from this JSONObject.
+ *
+ * @param key the key whose associated value is to be retrieved as an unsigned integer
+ *
+ * @throws NumberFormatException If the number at the given key is negative.
+ *
+ * @return the value associated with the specified key as an unsigned integer
+ */
+fun JSONObject.getUInt(key: String): UInt {
+    val num = getInt(key)
+    if (num < 0) throw NumberFormatException("Negative number ($num) is not a valid unsigned number.")
+    return num.toUInt()
+}
+
+/**
+ * Retrieves an unsigned integer value from the JSONObject associated with the given key.
+ *
+ * If the key exists and the value is a valid unsigned integer, it is returned; otherwise null is returned.
+ *
+ * @param key The key associated with the unsigned integer value
+ *
+ * @return The unsigned integer value, or null if the key does not exist or the value is not a valid unsigned integer
+ */
+fun JSONObject.getUIntOrNull(key: String): UInt? =
+    try {
+        if (has(key)) getUInt(key) else null
+    } catch (_: JSONException) {
+        null
+    } catch (_: NumberFormatException) {
         null
     }

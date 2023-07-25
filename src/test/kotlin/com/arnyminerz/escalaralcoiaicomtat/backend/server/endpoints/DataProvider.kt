@@ -130,7 +130,7 @@ object DataProvider {
         val point = LatLng(0.12345, 0.67890)
         val kidsApt = true
         val sunTime = Sector.SunTime.Afternoon
-        val walkingTime = 12
+        val walkingTime = 12U
     }
 
     context(ApplicationTestBuilder)
@@ -166,7 +166,7 @@ object DataProvider {
                     append("kids_apt", SampleSector.kidsApt)
                 if (!skipSunTime)
                     append("sun_time", SampleSector.sunTime.name)
-                append("walking_time", SampleSector.walkingTime)
+                append("walking_time", SampleSector.walkingTime.toInt())
                 append("point", SampleSector.point.toJson().toString())
                 if (!skipImage)
                     append("image", image, Headers.build {

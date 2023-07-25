@@ -3,6 +3,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.utils
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertContentEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import org.json.JSONArray
 import org.json.JSONObject
@@ -71,5 +72,20 @@ class JsonUtilsTest {
         val json = jsonOf("test" to 123456789L)
         assertNull(json.getLongOrNull("null"))
         assertEquals(123456789L, json.getLongOrNull("test"))
+    }
+
+    @Test
+    fun `test JSONObject_getUInt`() {
+        val json = jsonOf("test" to 123U, "test2" to -123)
+        assertEquals(123U, json.getUInt("test"))
+        assertFailsWith(NumberFormatException::class) { json.getUInt("test2") }
+    }
+
+    @Test
+    fun `test JSONObject_getUIntOrNull`() {
+        val json = jsonOf("test" to 123U, "test2" to -123)
+        assertNull(json.getUIntOrNull("null"))
+        assertEquals(123U, json.getUIntOrNull("test"))
+        assertNull(json.getUIntOrNull("test2"))
     }
 }

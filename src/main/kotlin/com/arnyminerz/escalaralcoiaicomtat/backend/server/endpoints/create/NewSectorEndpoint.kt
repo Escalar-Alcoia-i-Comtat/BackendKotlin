@@ -29,7 +29,7 @@ object NewSectorEndpoint : EndpointBase() {
         var point: LatLng? = null
         var kidsApt: Boolean? = null
         var sunTime: Sector.SunTime? = null
-        var walkingTime: Int? = null
+        var walkingTime: UInt? = null
         var zone: Zone? = null
 
         var imageFile: File? = null
@@ -42,7 +42,7 @@ object NewSectorEndpoint : EndpointBase() {
                         "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
                         "kids_apt" -> kidsApt = partData.value.toBoolean()
                         "sun_time" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
-                        "walking_time" -> walkingTime = partData.value.toIntOrNull()
+                        "walking_time" -> walkingTime = partData.value.toUIntOrNull()
                         "zone" -> ServerDatabase.instance.query {
                             zone = Zone.findById(partData.value.toInt())
                         }
