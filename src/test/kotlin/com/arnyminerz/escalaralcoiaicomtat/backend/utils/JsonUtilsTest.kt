@@ -113,4 +113,21 @@ class JsonUtilsTest {
         assertEquals(true, json.getBooleanOrNull("test4"))
         assertNull(json.getBooleanOrNull("test5"))
     }
+
+    @Test
+    fun `test JSONObject_getUShort`() {
+        val json = jsonOf("test" to 0, "test2" to -123, "test3" to UInt.MAX_VALUE)
+        assertEquals(0U, json.getUShort("test"))
+        assertFailsWith(NumberFormatException::class) { json.getUShort("test2") }
+        assertFailsWith(NumberFormatException::class) { json.getUShort("test3") }
+    }
+
+    @Test
+    fun `test JSONObject_getUShortOrNull`() {
+        val json = jsonOf("test" to 0, "test2" to -123, "test3" to UInt.MAX_VALUE)
+        assertEquals(0U, json.getUShortOrNull("test"))
+        assertNull(json.getUShortOrNull("test2"))
+        assertNull(json.getUShortOrNull("test3"))
+        assertNull(json.getUShortOrNull("null"))
+    }
 }

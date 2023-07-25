@@ -42,6 +42,7 @@ fun JSONObject.putAll(pairs: Map<String, Any?>): JSONObject {
                         }
                     }
                 }
+
             else -> put(key, value)
         }
     }
@@ -137,10 +138,44 @@ fun JSONObject.getStringOrNull(key: String): String? =
  * @return the value associated with the specified key as an unsigned integer
  */
 fun JSONObject.getUInt(key: String): UInt {
-    val num = getInt(key)
-    if (num < 0) throw NumberFormatException("Negative number ($num) is not a valid unsigned number.")
+    val num = getLong(key)
+    if (num < 0) throw NumberFormatException("The stored number is not a valid unsigned number ($num). It's negative.")
     return num.toUInt()
 }
+
+/**
+ * Retrieves the unsigned short value associated with the specified key from this JSONObject.
+ *
+ * @param key the key whose associated value is to be retrieved as an unsigned short
+ *
+ * @throws NumberFormatException If the number at the given key is negative, or doesn't fit inside a short.
+ *
+ * @return the value associated with the specified key as an unsigned short
+ */
+fun JSONObject.getUShort(key: String): UShort {
+    val num = getUInt(key)
+    if (num > UShort.MAX_VALUE.toUInt())
+        throw NumberFormatException("Present number ($num) is not a valid unsigned short (too large).")
+    return num.toUShort()
+}
+
+/**
+ * Returns the unsigned short value associated with the specified key, or null if the key is not present or the value
+ * cannot be parsed as an unsigned short.
+ *
+ * @param key the key of the value to retrieve
+ *
+ * @return the unsigned short value associated with the specified key, or null if the key is not present or the value
+ * cannot be parsed as an unsigned short
+ */
+fun JSONObject.getUShortOrNull(key: String): UShort? =
+    try {
+        if (has(key)) getUShort(key) else null
+    } catch (_: JSONException) {
+        null
+    } catch (_: NumberFormatException) {
+        null
+    }
 
 /**
  * Retrieves an unsigned integer value from the JSONObject associated with the given key.
@@ -168,7 +203,7 @@ fun JSONObject.getUIntOrNull(key: String): UInt? =
  *
  * @return the enum value corresponding to the key, or null if the key is not present or cannot be parsed as an enum value.
  */
-fun <E: Enum<E>> JSONObject.getEnumOrNull(kClass: KClass<E>, key: String): E? =
+fun <E : Enum<E>> JSONObject.getEnumOrNull(kClass: KClass<E>, key: String): E? =
     try {
         if (has(key)) getEnum(kClass.java, key) else null
     } catch (_: JSONException) {
