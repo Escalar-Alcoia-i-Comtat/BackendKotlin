@@ -31,8 +31,6 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
             assertSuccess { data ->
                 assertNotNull(data)
 
-                println(data.toString(2))
-
                 assertEquals(zoneId, data.getInt("id"))
                 assertEquals(areaId, data.getInt("area_id"))
                 assertEquals(DataProvider.SampleZone.displayName, data.getString("display_name"))

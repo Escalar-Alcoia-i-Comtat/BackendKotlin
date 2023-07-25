@@ -52,5 +52,33 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     private var _grade: String? by Paths.grade
     private var _pitches: String? by Paths.pitches
 
-    override fun toJson(): JSONObject = jsonOf()
+    override fun toJson(): JSONObject = jsonOf(
+        "id" to id.value,
+        "timestamp" to timestamp.toEpochMilli(),
+
+        "display_name" to displayName,
+        "sketch_id" to sketchId,
+
+        "height" to height,
+        "grade" to grade,
+
+        "pitches" to pitches,
+
+        "string_count" to stringCount,
+
+        "parabolt_count" to paraboltCount,
+        "buril_count" to burilCount,
+        "piton_count" to pitonCount,
+        "spit_count" to spitCount,
+        "tensor_count" to tensorCount,
+
+        "cracker_required" to crackerRequired,
+        "friend_required" to friendRequired,
+        "lanyard_required" to lanyardRequired,
+        "nail_required" to nailRequired,
+        "piton_required" to pitonRequired,
+        "stapes_required" to stapesRequired,
+
+        "sector_id" to sector.id.value
+    )
 }
