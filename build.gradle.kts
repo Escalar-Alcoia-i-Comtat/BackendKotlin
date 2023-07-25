@@ -33,7 +33,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 
     // Database engines
-    implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("org.postgresql:postgresql:42.2.27")
 
 
     testImplementation(kotlin("test"))

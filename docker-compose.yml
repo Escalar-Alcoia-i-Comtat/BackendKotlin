@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  backend:
+    image: escalaralcoiaicomtat:1.0-SNAPSHOT
+    container_name: escalaralcoiaicomtat_backend
+    restart: unless-stopped
+    environment:
+      # Configure database
+      DATABASE_DRIVER: "org.postgresql.Driver"
+      DATABASE_URL: "jdbc:postgresql://db:5432/postgres"
+      DATABASE_USERNAME: "postgres"
+      DATABASE_PASSWORD: "AbfEwudQ8AqhhVVqTiRURpbMmQTW46"
+    networks:
+      - escalaralcoiaicomtat_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  # See https://hub.docker.com/_/postgres for more information
+  db:
+    image: postgres
+    container_name: escalaralcoiaicomtat_backend_db
+    environment:
+      POSTGRES_PASSWORD: AbfEwudQ8AqhhVVqTiRURpbMmQTW46 # This should be modified
+      PGUSER: postgres
+    networks:
+      - escalaralcoiaicomtat_backend
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+
+networks:
+  escalaralcoiaicomtat_backend:
+    name: escalaralcoiaicomtat_backend
+
+volumes:
+  pgdata:
