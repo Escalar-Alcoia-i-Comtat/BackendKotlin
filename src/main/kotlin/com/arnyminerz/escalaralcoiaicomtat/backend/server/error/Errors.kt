@@ -12,6 +12,7 @@ object Errors {
     val FileNotFound = Error(3, "The requested file was not found.", HttpStatusCode.Gone)
 
     val MissingData = Error(10, "The request misses some required data.", HttpStatusCode.BadRequest)
+    val InvalidData = Error(11, "The request has some data of the wrong type.", HttpStatusCode.BadRequest)
 
     val Conflict = Error(20, "Multiple parameters in the request conflict.", HttpStatusCode.Conflict)
 }

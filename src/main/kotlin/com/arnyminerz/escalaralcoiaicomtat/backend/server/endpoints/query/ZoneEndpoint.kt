@@ -8,12 +8,18 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailur
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
+import io.ktor.server.plugins.ParameterConversionException
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 
 object ZoneEndpoint : EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
-        val zoneId: Int by call.parameters
+        val zoneId = try {
+            val zoneId: Int by call.parameters
+            zoneId
+        } catch (_: ParameterConversionException) {
+            return respondFailure(Errors.InvalidData)
+        }
 
         val zone = ServerDatabase.instance.query { Zone.findById(zoneId) }
             ?: return respondFailure(Errors.ObjectNotFound)

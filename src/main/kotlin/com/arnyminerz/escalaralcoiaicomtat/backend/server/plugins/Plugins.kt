@@ -4,6 +4,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.locations.Locations
+import io.ktor.server.plugins.statuspages.StatusPages
 
 /**
  * InstallPlugins method.
@@ -16,4 +17,5 @@ import io.ktor.server.locations.Locations
 @OptIn(KtorExperimentalLocationsAPI::class)
 fun Application.installPlugins() {
     install(Locations)
+    install(StatusPages) { configureStatusPages() }
 }

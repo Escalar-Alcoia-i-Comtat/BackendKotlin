@@ -25,6 +25,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-netty")
     implementation("io.ktor:ktor-server-locations")
+    implementation("io.ktor:ktor-server-status-pages")
 
     // Exposed dependencies
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")

@@ -8,12 +8,18 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailur
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
+import io.ktor.server.plugins.ParameterConversionException
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 
 object PathEndpoint : EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
-        val pathId: Int by call.parameters
+        val pathId = try {
+            val pathId: Int by call.parameters
+            pathId
+        } catch (_: ParameterConversionException) {
+            return respondFailure(Errors.InvalidData)
+        }
 
         val path = ServerDatabase.instance.query { Path.findById(pathId) }
             ?: return respondFailure(Errors.ObjectNotFound)
