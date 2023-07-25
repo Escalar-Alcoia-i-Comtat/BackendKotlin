@@ -9,6 +9,13 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class JsonUtilsTest {
+    object Assistance {
+        @Suppress("unused")
+        enum class TestEnum {
+            ABC, DEF, GHI
+        }
+    }
+
     @Test
     fun `test String_json`() {
         val testJson = "{\"test\":\"value\"}"
@@ -87,5 +94,12 @@ class JsonUtilsTest {
         assertNull(json.getUIntOrNull("null"))
         assertEquals(123U, json.getUIntOrNull("test"))
         assertNull(json.getUIntOrNull("test2"))
+    }
+
+    @Test
+    fun `test JSONObject_getEnumOrNull`() {
+        val json = jsonOf("test" to Assistance.TestEnum.ABC)
+        assertNull(json.getEnumOrNull(Assistance.TestEnum::class, "null"))
+        assertEquals(Assistance.TestEnum.ABC, json.getEnumOrNull(Assistance.TestEnum::class, "test"))
     }
 }
