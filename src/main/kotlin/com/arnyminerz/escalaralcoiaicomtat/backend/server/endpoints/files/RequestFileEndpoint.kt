@@ -13,7 +13,10 @@ import io.ktor.server.application.call
 import io.ktor.server.plugins.origin
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
+import java.nio.file.Files
 import java.security.MessageDigest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object RequestFileEndpoint: EndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -23,6 +26,7 @@ object RequestFileEndpoint: EndpointBase() {
         val downloadAddress = call.request.origin.let { p ->
             "${p.scheme}://${p.serverHost}${p.serverPort.takeIf { it != 80 }?.let { ":$it" } ?: ""}/download/$uuid"
         }
+        val size = withContext(Dispatchers.IO) { Files.size(file.toPath()) }
 
         respondSuccess(
             jsonOf(
@@ -31,7 +35,8 @@ object RequestFileEndpoint: EndpointBase() {
                     file
                 ),
                 "filename" to file.name,
-                "download" to downloadAddress
+                "download" to downloadAddress,
+                "size" to size
             )
         )
     }
