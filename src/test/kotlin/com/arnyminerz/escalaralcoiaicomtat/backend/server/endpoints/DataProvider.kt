@@ -7,7 +7,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.EndingInclination
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.EndingInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
-import com.arnyminerz.escalaralcoiaicomtat.backend.data.Sports
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.SportsGrade
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
@@ -191,10 +191,10 @@ object DataProvider {
         val sketchId = 3U
 
         val height = 123U
-        val grade = Sports.G6A
+        val grade = SportsGrade.G6A
 
         val pitches = listOf(
-            PitchInfo(1U, Sports.G7A_PLUS, 12U, Ending.CHAIN_CARABINER, EndingInfo.EQUIPPED, EndingInclination.DIAGONAL)
+            PitchInfo(1U, SportsGrade.G7A_PLUS, 12U, Ending.CHAIN_CARABINER, EndingInfo.EQUIPPED, EndingInclination.DIAGONAL)
         )
 
         val stringCount = 13U

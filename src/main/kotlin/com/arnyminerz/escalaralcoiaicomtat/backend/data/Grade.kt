@@ -4,14 +4,14 @@ interface GradeValue {
     companion object {
         fun fromString(value: String): GradeValue? {
             val name = value.replace("+", "_PLUS")
-            return Sports.entries.find { it.name.endsWith(name) } ?: Artificial.entries.find { it.name == name }
+            return SportsGrade.entries.find { it.name.endsWith(name) } ?: ArtificialGrade.entries.find { it.name == name }
         }
     }
 
     val name: String
 }
 
-enum class Sports : GradeValue {
+enum class SportsGrade : GradeValue {
     G1,
     G2, G2_PLUS,
     G3A, G3B, G3C,
@@ -23,6 +23,6 @@ enum class Sports : GradeValue {
     G9A, G9A_PLUS, G9B, G9B_PLUS, G9C, G9C_PLUS
 }
 
-enum class Artificial : GradeValue {
+enum class ArtificialGrade : GradeValue {
     A1, A2, A3
 }
