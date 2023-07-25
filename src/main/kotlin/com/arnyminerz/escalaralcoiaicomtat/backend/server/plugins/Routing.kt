@@ -1,6 +1,9 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.RootEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.AddBlockEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.DeleteBlockEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.GetBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewAreaEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewPathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewSectorEndpoint
@@ -11,6 +14,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.PathEn
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.SectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.ZoneEndpoint
 import io.ktor.server.application.Application
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
@@ -37,6 +41,10 @@ fun Application.configureEndpoints() {
 
         get("/path/{pathId}") { PathEndpoint.call(this) }
         post("/path") { NewPathEndpoint.call(this) }
+
+        post("/block/{pathId}") { AddBlockEndpoint.call(this) }
+        get("/block/{pathId}") { GetBlockEndpoint.call(this) }
+        delete("/block/{blockId}") { DeleteBlockEndpoint.call(this) }
 
         get("/file/{uuid}") { RequestFileEndpoint.call(this) }
     }

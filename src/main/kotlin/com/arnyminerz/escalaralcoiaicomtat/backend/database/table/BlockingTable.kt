@@ -1,0 +1,19 @@
+package com.arnyminerz.escalaralcoiaicomtat.backend.database.table
+
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
+import java.time.Month
+import org.jetbrains.exposed.sql.javatime.datetime
+
+@OptIn(ExperimentalUnsignedTypes::class)
+object BlockingTable: BaseTable() {
+    val type = enumeration<BlockingTypes>("type")
+
+    val fromDay = ushort("from_day").nullable()
+    val fromMonth = enumeration<Month>("from_month").nullable()
+    val toDay = ushort("to_day").nullable()
+    val toMonth = enumeration<Month>("to_month").nullable()
+
+    val endDate = datetime("end_date").nullable()
+
+    val path = reference("path", Paths)
+}
