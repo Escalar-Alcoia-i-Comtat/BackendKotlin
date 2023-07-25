@@ -47,7 +47,7 @@ class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
         get() = _points.split("\n")
         set(value) { _points = value.joinToString("\n") }
 
-    var points: MutableSet<DataPoint> = object : MutableSet<DataPoint> {
+    val points: MutableSet<DataPoint> = object : MutableSet<DataPoint> {
         private val mutablePoints: MutableList<String>
             get() = pointsSet.toMutableList()
 

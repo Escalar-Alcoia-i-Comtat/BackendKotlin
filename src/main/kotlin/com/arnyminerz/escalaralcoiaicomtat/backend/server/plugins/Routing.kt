@@ -11,6 +11,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewZo
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.DownloadFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.RequestFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchAreaEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.AreaEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.PathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.SectorEndpoint
@@ -38,6 +39,7 @@ fun Application.configureEndpoints() {
 
         get("/zone/{zoneId}") { ZoneEndpoint.call(this) }
         post("/zone") { NewZoneEndpoint.call(this) }
+        post("/zone/{zoneId}") { PatchZoneEndpoint.call(this) }
 
         get("/sector/{sectorId}") { SectorEndpoint.call(this) }
         post("/sector") { NewSectorEndpoint.call(this) }
