@@ -1,3 +1,8 @@
+import io.ktor.plugin.features.DockerImageRegistry
+import io.ktor.plugin.features.DockerPortMapping
+import io.ktor.plugin.features.DockerPortMappingProtocol
+import io.ktor.plugin.features.JreVersion
+
 plugins {
     kotlin("jvm") version "1.9.0"
     id("io.ktor.plugin") version "2.3.2"
@@ -34,7 +39,7 @@ dependencies {
     testImplementation(kotlin("test"))
 
     // For testing, use SQLite as the database engine
-    testImplementation("org.xerial:sqlite-jdbc:3.30.1")
+    testImplementation("org.xerial:sqlite-jdbc:3.42.0.0")
 
     // Add Ktor's testing dependencies
     testImplementation("io.ktor:ktor-server-test-host")
@@ -52,6 +57,27 @@ kotlin {
         all {
             languageSettings.enableLanguageFeature("ContextReceivers")
         }
+    }
+}
+
+ktor {
+    docker {
+        jreVersion.set(JreVersion.JRE_17)
+        localImageName.set("escalaralcoiaicomtat")
+        imageTag.set(version.toString())
+        portMappings.set(
+            listOf(
+                DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)
+            )
+        )
+
+        externalRegistry.set(
+            DockerImageRegistry.dockerHub(
+                appName = provider { "escalaralcoiaicomtat" },
+                username = providers.environmentVariable("DOCKER_HUB_USERNAME"),
+                password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
+            )
+        )
     }
 }
 
