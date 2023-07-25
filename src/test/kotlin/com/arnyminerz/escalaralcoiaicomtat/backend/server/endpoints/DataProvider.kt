@@ -3,6 +3,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.DataPoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import io.ktor.client.request.forms.formData
@@ -122,5 +123,61 @@ object DataProvider {
         }
 
         return zoneId
+    }
+
+    object SampleSector {
+        val displayName = "Testing Sector"
+        val point = LatLng(0.12345, 0.67890)
+        val kidsApt = true
+        val sunTime = Sector.SunTime.Afternoon
+        val walkingTime = 12
+    }
+
+    context(ApplicationTestBuilder)
+    suspend fun provideSampleSector(
+        zoneId: Int?,
+        skipDisplayName: Boolean = false,
+        skipKidsApt: Boolean = false,
+        skipSunTime: Boolean = false,
+        skipImage: Boolean = false,
+        assertion: suspend HttpResponse.() -> Int? = {
+            var sectorId: Int? = null
+            assertSuccess(HttpStatusCode.Created) { data ->
+                assertNotNull(data)
+                sectorId = data.getIntOrNull("sector_id")
+            }
+            sectorId
+        }
+    ): Int? {
+        val image = this::class.java.getResourceAsStream("/images/desploms1.jpg")!!.use {
+            it.readBytes()
+        }
+
+        var sectorId: Int?
+
+        client.submitFormWithBinaryData(
+            url = "/sector",
+            formData = formData {
+                if (zoneId != null)
+                    append("zone", zoneId)
+                if (!skipDisplayName)
+                    append("displayName", SampleSector.displayName)
+                if (!skipKidsApt)
+                    append("kids_apt", SampleSector.kidsApt)
+                if (!skipSunTime)
+                    append("sun_time", SampleSector.sunTime.name)
+                append("walking_time", SampleSector.walkingTime)
+                append("point", SampleSector.point.toJson().toString())
+                if (!skipImage)
+                    append("image", image, Headers.build {
+                        append(HttpHeaders.ContentType, "image/jpeg")
+                        append(HttpHeaders.ContentDisposition, "filename=sector.jpg")
+                    })
+            }
+        ).apply {
+            sectorId = assertion()
+        }
+
+        return sectorId
     }
 }
