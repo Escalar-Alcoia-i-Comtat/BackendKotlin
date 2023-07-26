@@ -103,4 +103,43 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
 
         "sector_id" to sector.id.value
     )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Path
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        var result = timestamp.hashCode()
+        result = 31 * result + id.hashCode()
+        result = 31 * result + displayName.hashCode()
+        result = 31 * result + sketchId.hashCode()
+        result = 31 * result + (height?.hashCode() ?: 0)
+        result = 31 * result + (grade?.hashCode() ?: 0)
+        result = 31 * result + (pitches?.hashCode() ?: 0)
+        result = 31 * result + (stringCount?.hashCode() ?: 0)
+        result = 31 * result + (paraboltCount?.hashCode() ?: 0)
+        result = 31 * result + (burilCount?.hashCode() ?: 0)
+        result = 31 * result + (pitonCount?.hashCode() ?: 0)
+        result = 31 * result + (spitCount?.hashCode() ?: 0)
+        result = 31 * result + (tensorCount?.hashCode() ?: 0)
+        result = 31 * result + crackerRequired.hashCode()
+        result = 31 * result + friendRequired.hashCode()
+        result = 31 * result + lanyardRequired.hashCode()
+        result = 31 * result + nailRequired.hashCode()
+        result = 31 * result + pitonRequired.hashCode()
+        result = 31 * result + stapesRequired.hashCode()
+        result = 31 * result + showDescription.hashCode()
+        result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + (builder?.hashCode() ?: 0)
+        result = 31 * result + (reBuilder?.hashCode() ?: 0)
+        result = 31 * result + sector.hashCode()
+        return result
+    }
+
+
 }

@@ -15,6 +15,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchZ
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.AreaEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.PathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.SectorEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.TreeEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.ZoneEndpoint
 import io.ktor.server.application.Application
 import io.ktor.server.routing.delete
@@ -32,6 +33,8 @@ import io.ktor.server.routing.routing
 fun Application.configureEndpoints() {
     routing {
         get("/") { RootEndpoint.call(this) }
+
+        get("/tree") { TreeEndpoint.call(this) }
 
         get("/area/{areaId}") { AreaEndpoint.call(this) }
         post("/area") { NewAreaEndpoint.call(this) }

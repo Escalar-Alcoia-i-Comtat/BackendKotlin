@@ -50,4 +50,17 @@ class JsonArrayUtilsTest {
         assertEquals("test1", serialized[0].value)
         assertEquals("test2", serialized[1].value)
     }
+
+    @Test
+    fun `test mapJson`() {
+        val list = listOf(
+            TestSerializable("test"),
+            TestSerializable("test2")
+        )
+        val json = list.mapJson { JSONObject().apply { put("key", it.value) } }
+
+        assertEquals(2, json.length())
+        assertEquals("test", json.getJSONObject(0).getString("key"))
+        assertEquals("test2", json.getJSONObject(1).getString("key"))
+    }
 }

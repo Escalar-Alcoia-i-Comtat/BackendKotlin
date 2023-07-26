@@ -3,7 +3,9 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.database.entity
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Areas
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.mapJson
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializable
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import java.io.File
 import java.net.URL
 import java.time.Instant
@@ -32,6 +34,8 @@ class Area(id: EntityID<Int>): DataEntity(id), JsonSerializable {
 
     private var _webUrl: String by Areas.webUrl
 
+
+
     override fun toJson(): JSONObject = jsonOf(
         "id" to id.value,
         "timestamp" to timestamp.toEpochMilli(),
@@ -39,4 +43,33 @@ class Area(id: EntityID<Int>): DataEntity(id), JsonSerializable {
         "image" to _image,
         "web_url" to webUrl
     )
+
+    /**
+     * Uses [toJson] to convert the data into a [JSONObject], but adds a new key called `zones` with the data of the
+     * zones.
+     *
+     * **Must be in a transaction to use**
+     */
+    fun toJsonWithZones(): JSONObject = toJson().apply {
+        val zones = Zone.all().filter { it.area.id == id }
+        put("zones", zones.mapJson { it.toJsonWithSectors() })
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Area
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        var result = timestamp.hashCode()
+        result = 31 * result + id.hashCode()
+        result = 31 * result + displayName.hashCode()
+        result = 31 * result + image.hashCode()
+        result = 31 * result + webUrl.toString().hashCode()
+        return result
+    }
 }

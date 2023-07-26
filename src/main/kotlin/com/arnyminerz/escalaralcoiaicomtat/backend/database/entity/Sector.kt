@@ -6,6 +6,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Sectors
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializable
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import java.io.File
 import java.time.Instant
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -75,6 +76,39 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         "point" to point,
         "zone_id" to zone.id.value
     )
+
+    /**
+     * Uses [toJson] to convert the data into a [JSONObject], but adds a new key called `paths` with the data of the
+     * paths.
+     *
+     * **Must be in a transaction to use**
+     */
+    fun toJsonWithPaths(): JSONObject = toJson().apply {
+        val paths = Path.all().filter { it.sector.id == id }
+        put("paths", paths.toJson())
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Sector
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        var result = timestamp.hashCode()
+        result = 31 * result + id.hashCode()
+        result = 31 * result + displayName.hashCode()
+        result = 31 * result + kidsApt.hashCode()
+        result = 31 * result + sunTime.hashCode()
+        result = 31 * result + (walkingTime?.hashCode() ?: 0)
+        result = 31 * result + image.hashCode()
+        result = 31 * result + (point?.hashCode() ?: 0)
+        result = 31 * result + zone.hashCode()
+        return result
+    }
 
 
     /**
