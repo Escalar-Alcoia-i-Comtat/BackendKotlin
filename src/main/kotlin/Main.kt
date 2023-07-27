@@ -9,6 +9,7 @@ import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.engine.sslConnector
 import io.ktor.server.netty.Netty
+import io.ktor.util.decodeBase64String
 import java.io.File
 import java.security.KeyStore
 
@@ -44,9 +45,11 @@ fun Application.setupApplication() {
 fun ApplicationEngineEnvironmentBuilder.configureSsl() {
     val keystoreDirName = System.getenv("SSL_KEYSTORE_DIR") ?: "/var/lib/escalaralcoiaicomtat/keystore"
     val keystoreFileName = System.getenv("SSL_KEYSTORE_FILE")
-    val keystoreKeyPassword = System.getenv("SSL_KEYSTORE_KEY_PASSWORD")
     val keystorePassword = System.getenv("SSL_KEYSTORE_PASSWORD")
     val keystoreAlias = System.getenv("SSL_KEYSTORE_ALIAS") ?: "certificate"
+
+    val certsDirName = System.getenv("SSL_CERTS_DIR") ?: "/var/lib/escalaralcoiaicomtat/certs"
+    val certKeyFileName = System.getenv("SSL_CERT_KEY_FILE")
 
     if (keystoreFileName == null) {
         Logger.info("SSL_KEYSTORE_FILE is not defined. SSL will be disabled.")
@@ -56,13 +59,18 @@ fun ApplicationEngineEnvironmentBuilder.configureSsl() {
         Logger.info("SSL_KEYSTORE_PASSWORD is not defined. SSL will be disabled.")
         return
     }
-    if (keystoreKeyPassword == null) {
-        Logger.info("SSL_KEYSTORE_KEY_PASSWORD is not defined. SSL will be disabled.")
+    if (certKeyFileName == null) {
+        Logger.info("SSL_CERT_KEY_FILE is not defined. SSL will be disabled.")
         return
     }
 
     val keystoreSrcDir = File(keystoreDirName)
     val keystoreFile = File(keystoreSrcDir, keystoreFileName)
+
+    val certsSrcDir = File(certsDirName)
+    val certKeyFile = File(certsSrcDir, certKeyFileName)
+
+    val privateKeyPassword = certKeyFile.readText().decodeBase64String()
 
     val keyStore = KeyStore.getInstance(KeyStore.getDefaultType()).apply {
         keystoreFile.inputStream().use {
@@ -73,7 +81,7 @@ fun ApplicationEngineEnvironmentBuilder.configureSsl() {
         keyStore,
         keystoreAlias,
         keyStorePassword = { keystorePassword.toCharArray() },
-        privateKeyPassword = { keystoreKeyPassword.toCharArray() }
+        privateKeyPassword = { privateKeyPassword.toCharArray() }
     ) {
         port = HTTPS_PORT
     }
