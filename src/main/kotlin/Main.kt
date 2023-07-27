@@ -76,6 +76,5 @@ fun ApplicationEngineEnvironmentBuilder.configureSsl() {
         privateKeyPassword = { keystoreKeyPassword.toCharArray() }
     ) {
         port = HTTPS_PORT
-        keyStorePath = keystoreFile
     }
 }
