@@ -16,6 +16,15 @@ repositories {
 }
 
 val exposedVersion: String by project
+val tcnativeVersion: String by project
+
+val osName = System.getProperty("os.name").lowercase()
+val tcnativeClassifier = when {
+    osName.contains("win") -> "windows-x86_64"
+    osName.contains("linux") -> "linux-x86_64"
+    osName.contains("mac") -> "osx-x86_64"
+    else -> null
+}
 
 dependencies {
     // JSON support
@@ -26,6 +35,8 @@ dependencies {
     implementation("io.ktor:ktor-server-netty")
     implementation("io.ktor:ktor-server-locations")
     implementation("io.ktor:ktor-server-status-pages")
+    implementation("io.ktor:ktor-network-tls-certificates")
+    implementation("io.ktor:ktor-utils")
 
     // Exposed dependencies
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
@@ -35,6 +46,13 @@ dependencies {
 
     // Database engines
     implementation("org.postgresql:postgresql:42.2.27")
+
+    // SSL Dependencies
+    if (tcnativeClassifier != null) {
+        implementation("io.netty:netty-tcnative-boringssl-static:$tcnativeVersion:$tcnativeClassifier")
+    } else {
+        implementation("io.netty:netty-tcnative-boringssl-static:$tcnativeVersion")
+    }
 
 
     testImplementation(kotlin("test"))
