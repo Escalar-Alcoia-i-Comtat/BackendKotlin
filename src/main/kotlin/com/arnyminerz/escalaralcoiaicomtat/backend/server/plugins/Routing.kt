@@ -1,5 +1,6 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.RootEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.AddBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.DeleteBlockEndpoint
@@ -17,6 +18,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.PathEn
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.SectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.TreeEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.ZoneEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
 import io.ktor.server.application.Application
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
@@ -31,6 +33,10 @@ import io.ktor.server.routing.routing
  * @receiver The application to configure the endpoints for.
  */
 fun Application.configureEndpoints() {
+    if (EnvironmentVariables.Authentication.AuthToken.value == null) {
+        Logger.warn("Auth token environment variable not set. Secure endpoints disabled.")
+    }
+
     routing {
         get("/") { RootEndpoint.call(this) }
 

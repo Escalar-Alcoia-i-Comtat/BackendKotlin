@@ -15,4 +15,9 @@ object Errors {
     val InvalidData = Error(11, "The request has some data of the wrong type.", HttpStatusCode.BadRequest)
 
     val Conflict = Error(20, "Multiple parameters in the request conflict.", HttpStatusCode.Conflict)
+
+    val AuthenticationDisabled = Error(30, "The server has disabled secure endpoints", HttpStatusCode.NotImplemented)
+    val AuthenticationRequired = Error(31, "Authentication token is required", HttpStatusCode.Unauthorized)
+    val AuthenticationInvalid = Error(32, "Authentication requires a Bearer token", HttpStatusCode.MethodNotAllowed)
+    val AuthenticationFailed = Error(33, "Authentication token is not valid", HttpStatusCode.Forbidden)
 }

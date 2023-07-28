@@ -12,7 +12,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getEnumOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getLongOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getUIntOrNull
-import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import java.time.Instant
 import kotlin.test.Test
@@ -34,7 +33,7 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
 
         var image: String? = null
 
-        client.get("/sector/$sectorId").apply {
+        get("/sector/$sectorId").apply {
             assertSuccess { data ->
                 assertNotNull(data)
 
@@ -61,7 +60,7 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
 
         assertNotNull(image)
 
-        client.get("/file/$image").apply {
+        get("/file/$image").apply {
             assertSuccess { data ->
                 assertNotNull(data?.getStringOrNull("download"))
                 assertNotNull(data?.getStringOrNull("filename"))
@@ -73,14 +72,14 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test getting sector - doesn't exist`() = test {
-        client.get("/sector/123").apply {
+        get("/sector/123").apply {
             assertFailure(Errors.ObjectNotFound)
         }
     }
 
     @Test
     fun `test getting sector - id NaN`() = test {
-        client.get("/sector/abc").apply {
+        get("/sector/abc").apply {
             assertEquals(HttpStatusCode.BadRequest, status)
         }
     }

@@ -9,7 +9,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getUInt
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
-import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import java.time.Instant
 import kotlin.test.Test
@@ -32,7 +31,7 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
         val pathId = DataProvider.provideSamplePath(sectorId)
         assertNotNull(pathId)
 
-        client.get("/path/$pathId").apply {
+        get("/path/$pathId").apply {
             assertSuccess { data ->
                 assertNotNull(data)
 
@@ -71,14 +70,14 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test getting path - doesn't exist`() = test {
-        client.get("/path/123").apply {
+        get("/path/123").apply {
             assertFailure(Errors.ObjectNotFound)
         }
     }
 
     @Test
     fun `test getting path - id NaN`() = test {
-        client.get("/path/abc").apply {
+        get("/path/abc").apply {
             assertEquals(HttpStatusCode.BadRequest, status)
         }
     }

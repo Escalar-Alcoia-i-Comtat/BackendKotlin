@@ -8,8 +8,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
-import io.ktor.client.request.delete
-import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -23,7 +21,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
         val sectorId = DataProvider.provideSampleSector(zoneId)
         val pathId = DataProvider.provideSamplePath(sectorId)
 
-        client.post("/block/$pathId") {
+        post("/block/$pathId") {
             setBody(
                 jsonOf(
                     "type" to BlockingTypes.BUILD
@@ -38,7 +36,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
         }
         assertNotNull(block)
 
-        client.delete("/block/${block.id}").apply {
+        delete("/block/${block.id}").apply {
             assertSuccess()
         }
 

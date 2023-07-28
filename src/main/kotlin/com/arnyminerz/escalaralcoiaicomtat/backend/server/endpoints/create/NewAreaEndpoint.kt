@@ -2,7 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Area
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointBase
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.MissingData
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -19,7 +19,7 @@ import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
 
-object NewAreaEndpoint : EndpointBase() {
+object NewAreaEndpoint : SecureEndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val multipart = call.receiveMultipart()
 

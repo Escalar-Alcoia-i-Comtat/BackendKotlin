@@ -13,7 +13,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
-import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import java.security.MessageDigest
@@ -36,7 +36,9 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             formData = formData {
                 append("displayName", "New Display Name")
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 
@@ -60,7 +62,9 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             formData = formData {
                 append("webUrl", "https://example.com/new")
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 
@@ -91,7 +95,9 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
                         .toString()
                 )
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 
@@ -124,7 +130,9 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
                         .toString()
                 )
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 
@@ -159,7 +167,9 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
                     append(HttpHeaders.ContentDisposition, "filename=zone.jpg")
                 })
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 
@@ -174,7 +184,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             assertTrue(imageFile.exists())
         }
 
-        client.get("/file/$zoneImage").apply {
+        get("/file/$zoneImage").apply {
             assertSuccess { data ->
                 assertNotNull(data)
                 val serverHash = data.getString("hash")
@@ -207,7 +217,9 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
                     append(HttpHeaders.ContentDisposition, "filename=track.kmz")
                 })
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 
@@ -222,7 +234,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             assertTrue(trackFile.exists())
         }
 
-        client.get("/file/$zoneTrack").apply {
+        get("/file/$zoneTrack").apply {
             assertSuccess { data ->
                 assertNotNull(data)
                 val serverHash = data.getString("hash")

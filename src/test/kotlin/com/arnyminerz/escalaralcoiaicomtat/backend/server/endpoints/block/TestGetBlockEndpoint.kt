@@ -9,8 +9,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
-import io.ktor.client.request.get
-import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,7 +23,7 @@ class TestGetBlockEndpoint: ApplicationTestBase() {
         val sectorId = DataProvider.provideSampleSector(zoneId)
         val pathId = DataProvider.provideSamplePath(sectorId)
 
-        client.post("/block/$pathId") {
+        post("/block/$pathId") {
             setBody(
                 jsonOf(
                     "type" to BlockingTypes.BUILD
@@ -35,7 +33,7 @@ class TestGetBlockEndpoint: ApplicationTestBase() {
             assertSuccess()
         }
 
-        client.get("/block/$pathId").apply {
+        get("/block/$pathId").apply {
             assertSuccess { data ->
                 assertNotNull(data)
 

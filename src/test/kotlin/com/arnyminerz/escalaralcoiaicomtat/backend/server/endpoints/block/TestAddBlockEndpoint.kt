@@ -11,7 +11,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBa
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
-import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import java.time.LocalDateTime
 import java.time.Month
@@ -28,7 +27,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
         val sectorId = DataProvider.provideSampleSector(zoneId)
         val pathId = DataProvider.provideSamplePath(sectorId)
 
-        client.post("/block/$pathId") {
+        post("/block/$pathId") {
             setBody(
                 jsonOf(
                     "type" to BlockingTypes.BUILD
@@ -56,7 +55,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
         val sectorId = DataProvider.provideSampleSector(zoneId)
         val pathId = DataProvider.provideSamplePath(sectorId)
 
-        client.post("/block/$pathId") {
+        post("/block/$pathId") {
             setBody(
                 jsonOf().toString()
             )
@@ -67,7 +66,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test adding block to path - invalid path`() = test {
-        client.post("/block/123") {
+        post("/block/123") {
             setBody(
                 jsonOf(
                     "type" to BlockingTypes.BUILD
@@ -85,7 +84,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
         val sectorId = DataProvider.provideSampleSector(zoneId)
         val pathId = DataProvider.provideSamplePath(sectorId)
 
-        client.post("/block/$pathId") {
+        post("/block/$pathId") {
             setBody(
                 jsonOf(
                     "type" to BlockingTypes.BUILD,
@@ -107,7 +106,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
         val endDate = LocalDateTime.now()
 
-        client.post("/block/$pathId") {
+        post("/block/$pathId") {
             setBody(
                 jsonOf(
                     "type" to BlockingTypes.BUILD,
@@ -138,7 +137,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
         val recurrence = BlockingRecurrenceYearly(1U, Month.JANUARY, 3U, Month.FEBRUARY)
 
-        client.post("/block/$pathId") {
+        post("/block/$pathId") {
             setBody(
                 jsonOf(
                     "type" to BlockingTypes.BUILD,

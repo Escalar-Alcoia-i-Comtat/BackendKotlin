@@ -4,7 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointBase
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.MissingData
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -18,7 +18,7 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 
-object NewSectorEndpoint : EndpointBase() {
+object NewSectorEndpoint : SecureEndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         var displayName: String? = null
         var point: LatLng? = null

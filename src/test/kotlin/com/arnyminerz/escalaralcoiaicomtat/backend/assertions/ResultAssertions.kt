@@ -21,7 +21,7 @@ suspend fun HttpResponse.assertSuccess(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
     block: ((data: JSONObject?) -> Unit)? = null
 ) {
-    assertEquals(statusCode, status)
+    assertEquals(statusCode, status, "Expected: $statusCode but was: $status. Body: ${bodyAsText()}")
 
     val json = bodyAsText().json
     assertEquals(true, json.getBoolean("success"))

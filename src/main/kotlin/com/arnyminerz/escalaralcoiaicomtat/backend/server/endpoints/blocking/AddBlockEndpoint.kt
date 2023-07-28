@@ -5,7 +5,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingRecurrenceYearly
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointBase
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
@@ -20,7 +20,7 @@ import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 import java.time.LocalDateTime
 
-object AddBlockEndpoint: EndpointBase() {
+object AddBlockEndpoint: SecureEndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val pathId: Int by call.parameters
 

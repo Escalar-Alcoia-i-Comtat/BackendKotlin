@@ -7,6 +7,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBa
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.request.header
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlin.test.Test
@@ -14,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class TestPatchAreaEndpoint: ApplicationTestBase() {
+class TestPatchAreaEndpoint : ApplicationTestBase() {
     @Test
     fun `test patching Area - update display name`() = test {
         val areaId = DataProvider.provideSampleArea()
@@ -25,7 +26,9 @@ class TestPatchAreaEndpoint: ApplicationTestBase() {
             formData = formData {
                 append("displayName", "New Display Name")
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 
@@ -46,7 +49,9 @@ class TestPatchAreaEndpoint: ApplicationTestBase() {
             formData = formData {
                 append("webUrl", "https://example.com/new")
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 
@@ -74,7 +79,9 @@ class TestPatchAreaEndpoint: ApplicationTestBase() {
                     append(HttpHeaders.ContentDisposition, "filename=area.jpg")
                 })
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             assertSuccess()
         }
 

@@ -10,10 +10,12 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.SportsGrade
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -61,7 +63,9 @@ object DataProvider {
                         append(HttpHeaders.ContentDisposition, "filename=area.jpg")
                     })
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             areaId = assertion()
         }
 
@@ -125,7 +129,9 @@ object DataProvider {
                         append(HttpHeaders.ContentDisposition, "filename=zone.kmz")
                     })
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             zoneId = assertion()
         }
 
@@ -181,7 +187,9 @@ object DataProvider {
                         append(HttpHeaders.ContentDisposition, "filename=sector.jpg")
                     })
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             sectorId = assertion()
         }
 
@@ -271,7 +279,9 @@ object DataProvider {
                 append("builder", SamplePath.builder.toJson().toString())
                 append("re_builder", SamplePath.reBuilder.toJson().toString())
             }
-        ).apply {
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
             pathId = assertion()
         }
 

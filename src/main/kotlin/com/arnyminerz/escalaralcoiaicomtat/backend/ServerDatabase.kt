@@ -5,6 +5,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Sectors
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Zones
+import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -56,10 +57,10 @@ class ServerDatabase private constructor() {
          * configureFromEnvironment()
          **/
         fun configureFromEnvironment() {
-            System.getenv("DATABASE_URL")?.let { url = it }
-            System.getenv("DATABASE_DRIVER")?.let { driver = it }
-            System.getenv("DATABASE_USERNAME")?.let { username = it }
-            System.getenv("DATABASE_PASSWORD")?.let { password = it }
+            EnvironmentVariables.Database.Url.value?.let { url = it }
+            EnvironmentVariables.Database.Driver.value?.let { driver = it }
+            EnvironmentVariables.Database.Username.value?.let { username = it }
+            EnvironmentVariables.Database.Password.value?.let { password = it }
         }
     }
 

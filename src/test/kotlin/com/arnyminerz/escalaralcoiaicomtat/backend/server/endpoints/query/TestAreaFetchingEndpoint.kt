@@ -7,7 +7,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getLongOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
-import io.ktor.client.request.get
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,7 +21,7 @@ class TestAreaFetchingEndpoint: ApplicationTestBase() {
 
         var image: String? = null
 
-        client.get("/area/$areaId").apply {
+        get("/area/$areaId").apply {
             assertSuccess { data ->
                 assertNotNull(data)
 
@@ -37,7 +36,7 @@ class TestAreaFetchingEndpoint: ApplicationTestBase() {
 
         assertNotNull(image)
 
-        client.get("/file/$image").apply {
+        get("/file/$image").apply {
             assertSuccess { data ->
                 assertNotNull(data?.getStringOrNull("download"))
                 assertNotNull(data?.getStringOrNull("filename"))
@@ -49,7 +48,7 @@ class TestAreaFetchingEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test getting area - doesn't exist`() = test {
-        client.get("/area/123").apply {
+        get("/area/123").apply {
             assertFailure(Errors.ObjectNotFound)
         }
     }

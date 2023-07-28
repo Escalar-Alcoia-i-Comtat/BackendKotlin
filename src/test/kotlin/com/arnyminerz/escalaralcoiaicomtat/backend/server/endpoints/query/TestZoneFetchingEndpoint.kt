@@ -7,7 +7,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getLongOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
-import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import java.time.Instant
 import kotlin.test.Test
@@ -27,7 +26,7 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
         var image: String? = null
         var kmz: String? = null
 
-        client.get("/zone/$zoneId").apply {
+        get("/zone/$zoneId").apply {
             assertSuccess { data ->
                 assertNotNull(data)
 
@@ -45,7 +44,7 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
         assertNotNull(image)
         assertNotNull(kmz)
 
-        client.get("/file/$image").apply {
+        get("/file/$image").apply {
             assertSuccess { data ->
                 assertNotNull(data?.getStringOrNull("download"))
                 assertNotNull(data?.getStringOrNull("filename"))
@@ -54,7 +53,7 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
             }
         }
 
-        client.get("/file/$kmz").apply {
+        get("/file/$kmz").apply {
             assertSuccess { data ->
                 assertNotNull(data?.getStringOrNull("download"))
                 assertNotNull(data?.getStringOrNull("filename"))
@@ -66,14 +65,14 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test getting zone - doesn't exist`() = test {
-        client.get("/zone/123").apply {
+        get("/zone/123").apply {
             assertFailure(Errors.ObjectNotFound)
         }
     }
 
     @Test
     fun `test getting zone - id NaN`() = test {
-        client.get("/zone/abc").apply {
+        get("/zone/abc").apply {
             assertEquals(HttpStatusCode.BadRequest, status)
         }
     }
