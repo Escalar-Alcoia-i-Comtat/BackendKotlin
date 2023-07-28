@@ -45,7 +45,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 
     // Database engines
-    implementation("org.postgresql:postgresql:42.2.27")
+    implementation("org.postgresql:postgresql:42.6.0")
 
     // SSL Dependencies
     if (tcnativeClassifier != null) {
