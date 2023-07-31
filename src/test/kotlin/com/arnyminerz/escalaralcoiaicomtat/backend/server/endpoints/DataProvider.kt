@@ -89,6 +89,7 @@ object DataProvider {
         skipWebUrl: Boolean = false,
         skipImage: Boolean = false,
         skipKmz: Boolean = false,
+        emptyPoints: Boolean = false,
         assertion: suspend HttpResponse.() -> Int? = {
             var zoneId: Int? = null
             assertSuccess(HttpStatusCode.Created) { data ->
@@ -117,7 +118,10 @@ object DataProvider {
                 if (!skipWebUrl)
                     append("webUrl", SampleZone.webUrl)
                 append("point", SampleZone.point.toJson().toString())
-                append("points", SampleZone.points.toJson().toString())
+                append(
+                    "points",
+                    (if (emptyPoints) emptyList() else SampleZone.points).toJson().toString()
+                )
                 if (!skipImage)
                     append("image", image, Headers.build {
                         append(HttpHeaders.ContentType, "image/jpeg")

@@ -2,10 +2,12 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
+import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
+import io.ktor.http.HttpStatusCode
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -54,6 +56,10 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
         }
         DataProvider.provideSampleZone(areaId, skipKmz = true) {
             assertFailure(Errors.MissingData)
+            null
+        }
+        DataProvider.provideSampleZone(areaId, emptyPoints = true) {
+            assertSuccess(HttpStatusCode.Created)
             null
         }
     }
