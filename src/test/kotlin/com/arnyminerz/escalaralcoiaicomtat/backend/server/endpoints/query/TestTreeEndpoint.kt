@@ -69,7 +69,7 @@ class TestTreeEndpoint: ApplicationTestBase() {
                 val area = areas.getJSONObject(0)
 
                 assertTrue(area.has("zones"))
-                val zones = data.getJSONArray("zones")
+                val zones = area.getJSONArray("zones")
                 assertEquals(1, zones.length())
             }
         }
