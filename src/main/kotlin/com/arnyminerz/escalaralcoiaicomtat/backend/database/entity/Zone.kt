@@ -46,7 +46,7 @@ class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
         set(value) { _latitude = value?.latitude; _longitude = value?.longitude }
 
     var pointsSet: List<String>
-        get() = _points.split("\n")
+        get() = _points.split("\n").filter { it.isNotBlank() }
         set(value) { _points = value.joinToString("\n") }
 
     val points: MutableSet<DataPoint> = object : MutableSet<DataPoint> {
@@ -81,7 +81,11 @@ class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
             pointsSet.contains(element.toJson().toString())
 
         override fun iterator(): MutableIterator<DataPoint> =
-            pointsSet.map { DataPoint.fromJson(it.json) }.toMutableSet().iterator()
+            pointsSet
+                .filter { it.isNotBlank() }
+                .map { DataPoint.fromJson(it.json) }
+                .toMutableSet()
+                .iterator()
 
         override fun retainAll(elements: Collection<DataPoint>): Boolean =
             mutablePoints.retainAll(elements.map { it.toJson().toString() }).also {

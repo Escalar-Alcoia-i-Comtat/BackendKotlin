@@ -50,4 +50,28 @@ class TestTreeEndpoint: ApplicationTestBase() {
             }
         }
     }
+
+    @Test
+    fun `test getting tree - zone without points`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId, emptyPoints = true)
+        assertNotNull(zoneId)
+
+        get("/tree").apply {
+            assertSuccess { data ->
+                assertNotNull(data)
+
+                assertTrue(data.has("areas"))
+                val areas = data.getJSONArray("areas")
+                assertEquals(1, areas.length())
+                val area = areas.getJSONObject(0)
+
+                assertTrue(area.has("zones"))
+                val zones = area.getJSONArray("zones")
+                assertEquals(1, zones.length())
+            }
+        }
+    }
 }
