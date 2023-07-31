@@ -2,12 +2,10 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
-import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
-import io.ktor.http.HttpStatusCode
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,9 +56,20 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
             assertFailure(Errors.MissingData)
             null
         }
-        DataProvider.provideSampleZone(areaId, emptyPoints = true) {
-            assertSuccess(HttpStatusCode.Created)
-            null
+    }
+
+    @Test
+    fun `test zone creation - no points`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId, emptyPoints = true)
+        assertNotNull(zoneId)
+
+        ServerDatabase.instance.query {
+            val zone = Zone[zoneId]
+            assertNotNull(zone)
+            assertTrue(zone.points.isEmpty())
         }
     }
 }
