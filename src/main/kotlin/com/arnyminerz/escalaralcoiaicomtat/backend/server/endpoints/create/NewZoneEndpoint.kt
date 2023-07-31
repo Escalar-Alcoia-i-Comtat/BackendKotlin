@@ -57,7 +57,11 @@ object NewZoneEndpoint : SecureEndpointBase() {
         if (isAnyNull(displayName, webUrl, imageFile, kmzFile, area)) {
             imageFile?.delete()
             kmzFile?.delete()
-            return respondFailure(MissingData)
+            return respondFailure(
+                MissingData,
+                listOf(displayName == null, webUrl == null, imageFile == null, kmzFile == null, area == null)
+                    .joinToString()
+            )
         }
 
         if (points == null) points = emptySet()

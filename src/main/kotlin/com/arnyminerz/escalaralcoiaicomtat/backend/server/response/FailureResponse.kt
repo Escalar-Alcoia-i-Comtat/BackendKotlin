@@ -17,9 +17,9 @@ import org.json.JSONObject
  * @param error The error object containing the error code and message.
  */
 suspend fun PipelineContext<Unit, ApplicationCall>.respondFailure(
-    error: Error
+    error: Error, extra: String? = null
 ) {
-    call.respondFailure(error)
+    call.respondFailure(error, extra)
 }
 
 /**
@@ -27,11 +27,11 @@ suspend fun PipelineContext<Unit, ApplicationCall>.respondFailure(
  *
  * @param error The error object containing the error code and message.
  */
-suspend fun ApplicationCall.respondFailure(error: Error) {
+suspend fun ApplicationCall.respondFailure(error: Error, extra: String? = null) {
     respondText(
         JSONObject().apply {
             put("success", false)
-            put("error", jsonOf("code" to error.code, "message" to error.message))
+            put("error", jsonOf("code" to error.code, "message" to error.message, "extra" to extra))
         }.toString(),
         contentType = ContentType.Application.Json,
         status = error.status

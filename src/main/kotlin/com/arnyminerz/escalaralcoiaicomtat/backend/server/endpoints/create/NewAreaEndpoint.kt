@@ -47,7 +47,10 @@ object NewAreaEndpoint : SecureEndpointBase() {
 
         if (displayName == null || webUrl == null || imageFile == null) {
             imageFile?.delete()
-            return respondFailure(MissingData)
+            return respondFailure(
+                MissingData,
+                listOf(displayName == null, webUrl == null, imageFile == null).joinToString()
+            )
         }
 
         val area = ServerDatabase.instance.query {

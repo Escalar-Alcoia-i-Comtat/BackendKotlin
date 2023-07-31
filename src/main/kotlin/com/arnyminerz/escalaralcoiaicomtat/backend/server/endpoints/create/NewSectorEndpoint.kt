@@ -51,7 +51,10 @@ object NewSectorEndpoint : SecureEndpointBase() {
 
         if (isAnyNull(displayName, imageFile, kidsApt, sunTime, zone)) {
             imageFile?.delete()
-            return respondFailure(MissingData)
+            return respondFailure(
+                MissingData,
+                listOf(displayName == null, imageFile == null, kidsApt != null, sunTime != null, zone != null
+            ).joinToString())
         }
 
         val sector = ServerDatabase.instance.query {
