@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.arnyminerz.escalaralcoiaicomtat.backend"
-version = "1.0.2.2-SNAPSHOT"
+version = "1.0.2.3-SNAPSHOT"
 
 repositories {
     mavenCentral()
