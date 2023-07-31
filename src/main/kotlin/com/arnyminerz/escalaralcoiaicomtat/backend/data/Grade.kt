@@ -4,7 +4,8 @@ interface GradeValue {
     companion object {
         fun fromString(value: String): GradeValue? {
             val name = value.replace("+", "_PLUS")
-            return SportsGrade.entries.find { it.name.endsWith(name) } ?: ArtificialGrade.entries.find { it.name == name }
+            return SportsGrade.entries.find { it.name.endsWith(name) }
+                ?: ArtificialGrade.entries.find { it.name == name }
         }
     }
 

@@ -38,6 +38,7 @@ object NewPathEndpoint : SecureEndpointBase() {
     private const val INDEX_REQUIRE_PITON = 4
     private const val INDEX_REQUIRE_STAPES = 5
 
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         var displayName: String? = null
         var sketchId: UInt? = null
