@@ -6,6 +6,7 @@ import io.ktor.plugin.features.JreVersion
 plugins {
     kotlin("jvm") version "1.9.0"
     id("io.ktor.plugin") version "2.3.2"
+    id("org.jetbrains.kotlinx.kover") version "0.7.3"
 }
 
 group = "com.arnyminerz.escalaralcoiaicomtat.backend"
