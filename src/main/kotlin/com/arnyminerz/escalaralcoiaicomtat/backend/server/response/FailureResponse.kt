@@ -8,6 +8,7 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.response.respondText
 import io.ktor.util.pipeline.PipelineContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -48,7 +49,14 @@ suspend fun ApplicationCall.respondFailure(throwable: Throwable) {
             put("success", false)
             put(
                 "error",
-                jsonOf("code" to -1, "message" to throwable.message, "type" to throwable::class.java.simpleName)
+                jsonOf(
+                    "code" to -1,
+                    "message" to throwable.message,
+                    "type" to throwable::class.java.simpleName,
+                    "stackTrace" to JSONArray().apply {
+                        putAll(throwable.stackTrace)
+                    }
+                )
             )
         }.toString(),
         contentType = ContentType.Application.Json,
