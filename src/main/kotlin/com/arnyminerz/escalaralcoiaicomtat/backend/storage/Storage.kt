@@ -12,7 +12,7 @@ object Storage {
      * @see [System.getProperty]
      * @see [File]
      */
-    var BaseDir = File(System.getProperty("user.home"))
+    var BaseDir: File = File("/var/lib/escalaralcoiaicomtat/files")
 
     val ImagesDir by lazy { File(BaseDir, "images") }
     val TracksDir by lazy { File(BaseDir, "tracks") }
