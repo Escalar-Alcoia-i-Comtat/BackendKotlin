@@ -63,7 +63,7 @@ object PatchSectorEndpoint : SecureEndpointBase() {
             }
         )
 
-        if (areAllNull(displayName, imageFile, kidsApt, point, sunTime, zone)) {
+        if (areAllNull(displayName, imageFile, kidsApt, point, sunTime, walkingTime, weight, zone)) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
