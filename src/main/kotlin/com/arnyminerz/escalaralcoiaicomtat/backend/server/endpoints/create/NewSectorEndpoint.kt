@@ -36,9 +36,9 @@ object NewSectorEndpoint : SecureEndpointBase() {
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
                     "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
-                    "kids_apt" -> kidsApt = partData.value.toBoolean()
-                    "sun_time" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
-                    "walking_time" -> walkingTime = partData.value.toUIntOrNull()
+                    "kidsApt" -> kidsApt = partData.value.toBoolean()
+                    "sunTime" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
+                    "walkingTime" -> walkingTime = partData.value.toUIntOrNull()
                     "weight" -> weight = partData.value
                     "zone" -> ServerDatabase.instance.query {
                         zone = Zone.findById(partData.value.toInt())

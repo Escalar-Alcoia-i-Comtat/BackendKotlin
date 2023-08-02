@@ -59,33 +59,33 @@ object NewPathEndpoint : SecureEndpointBase() {
             forEachFormItem = { partData ->
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
-                    "sketch_id" -> sketchId = partData.value.toUIntOrNull()
+                    "sketchId" -> sketchId = partData.value.toUIntOrNull()
 
                     "height" -> height = partData.value.toUIntOrNull()
                     "grade" -> grade = partData.value.let { GradeValue.fromString(it) }
 
                     "pitches" -> pitches = partData.value.jsonArray.serialize(PitchInfo)
 
-                    "string_count" -> stringCount = partData.value.toUIntOrNull()
+                    "stringCount" -> stringCount = partData.value.toUIntOrNull()
 
-                    "parabolt_count" -> counts[INDEX_COUNT_PARABOLT] = partData.value.toUIntOrNull()
-                    "buril_count" -> counts[INDEX_COUNT_BURIL] = partData.value.toUIntOrNull()
-                    "piton_count" -> counts[INDEX_COUNT_PITON] = partData.value.toUIntOrNull()
-                    "spit_count" -> counts[INDEX_COUNT_SPIT] = partData.value.toUIntOrNull()
-                    "tensor_count" -> counts[INDEX_COUNT_TENSOR] = partData.value.toUIntOrNull()
+                    "paraboltCount" -> counts[INDEX_COUNT_PARABOLT] = partData.value.toUIntOrNull()
+                    "burilCount" -> counts[INDEX_COUNT_BURIL] = partData.value.toUIntOrNull()
+                    "pitonCount" -> counts[INDEX_COUNT_PITON] = partData.value.toUIntOrNull()
+                    "spitCount" -> counts[INDEX_COUNT_SPIT] = partData.value.toUIntOrNull()
+                    "tensorCount" -> counts[INDEX_COUNT_TENSOR] = partData.value.toUIntOrNull()
 
-                    "cracker_required" -> requirements[INDEX_REQUIRE_CRACKER] = partData.value.toBoolean()
-                    "friend_required" -> requirements[INDEX_REQUIRE_FRIEND] = partData.value.toBoolean()
-                    "lanyard_required" -> requirements[INDEX_REQUIRE_LANYARD] = partData.value.toBoolean()
-                    "nail_required" -> requirements[INDEX_REQUIRE_NAIL] = partData.value.toBoolean()
-                    "piton_required" -> requirements[INDEX_REQUIRE_PITON] = partData.value.toBoolean()
-                    "stapes_required" -> requirements[INDEX_REQUIRE_STAPES] = partData.value.toBoolean()
+                    "crackerRequired" -> requirements[INDEX_REQUIRE_CRACKER] = partData.value.toBoolean()
+                    "friendRequired" -> requirements[INDEX_REQUIRE_FRIEND] = partData.value.toBoolean()
+                    "lanyardRequired" -> requirements[INDEX_REQUIRE_LANYARD] = partData.value.toBoolean()
+                    "nailRequired" -> requirements[INDEX_REQUIRE_NAIL] = partData.value.toBoolean()
+                    "pitonRequired" -> requirements[INDEX_REQUIRE_PITON] = partData.value.toBoolean()
+                    "stapesRequired" -> requirements[INDEX_REQUIRE_STAPES] = partData.value.toBoolean()
 
-                    "show_description" -> showDescription = partData.value.toBoolean()
+                    "showDescription" -> showDescription = partData.value.toBoolean()
                     "description" -> description = partData.value
 
                     "builder" -> builder = partData.value.let { Builder.fromJson(it.json) }
-                    "re_builder" -> reBuilder.addAll(partData.value.jsonArray.serialize(Builder))
+                    "reBuilder" -> reBuilder.addAll(partData.value.jsonArray.serialize(Builder))
 
                     "sector" -> ServerDatabase.instance.query {
                         sector = Sector.findById(partData.value.toInt())
