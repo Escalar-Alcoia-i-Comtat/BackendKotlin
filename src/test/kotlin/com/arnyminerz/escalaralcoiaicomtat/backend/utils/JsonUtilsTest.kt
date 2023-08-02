@@ -48,10 +48,11 @@ class JsonUtilsTest {
                 "string" to "abc",
                 "null" to JSONObject.NULL,
                 "instant" to instant,
-                "list" to listOf(Assistance.Serializable("value"))
+                "list" to listOf(Assistance.Serializable("value")),
+                "map" to mapOf("testing" to "value", 123 to "invalid")
             )
         )
-        assertEquals(10, json.length())
+        assertEquals(11, json.length())
         assertEquals(true, json.getBoolean("boolean"))
         assertEquals(3.76, json.getDouble("double"))
         assertEquals(9, json.getInt("integer"))
@@ -68,6 +69,7 @@ class JsonUtilsTest {
             assertEquals(1, list.size)
             assertEquals("value", list[0].value)
         }
+        assertContentEquals(JSONObject().apply { put("testing", "value") }, json.getJSONObject("map"))
     }
 
     @Test
@@ -161,5 +163,14 @@ class JsonUtilsTest {
         assertEquals(2, test.length())
         assertEquals("abc", test.getString(0))
         assertContentEquals(jsonOf("key" to "value"), test.getJSONObject(1))
+    }
+
+    @Test
+    fun `test JSONObject_putMap`() {
+        val json = JSONObject()
+        json.putMap("test", mapOf(123 to "ignored", "key" to "value"))
+        val test = json.getJSONObject("test")
+        assertEquals(1, test.length())
+        assertEquals("value", test.getString("key"))
     }
 }

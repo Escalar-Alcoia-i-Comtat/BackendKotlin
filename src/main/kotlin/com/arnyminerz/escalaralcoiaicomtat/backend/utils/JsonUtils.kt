@@ -38,6 +38,7 @@ fun JSONObject.putAll(pairs: Map<String, Any?>): JSONObject {
             is JSONArray -> put(key, value)
             is Instant -> put(key, value.toEpochMilli())
             is Iterable<*> -> putIterable(key, value)
+            is Map<*, *> -> putMap(key, value)
 
             else -> put(key, value)
         }
@@ -65,6 +66,28 @@ fun JSONObject.putIterable(key: String, iterable: Iterable<Any?>): JSONObject =
         }
 
         put(key, array)
+    }
+
+/**
+ * Puts a map into the JSONObject with the specified key.
+ *
+ * @param key The key to store the map
+ * @param map The map to be stored
+ *
+ * @return The modified JSONObject
+ */
+fun JSONObject.putMap(key: String, map: Map<*, *>): JSONObject =
+    if (map.isEmpty())
+        put(key, JSONObject())
+    else {
+        val obj = JSONObject()
+
+        for ((k, v) in map) {
+            if (k !is String) continue
+            obj.put(k, v)
+        }
+
+        put(key, obj)
     }
 
 /**
