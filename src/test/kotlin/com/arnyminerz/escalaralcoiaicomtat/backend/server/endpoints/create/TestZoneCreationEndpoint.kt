@@ -72,4 +72,12 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
             assertTrue(zone.points.isEmpty())
         }
     }
+
+    @Test
+    fun `test zone creation - invalid zone id`() = test {
+        DataProvider.provideSampleZone(123) {
+            assertFailure(Errors.ParentNotFound)
+            null
+        }
+    }
 }

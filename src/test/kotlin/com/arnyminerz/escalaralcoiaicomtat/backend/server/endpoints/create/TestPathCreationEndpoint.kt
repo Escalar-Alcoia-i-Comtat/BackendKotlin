@@ -71,4 +71,12 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
             null
         }
     }
+
+    @Test
+    fun `test path creation - invalid zone id`() = test {
+        DataProvider.provideSamplePath(123) {
+            assertFailure(Errors.ParentNotFound)
+            null
+        }
+    }
 }

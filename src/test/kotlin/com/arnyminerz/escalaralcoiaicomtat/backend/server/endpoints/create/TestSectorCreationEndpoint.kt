@@ -41,6 +41,10 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
     fun `test sector creation - missing arguments`() = test {
         val areaId = DataProvider.provideSampleArea()
         val zoneId = DataProvider.provideSampleZone(areaId)
+        DataProvider.provideSampleSector(null) {
+            assertFailure(Errors.MissingData)
+            null
+        }
         DataProvider.provideSampleSector(zoneId, skipDisplayName = true) {
             assertFailure(Errors.MissingData)
             null
@@ -55,6 +59,14 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
         }
         DataProvider.provideSampleSector(areaId, skipSunTime = true) {
             assertFailure(Errors.MissingData)
+            null
+        }
+    }
+
+    @Test
+    fun `test sector creation - invalid zone id`() = test {
+        DataProvider.provideSampleSector(123) {
+            assertFailure(Errors.ParentNotFound)
             null
         }
     }
