@@ -75,6 +75,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         "walking_time" to walkingTime,
         "image" to _image,
         "point" to point,
+        "weight" to weight,
         "zone_id" to zone.id.value
     )
 
@@ -107,6 +108,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         result = 31 * result + (walkingTime?.hashCode() ?: 0)
         result = 31 * result + image.hashCode()
         result = 31 * result + (point?.hashCode() ?: 0)
+        result = 31 * result + (weight.hashCode())
         result = 31 * result + zone.hashCode()
         return result
     }
