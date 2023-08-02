@@ -7,7 +7,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.utils
  *
  * @return True if all items are null, false otherwise. If [items] is empty, always returns true.
  */
-fun areAllNull(vararg items: Any?): Boolean = items.all { it == null }
+fun <T> areAllNull(vararg items: T?): Boolean = items.all { it == null }
 
 /**
  * Checks if any of the given items is null.
@@ -16,4 +16,4 @@ fun areAllNull(vararg items: Any?): Boolean = items.all { it == null }
  * 
  * @return true if any of the items is null, false otherwise. If [items] is empty, always returns false.
  */
-fun isAnyNull(vararg items: Any?): Boolean = items.any { it == null }
+fun <T> isAnyNull(vararg items: T?): Boolean = items.any { it == null }
