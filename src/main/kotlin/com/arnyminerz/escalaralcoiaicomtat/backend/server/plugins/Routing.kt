@@ -12,6 +12,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewZo
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.DownloadFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.RequestFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchAreaEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchSectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.AreaEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.PathEndpoint
@@ -52,6 +53,7 @@ fun Application.configureEndpoints() {
 
         get("/sector/{sectorId}") { SectorEndpoint.call(this) }
         post("/sector") { NewSectorEndpoint.call(this) }
+        post("/sector/{sectorId}") { PatchSectorEndpoint.call(this) }
 
         get("/path/{pathId}") { PathEndpoint.call(this) }
         post("/path") { NewPathEndpoint.call(this) }

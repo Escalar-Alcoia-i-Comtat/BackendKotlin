@@ -1,0 +1,82 @@
+package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch
+
+import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllNull
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
+import io.ktor.server.util.getValue
+import io.ktor.util.pipeline.PipelineContext
+import java.io.File
+import java.util.UUID
+
+object PatchSectorEndpoint : SecureEndpointBase() {
+    @Suppress("DuplicatedCode")
+    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+        val sectorId: Int by call.parameters
+
+        val sector = ServerDatabase.instance.query { Sector.findById(sectorId) }
+            ?: return respondFailure(Errors.ObjectNotFound)
+
+        var displayName: String? = null
+        var point: LatLng? = null
+        var kidsApt: Boolean? = null
+        var sunTime: Sector.SunTime? = null
+        var walkingTime: UInt? = null
+        var weight: String? = null
+        var zone: Zone? = null
+
+        var imageFile: File? = null
+
+        receiveMultipart(
+            forEachFormItem = { partData ->
+                when (partData.name) {
+                    "displayName" -> displayName = partData.value
+                    "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
+                    "kidsApt" -> kidsApt = partData.value.toBoolean()
+                    "sunTime" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
+                    "walkingTime" -> walkingTime = partData.value.toUIntOrNull()
+                    "weight" -> weight = partData.value
+                    "zone" -> ServerDatabase.instance.query {
+                        zone = Zone.findById(partData.value.toInt())
+                            ?: return@query respondFailure(Errors.ParentNotFound)
+                    }
+                }
+            },
+            forEachFileItem = { partData ->
+                when (partData.name) {
+                    "image" -> {
+                        val uuid = ServerDatabase.instance.query { sector.image.nameWithoutExtension }
+                        imageFile = partData.save(Storage.ImagesDir, UUID.fromString(uuid))
+                    }
+                }
+            }
+        )
+
+        if (areAllNull(displayName, imageFile, kidsApt, point, sunTime, zone)) {
+            return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
+        }
+
+        ServerDatabase.instance.query {
+            displayName?.let { sector.displayName = it }
+            kidsApt?.let { sector.kidsApt = it }
+            sunTime?.let { sector.sunTime = it }
+            point?.let { sector.point = it }
+            walkingTime?.let { sector.walkingTime = it }
+            weight?.let { sector.weight = it }
+            zone?.let { sector.zone = it }
+        }
+
+        respondSuccess()
+    }
+}
