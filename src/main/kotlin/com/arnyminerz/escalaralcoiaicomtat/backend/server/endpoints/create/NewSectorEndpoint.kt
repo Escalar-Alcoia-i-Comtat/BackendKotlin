@@ -6,6 +6,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.MissingData
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.ParentNotFound
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
@@ -39,6 +40,7 @@ object NewSectorEndpoint : SecureEndpointBase() {
                     "walking_time" -> walkingTime = partData.value.toUIntOrNull()
                     "zone" -> ServerDatabase.instance.query {
                         zone = Zone.findById(partData.value.toInt())
+                            ?: return@query respondFailure(ParentNotFound)
                     }
                 }
             },

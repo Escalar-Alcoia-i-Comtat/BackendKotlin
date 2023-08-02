@@ -6,6 +6,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Area
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.MissingData
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -43,6 +44,7 @@ object NewZoneEndpoint : SecureEndpointBase() {
                     "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
                     "area" -> ServerDatabase.instance.query {
                         area = Area.findById(partData.value.toInt())
+                            ?: return@query respondFailure(Errors.ParentNotFound)
                     }
                 }
             },
