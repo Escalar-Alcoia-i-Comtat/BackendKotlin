@@ -26,6 +26,7 @@ object NewSectorEndpoint : SecureEndpointBase() {
         var kidsApt: Boolean? = null
         var sunTime: Sector.SunTime? = null
         var walkingTime: UInt? = null
+        var weight: String? = null
         var zone: Zone? = null
 
         var imageFile: File? = null
@@ -38,6 +39,7 @@ object NewSectorEndpoint : SecureEndpointBase() {
                     "kids_apt" -> kidsApt = partData.value.toBoolean()
                     "sun_time" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
                     "walking_time" -> walkingTime = partData.value.toUIntOrNull()
+                    "weight" -> weight = partData.value
                     "zone" -> ServerDatabase.instance.query {
                         zone = Zone.findById(partData.value.toInt())
                             ?: return@query respondFailure(ParentNotFound)
@@ -55,7 +57,10 @@ object NewSectorEndpoint : SecureEndpointBase() {
             imageFile?.delete()
             return respondFailure(
                 MissingData,
-                rawMultipartFormItems.toList().joinToString(", ") { (k, v) -> "$k=$v" }
+                jsonOf(
+                    "multipart" to rawMultipartFormItems,
+                    "imageFile" to imageFile?.path
+                ).toString()
             )
         }
 
@@ -67,6 +72,7 @@ object NewSectorEndpoint : SecureEndpointBase() {
                 this.sunTime = sunTime!!
                 this.walkingTime = walkingTime
                 this.image = imageFile!!
+                weight?.let { this.weight = it }
                 this.zone = zone!!
             }
         }
