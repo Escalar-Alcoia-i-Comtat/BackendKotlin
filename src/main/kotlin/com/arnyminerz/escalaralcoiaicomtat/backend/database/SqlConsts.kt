@@ -10,6 +10,8 @@ object SqlConsts {
     /** The maximum length of a file name. */
     const val FILE_LENGTH = 128
 
+    const val WEIGHT_LENGTH = 4
+
     /**
      * Represents the length of the points array.
      *
