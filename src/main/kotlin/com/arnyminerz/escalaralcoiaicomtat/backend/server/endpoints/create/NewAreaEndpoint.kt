@@ -49,7 +49,7 @@ object NewAreaEndpoint : SecureEndpointBase() {
             imageFile?.delete()
             return respondFailure(
                 MissingData,
-                listOf(displayName == null, webUrl == null, imageFile == null).joinToString()
+                rawMultipartFormItems.toList().joinToString(", ") { (k, v) -> "$k=$v" }
             )
         }
 

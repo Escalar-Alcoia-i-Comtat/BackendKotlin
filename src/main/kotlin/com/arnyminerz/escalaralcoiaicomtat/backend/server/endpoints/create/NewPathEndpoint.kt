@@ -96,7 +96,10 @@ object NewPathEndpoint : SecureEndpointBase() {
         )
 
         if (displayName == null || sketchId == null || sector == null) {
-            return respondFailure(MissingData)
+            return respondFailure(
+                MissingData,
+                rawMultipartFormItems.toList().joinToString(", ") { (k, v) -> "$k=$v" }
+            )
         }
 
         val path = ServerDatabase.instance.query {

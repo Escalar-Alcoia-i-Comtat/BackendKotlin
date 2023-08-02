@@ -55,8 +55,8 @@ object NewSectorEndpoint : SecureEndpointBase() {
             imageFile?.delete()
             return respondFailure(
                 MissingData,
-                listOf(displayName == null, imageFile == null, kidsApt != null, sunTime != null, zone != null
-            ).joinToString())
+                rawMultipartFormItems.toList().joinToString(", ") { (k, v) -> "$k=$v" }
+            )
         }
 
         val sector = ServerDatabase.instance.query {

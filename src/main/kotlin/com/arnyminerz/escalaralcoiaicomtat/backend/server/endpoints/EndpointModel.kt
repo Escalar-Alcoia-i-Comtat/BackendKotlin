@@ -1,5 +1,6 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.server.application.ApplicationCall
@@ -8,6 +9,8 @@ import io.ktor.server.request.receiveMultipart
 import io.ktor.util.pipeline.PipelineContext
 
 abstract class EndpointModel {
+    protected val rawMultipartFormItems = mutableMapOf<String, Any>()
+
     /**
      * Runs the endpoint's logic on the given [context].
      */
@@ -27,7 +30,17 @@ abstract class EndpointModel {
 
         multipart.forEachPart { partData ->
             when (partData) {
-                is PartData.FormItem -> forEachFormItem?.invoke(partData)
+                is PartData.FormItem -> {
+                    val name = partData.name
+                    if (name == null) {
+                        Logger.warn("Received FormItem without a name. Value: ${partData.value}")
+                    } else {
+                        rawMultipartFormItems[name] = partData.value
+                    }
+
+                    forEachFormItem?.invoke(partData)
+                }
+
                 is PartData.FileItem -> forEachFileItem?.invoke(partData)
                 else -> Unit
             }

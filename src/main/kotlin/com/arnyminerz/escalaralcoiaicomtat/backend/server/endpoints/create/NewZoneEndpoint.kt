@@ -61,8 +61,7 @@ object NewZoneEndpoint : SecureEndpointBase() {
             kmzFile?.delete()
             return respondFailure(
                 MissingData,
-                listOf(displayName == null, webUrl == null, imageFile == null, kmzFile == null, area == null)
-                    .joinToString()
+                rawMultipartFormItems.toList().joinToString(", ") { (k, v) -> "$k=$v" }
             )
         }
 
