@@ -18,6 +18,7 @@ import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class TestPatchSectorEndpoint: ApplicationTestBase() {
@@ -245,6 +246,64 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
                 )
                 assertEquals(localHash, serverHash)
             }
+        }
+    }
+
+    @Test
+    fun `test patching Sector - remove walking time`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        client.submitFormWithBinaryData(
+            url = "/sector/$sectorId",
+            formData = formData {
+                append("walkingTime", "\u0000")
+            }
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
+            assertSuccess()
+        }
+
+        ServerDatabase.instance.query {
+            val sector = Sector[sectorId]
+            assertNotNull(sector)
+            assertNull(sector.walkingTime)
+        }
+    }
+
+    @Test
+    fun `test patching Sector - remove point`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        client.submitFormWithBinaryData(
+            url = "/sector/$sectorId",
+            formData = formData {
+                append("point", "\u0000")
+            }
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
+            assertSuccess()
+        }
+
+        ServerDatabase.instance.query {
+            val sector = Sector[sectorId]
+            assertNotNull(sector)
+            assertNull(sector.point)
         }
     }
 }

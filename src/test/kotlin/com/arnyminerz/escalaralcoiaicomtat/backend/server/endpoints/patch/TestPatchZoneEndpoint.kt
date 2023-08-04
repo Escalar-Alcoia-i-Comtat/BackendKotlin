@@ -20,6 +20,7 @@ import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class TestPatchZoneEndpoint: ApplicationTestBase() {
@@ -144,6 +145,32 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
                 DataPoint(LatLng(0.12345, 0.67890), "Label 2", "testing-icon"),
                 zone.points.first()
             )
+        }
+    }
+
+    @Test
+    fun `test patching Zone - remove point`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        client.submitFormWithBinaryData(
+            url = "/zone/$zoneId",
+            formData = formData {
+                append("point", "\u0000")
+            }
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
+            assertSuccess()
+        }
+
+        ServerDatabase.instance.query {
+            val zone = Zone[zoneId]
+            assertNotNull(zone)
+            assertNull(zone.point)
         }
     }
 

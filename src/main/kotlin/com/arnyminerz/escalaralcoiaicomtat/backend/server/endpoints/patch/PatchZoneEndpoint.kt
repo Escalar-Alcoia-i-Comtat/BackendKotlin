@@ -11,6 +11,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllFalse
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
@@ -32,11 +33,15 @@ object PatchZoneEndpoint : SecureEndpointBase() {
         val zone = ServerDatabase.instance.query { Zone.findById(zoneId) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
+        // Nullable types: point
+
         var displayName: String? = null
         var webUrl: String? = null
         var point: LatLng? = null
         var points: Set<DataPoint>? = null
         var area: Area? = null
+
+        var removePoint = false
 
         var imageFile: File? = null
         var kmzFile: File? = null
@@ -46,10 +51,15 @@ object PatchZoneEndpoint : SecureEndpointBase() {
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
                     "webUrl" -> webUrl = partData.value
-                    "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
                     "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
                     "area" -> ServerDatabase.instance.query {
                         area = Area.findById(partData.value.toInt())
+                    }
+                    "point" -> partData.value.let { value ->
+                        if (value == "\u0000")
+                            removePoint = true
+                        else
+                            point = value.json.let { LatLng.fromJson(it) }
                     }
                 }
             },
@@ -69,7 +79,8 @@ object PatchZoneEndpoint : SecureEndpointBase() {
 
         points?.let { p -> println("New Points: [${p.joinToString { it.toJson().toString() }}]") }
 
-        if (areAllNull(displayName, webUrl, point, points, imageFile, kmzFile)) {
+        if (areAllNull(displayName, webUrl, point, points, imageFile, kmzFile) &&
+            areAllFalse(removePoint)) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
@@ -79,6 +90,8 @@ object PatchZoneEndpoint : SecureEndpointBase() {
             point?.let { zone.point = it }
             points?.let { zone.pointsSet = it.map { ps -> ps.toJson().toString() } }
             area?.let { zone.area = it }
+
+            if (removePoint) zone.point = null
         }
 
         respondSuccess()

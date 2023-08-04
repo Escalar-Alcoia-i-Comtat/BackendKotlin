@@ -10,6 +10,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllFalse
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import io.ktor.http.HttpStatusCode
@@ -28,6 +29,8 @@ object PatchSectorEndpoint : SecureEndpointBase() {
         val sector = ServerDatabase.instance.query { Sector.findById(sectorId) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
+        // Nullable types: point, walkingTime
+
         var displayName: String? = null
         var point: LatLng? = null
         var kidsApt: Boolean? = null
@@ -36,20 +39,33 @@ object PatchSectorEndpoint : SecureEndpointBase() {
         var weight: String? = null
         var zone: Zone? = null
 
+        var removePoint = false
+        var removeWalkingTime = false
+
         var imageFile: File? = null
 
         receiveMultipart(
             forEachFormItem = { partData ->
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
-                    "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
                     "kidsApt" -> kidsApt = partData.value.toBoolean()
                     "sunTime" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
-                    "walkingTime" -> walkingTime = partData.value.toUIntOrNull()
                     "weight" -> weight = partData.value
                     "zone" -> ServerDatabase.instance.query {
                         zone = Zone.findById(partData.value.toInt())
                             ?: return@query respondFailure(Errors.ParentNotFound)
+                    }
+                    "point" -> partData.value.let { value ->
+                        if (value == "\u0000")
+                            removePoint = true
+                        else
+                            point = value.json.let { LatLng.fromJson(it) }
+                    }
+                    "walkingTime" -> partData.value.let { value ->
+                        if (value == "\u0000")
+                            removeWalkingTime = true
+                        else
+                            walkingTime = value.toUIntOrNull()
                     }
                 }
             },
@@ -63,7 +79,8 @@ object PatchSectorEndpoint : SecureEndpointBase() {
             }
         )
 
-        if (areAllNull(displayName, imageFile, kidsApt, point, sunTime, walkingTime, weight, zone)) {
+        if (areAllNull(displayName, imageFile, kidsApt, point, sunTime, walkingTime, weight, zone) &&
+            areAllFalse(removePoint, removeWalkingTime)) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
@@ -75,6 +92,9 @@ object PatchSectorEndpoint : SecureEndpointBase() {
             walkingTime?.let { sector.walkingTime = it }
             weight?.let { sector.weight = it }
             zone?.let { sector.zone = it }
+
+            if (removePoint) sector.point = null
+            if (removeWalkingTime) sector.walkingTime = null
         }
 
         respondSuccess()
