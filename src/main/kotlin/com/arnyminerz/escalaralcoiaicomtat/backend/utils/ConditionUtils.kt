@@ -17,3 +17,12 @@ fun <T> areAllNull(vararg items: T?): Boolean = items.all { it == null }
  * @return true if any of the items is null, false otherwise. If [items] is empty, always returns false.
  */
 fun <T> isAnyNull(vararg items: T?): Boolean = items.any { it == null }
+
+/**
+ * Checks if all the given boolean values are false.
+ *
+ * @param items The boolean values to be checked.
+ *
+ * @return `true` if all the given boolean values are false, `false` otherwise.
+ */
+fun areAllFalse(vararg items: Boolean): Boolean = items.all { !it }
