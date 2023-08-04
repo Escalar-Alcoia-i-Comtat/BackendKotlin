@@ -22,7 +22,7 @@ import java.io.File
 import java.util.UUID
 
 object PatchSectorEndpoint : SecureEndpointBase() {
-    @Suppress("DuplicatedCode", "CyclomaticComplexMethod")
+    @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val sectorId: Int by call.parameters
 

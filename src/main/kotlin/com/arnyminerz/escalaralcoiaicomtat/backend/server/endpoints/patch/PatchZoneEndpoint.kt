@@ -26,7 +26,7 @@ import java.net.URL
 import java.util.UUID
 
 object PatchZoneEndpoint : SecureEndpointBase() {
-    @Suppress("DuplicatedCode")
+    @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val zoneId: Int by call.parameters
 
