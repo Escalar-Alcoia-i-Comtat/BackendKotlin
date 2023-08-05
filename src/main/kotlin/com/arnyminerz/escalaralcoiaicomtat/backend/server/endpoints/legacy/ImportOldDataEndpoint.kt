@@ -21,7 +21,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
-import com.arnyminerz.escalaralcoiaicomtat.backend.utils.ImageIntegrity
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.ImageUtils
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.removeAccents
@@ -130,7 +130,7 @@ object ImportOldDataEndpoint : EndpointBase() {
      *
      * Stores it in a temporal file inside [tempDir].
      *
-     * Also uses [ImageIntegrity] to verify that downloaded images are valid.
+     * Also uses [ImageUtils] to verify that downloaded images are valid.
      *
      * @return The new file.
      */
@@ -148,7 +148,7 @@ object ImportOldDataEndpoint : EndpointBase() {
 
         if (arrayOf("jpg", "jpeg", "png").any { path.endsWith(it, true) }) {
             Logger.debug("  Verifying downloaded image integrity...")
-            val result = ImageIntegrity.verifyImageIntegrity(file)
+            val result = ImageUtils.verifyImageIntegrity(file)
             check(result.image == true) {
                 file.delete()
                 "Downloaded image is corrupted."
