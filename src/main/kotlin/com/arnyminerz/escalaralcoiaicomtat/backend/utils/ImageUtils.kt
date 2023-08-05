@@ -72,15 +72,21 @@ object ImageUtils {
 
             val img = ImageIO.read(imageFile)
 
-            val imageWidth = if (width == null || width <= 0) {
+            var imageWidth = if (width == null || width <= 0) {
                 (height!! * img.width) / img.height
             } else {
                 width
             }
-            val imageHeight = if (height == null || height <= 0) {
+            var imageHeight = if (height == null || height <= 0) {
                 (width!! * img.height) / img.width
             } else {
                 height
+            }
+
+            if (imageWidth > img.width || imageHeight > img.height) {
+                // Do not allow oversizing
+                imageWidth = img.width
+                imageHeight = img.height
             }
 
             val scaledImage = img.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH)
