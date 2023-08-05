@@ -1,10 +1,12 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
@@ -15,6 +17,7 @@ import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class TestPathFetchingEndpoint: ApplicationTestBase() {
@@ -81,6 +84,60 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
     fun `test getting path - id NaN`() = test {
         get("/path/abc").apply {
             assertEquals(HttpStatusCode.BadRequest, status)
+        }
+    }
+
+    @Test
+    fun `test getting path - fix null builder`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        val pathId = DataProvider.provideSamplePath(sectorId)
+        assertNotNull(pathId)
+
+        ServerDatabase.instance.query {
+            Path[pathId]._builder = "null"
+        }
+
+        get("/path/$pathId").apply {
+            assertSuccess()
+        }
+
+        ServerDatabase.instance.query {
+            assertNull(Path[pathId].builder)
+        }
+    }
+
+    @Test
+    fun `test getting path - fix invalid pitches`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        val pathId = DataProvider.provideSamplePath(sectorId)
+        assertNotNull(pathId)
+
+        ServerDatabase.instance.query {
+            Path[pathId]._pitches = "{\"pitch\":\"0\"}"
+        }
+
+        get("/path/$pathId").apply {
+            assertSuccess()
+        }
+
+        ServerDatabase.instance.query {
+            assertNull(Path[pathId].pitches)
         }
     }
 }

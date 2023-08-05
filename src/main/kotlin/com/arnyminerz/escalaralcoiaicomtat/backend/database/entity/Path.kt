@@ -12,6 +12,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSeria
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import java.time.Instant
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.json.JSONObject
@@ -82,8 +83,16 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
 
     private var _grade: String? by Paths.grade
     private var _ending: String? by Paths.ending
-    private var _pitches: String? by Paths.pitches
-    private var _builder: String? by Paths.builder
+
+    @Suppress("VariableNaming", "PropertyName")
+    @get:VisibleForTesting
+    @set:VisibleForTesting
+    var _pitches: String? by Paths.pitches
+
+    @Suppress("VariableNaming", "PropertyName")
+    @get:VisibleForTesting
+    @set:VisibleForTesting
+    var _builder: String? by Paths.builder
     private var _reBuilder: String? by Paths.reBuilder
 
     override fun toJson(): JSONObject = jsonOf(
