@@ -14,6 +14,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.client.request.setBody
 import java.time.LocalDateTime
 import java.time.Month
+import java.time.temporal.ChronoUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -124,7 +125,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
             assertNotNull(block)
             assertEquals(BlockingTypes.BUILD, block.type)
             assertNull(block.recurrence)
-            assertEquals(endDate, block.endDate)
+            assertEquals(endDate?.truncatedTo(ChronoUnit.MILLIS), block.endDate)
         }
     }
 
