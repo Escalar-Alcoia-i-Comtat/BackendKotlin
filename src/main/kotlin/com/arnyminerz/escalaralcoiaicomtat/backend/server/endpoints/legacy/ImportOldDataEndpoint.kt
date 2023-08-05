@@ -56,7 +56,10 @@ object ImportOldDataEndpoint : EndpointBase() {
     private const val BUILDER_INDEX_LAB = 2
     private const val BUILDER_INDEX_ICO = 3
 
-    private const val DOWNLOAD_BYTE_BUFFER_SIZE = 1024 * 100
+    /**
+     * The amount of times an image has to be downloaded to consider it corrupted.
+     */
+    private const val DOWNLOAD_IMAGE_ATTEMPTS = 3
 
     val client: HttpClient by lazy { HttpClient(CIO) }
 
@@ -141,11 +144,26 @@ object ImportOldDataEndpoint : EndpointBase() {
             if (arrayOf("jpg", "jpeg", "png").any { path.endsWith(it, true) }) {
                 Logger.debug("  Verifying downloaded image integrity...")
                 val result = ImageIntegrity.verifyImageIntegrity(file)
-                require(result.image == true) { "Downloaded image is corrupted." }
+                check(result.image == true) {
+                    file.delete()
+                    "Downloaded image is corrupted."
+                }
             }
 
             file
         }
+
+    private suspend fun downloadFile(path: String, attempts: Int): File? {
+        var counter = 0
+        while (attempts > counter) {
+            try {
+                return downloadFile(path)
+            } catch (_: IllegalStateException) {
+            }
+            counter++
+        }
+        return null
+    }
 
     private suspend inline fun fetch(
         name: String,
@@ -227,7 +245,7 @@ object ImportOldDataEndpoint : EndpointBase() {
         // Download image
         val image = area.getString("image")
         Logger.debug("Downloading $image for area $objectId...")
-        val imageFile = downloadFile(image)
+        val imageFile = downloadFile(image, DOWNLOAD_IMAGE_ATTEMPTS)!!
 
         // Download KMZ
         val kmz = area.getString("kmz")
@@ -258,7 +276,7 @@ object ImportOldDataEndpoint : EndpointBase() {
         // Download image
         val image = zone.getString("image")
         Logger.debug("Downloading $image for zone $objectId...")
-        val imageFile = downloadFile(image)
+        val imageFile = downloadFile(image, DOWNLOAD_IMAGE_ATTEMPTS)!!
 
         // Download KMZ
         val kmz = zone.getString("kmz")
@@ -322,7 +340,7 @@ object ImportOldDataEndpoint : EndpointBase() {
         // Download image
         val image = sector.getString("image")
         Logger.debug("Downloading $image for sector $objectId...")
-        val imageFile = downloadFile(image)
+        val imageFile = downloadFile(image, DOWNLOAD_IMAGE_ATTEMPTS)!!
 
         val zoneId = zoneIdPairs[sector.getString("zone")]
         if (zoneId == null) {
