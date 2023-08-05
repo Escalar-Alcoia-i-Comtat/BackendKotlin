@@ -39,6 +39,10 @@ dependencies {
     implementation("io.ktor:ktor-network-tls-certificates")
     implementation("io.ktor:ktor-utils")
 
+    // Ktor client for making requests
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-cio")
+
     // Exposed dependencies
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
