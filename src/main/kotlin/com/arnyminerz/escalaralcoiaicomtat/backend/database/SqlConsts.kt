@@ -23,7 +23,7 @@ object SqlConsts {
      */
     const val POINTS_LENGTH = 4096
 
-    const val GRADE_LENGTH = 4
+    const val GRADE_LENGTH = 8
 
     const val ENDING_LENGTH = 16
 
