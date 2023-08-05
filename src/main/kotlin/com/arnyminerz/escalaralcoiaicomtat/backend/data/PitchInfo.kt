@@ -11,11 +11,11 @@ import org.json.JSONObject
 
 data class PitchInfo(
     val pitch: UInt,
-    val gradeValue: GradeValue?,
-    val height: UInt?,
-    val ending: Ending?,
-    val info: EndingInfo?,
-    val inclination: EndingInclination?
+    val gradeValue: GradeValue? = null,
+    val height: UInt? = null,
+    val ending: Ending? = null,
+    val info: EndingInfo? = null,
+    val inclination: EndingInclination? = null
 ): JsonSerializable {
     companion object: JsonSerializer<PitchInfo> {
         override fun fromJson(json: JSONObject): PitchInfo = PitchInfo(
