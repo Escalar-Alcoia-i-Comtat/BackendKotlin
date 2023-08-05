@@ -144,8 +144,7 @@ object ImportOldDataEndpoint : EndpointBase() {
 
         Logger.debug("  Writing $path into $file")
         val channel = response.bodyAsChannel()
-        val bytes = channel.copyAndClose(file.writeChannel())
-        Logger.info("  Downloaded $bytes bytes")
+        channel.copyAndClose(file.writeChannel())
 
         if (arrayOf("jpg", "jpeg", "png").any { path.endsWith(it, true) }) {
             Logger.debug("  Verifying downloaded image integrity...")
