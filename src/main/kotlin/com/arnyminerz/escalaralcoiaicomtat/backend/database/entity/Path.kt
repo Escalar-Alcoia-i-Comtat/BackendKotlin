@@ -1,6 +1,7 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.database.entity
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
@@ -26,6 +27,9 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     var grade: GradeValue?
         get() = _grade?.let { GradeValue.fromString(it) }
         set(value) { _grade = value?.name }
+    var ending: Ending?
+        get() = _ending?.let { Ending.valueOf(it) }
+        set(value) { _ending = value?.name }
 
     var pitches: List<PitchInfo>?
         get() = _pitches
@@ -64,6 +68,7 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
 
 
     private var _grade: String? by Paths.grade
+    private var _ending: String? by Paths.ending
     private var _pitches: String? by Paths.pitches
     private var _builder: String? by Paths.builder
     private var _reBuilder: String? by Paths.reBuilder
@@ -77,6 +82,7 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
 
         "height" to height,
         "grade" to grade,
+        "ending" to ending,
 
         "pitches" to pitches,
 
@@ -120,6 +126,7 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         result = 31 * result + sketchId.hashCode()
         result = 31 * result + (height?.hashCode() ?: 0)
         result = 31 * result + (grade?.hashCode() ?: 0)
+        result = 31 * result + (ending?.hashCode() ?: 0)
         result = 31 * result + (pitches?.hashCode() ?: 0)
         result = 31 * result + (stringCount?.hashCode() ?: 0)
         result = 31 * result + (paraboltCount?.hashCode() ?: 0)

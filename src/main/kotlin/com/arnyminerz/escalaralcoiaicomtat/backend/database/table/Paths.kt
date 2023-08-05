@@ -2,13 +2,13 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.database.table
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.SqlConsts
 
-@OptIn(ExperimentalUnsignedTypes::class)
 object Paths: BaseTable() {
     val displayName = varchar("display_name", SqlConsts.DISPLAY_NAME_LENGTH)
     val sketchId = uinteger("sketch_id")
 
     val height = uinteger("height").nullable()
     val grade = varchar("grade", SqlConsts.GRADE_LENGTH).nullable()
+    val ending = varchar("ending", SqlConsts.ENDING_LENGTH).nullable()
 
     val pitches = varchar("pitches", SqlConsts.PITCH_INFO_LENGTH).nullable()
 

@@ -25,6 +25,8 @@ object SqlConsts {
 
     const val GRADE_LENGTH = 4
 
+    const val ENDING_LENGTH = 16
+
     const val PITCH_INFO_LENGTH = 10240
 
     const val BUILDER_LENGTH = 4096
