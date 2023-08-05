@@ -11,6 +11,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewSe
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.DownloadFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.RequestFileEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.ImportOldDataEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchAreaEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchSectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchZoneEndpoint
@@ -64,5 +65,13 @@ fun Application.configureEndpoints() {
 
         get("/file/{uuid}") { RequestFileEndpoint.call(this) }
         get("/download/{uuid}") { DownloadFileEndpoint.call(this) }
+
+        val enableImporter = EnvironmentVariables.Legacy.Importer.value
+        if (enableImporter == "true") {
+            Logger.warn(
+                "Importer has been enabled through an environment variable. Make sure to disconnect it for production"
+            )
+            get("/import") { ImportOldDataEndpoint.call(this) }
+        }
     }
 }

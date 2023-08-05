@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   backend:
-    image: escalaralcoiaicomtat:1.0-SNAPSHOT
+    image: escalaralcoiaicomtat:1.0.7-SNAPSHOT
     container_name: escalaralcoiaicomtat_backend
     restart: unless-stopped
     environment:
@@ -11,6 +11,10 @@ services:
       DATABASE_URL: "jdbc:postgresql://db:5432/postgres"
       DATABASE_USERNAME: "postgres"
       DATABASE_PASSWORD: "AbfEwudQ8AqhhVVqTiRURpbMmQTW46"
+      # Configure Secure Endpoints
+      AUTH_TOKEN: "cwBsTxhjf8mFQrN8zPUpGstmtCeg3z"
+      # Enable Importer
+      ENABLE_IMPORTER: "true"
     networks:
       - escalaralcoiaicomtat_backend
     depends_on:

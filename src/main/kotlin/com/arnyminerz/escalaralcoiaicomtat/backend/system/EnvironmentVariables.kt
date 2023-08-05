@@ -35,4 +35,8 @@ object EnvironmentVariables {
     object Authentication {
         data object AuthToken : EnvironmentVariable("AUTH_TOKEN")
     }
+
+    object Legacy {
+        data object Importer : EnvironmentVariable("ENABLE_IMPORTER")
+    }
 }

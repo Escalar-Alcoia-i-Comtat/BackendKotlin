@@ -2,3 +2,5 @@ services:
   backend:
     image: arnyminerz/escalaralcoiaicomtat:1.0-SNAPSHOT
     restart: no
+    environment:
+      ENABLE_IMPORTER: "false"
