@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run Locally" type="JetRunConfigurationType">
+    <envs>
+      <env name="AUTH_TOKEN" value="cwBsTxhjf8mFQrN8zPUpGstmtCeg3z" />
+      <env name="DATABASE_URL" value="jdbc:sqlite:testing.db" />
+      <env name="ENABLE_IMPORTER" value="true" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="MainKt" />
+    <module name="EscalarAlcoiaIComtat-Backend.main" />
+    <shortenClasspath name="NONE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
