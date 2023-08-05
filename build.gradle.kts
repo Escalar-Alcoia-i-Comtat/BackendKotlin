@@ -60,6 +60,9 @@ dependencies {
         implementation("io.netty:netty-tcnative-boringssl-static:$tcnativeVersion")
     }
 
+    // For displaying progress bar in terminal
+    implementation("me.tongfei:progressbar:0.9.4")
+
 
     testImplementation(kotlin("test"))
 
