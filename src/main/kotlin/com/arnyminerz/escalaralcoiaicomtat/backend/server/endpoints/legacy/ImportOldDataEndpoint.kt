@@ -21,27 +21,28 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.ImageIntegrity
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.removeAccents
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.forms.FormBuilder
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
-import io.ktor.http.contentLength
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
+import io.ktor.util.cio.writeChannel
 import io.ktor.util.pipeline.PipelineContext
-import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.copyAndClose
 import java.io.File
 import java.util.Locale
 import me.tongfei.progressbar.ProgressBar
@@ -119,23 +120,29 @@ object ImportOldDataEndpoint : EndpointBase() {
         respondSuccess()
     }
 
+    /**
+     * Downloads the file stored at [path] in the old server.
+     *
+     * Stores it in a temporal file inside [tempDir].
+     *
+     * Also uses [ImageIntegrity] to verify that downloaded images are valid.
+     *
+     * @return The new file.
+     */
     private suspend fun downloadFile(path: String): File =
-        client.get("https://$hostname/v1/files/download?path=$path").let {
+        client.get("https://$hostname/v1/files/download?path=$path").let { response ->
             val fileName = path.substringAfterLast('/')
             val file = File(tempDir, fileName.removeAccents().replace(" ", "_"))
 
             Logger.debug("  Writing $path into $file")
-            var offset = 0
-            val byteBufferSize = DOWNLOAD_BYTE_BUFFER_SIZE
-            val channel = it.body<ByteReadChannel>()
-            val contentLength = it.contentLength() ?: 0L
-            val data = ByteArray(contentLength.toInt())
-            do {
-                val currentRead = channel.readAvailable(data, offset, byteBufferSize)
-                offset += currentRead
-            } while (currentRead >= 0)
+            val channel = response.bodyAsChannel()
+            channel.copyAndClose(file.writeChannel())
 
-            file.writeBytes(data)
+            if (arrayOf("jpg", "jpeg", "png").any { path.endsWith(it, true) }) {
+                Logger.debug("  Verifying downloaded image integrity...")
+                val result = ImageIntegrity.verifyImageIntegrity(file)
+                require(result.image == true) { "Downloaded image is corrupted." }
+            }
 
             file
         }
