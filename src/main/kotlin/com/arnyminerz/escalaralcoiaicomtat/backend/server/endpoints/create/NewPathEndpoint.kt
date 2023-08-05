@@ -111,6 +111,7 @@ object NewPathEndpoint : SecureEndpointBase() {
                 this.sketchId = sketchId!!
                 this.height = height
                 this.grade = grade
+                this.ending = ending
                 this.pitches = pitches
                 this.stringCount = stringCount
                 this.paraboltCount = counts[INDEX_COUNT_PARABOLT]
