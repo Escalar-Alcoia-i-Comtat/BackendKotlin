@@ -161,6 +161,7 @@ object ImportOldDataEndpoint : EndpointBase() {
         pairs
     }
 
+    @Suppress("NestedBlockDepth")
     private inline fun <reified T : Any> processList(
         json: JSONObject,
         name: String,
