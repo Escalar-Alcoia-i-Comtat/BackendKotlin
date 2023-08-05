@@ -26,6 +26,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.removeAccents
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.urlEncoded
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.forms.FormBuilder
@@ -37,6 +38,7 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.isSuccess
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
@@ -132,33 +134,42 @@ object ImportOldDataEndpoint : EndpointBase() {
      *
      * @return The new file.
      */
-    private suspend fun downloadFile(path: String): File =
-        client.get("https://$hostname/v1/files/download?path=$path").let { response ->
-            val fileName = path.substringAfterLast('/')
-            val file = File(tempDir, fileName.removeAccents().replace(" ", "_"))
+    private suspend fun downloadFile(path: String): File {
+        val response = client.get("https://$hostname/v1/files/download?path=${path.urlEncoded}")
 
-            Logger.debug("  Writing $path into $file")
-            val channel = response.bodyAsChannel()
-            channel.copyAndClose(file.writeChannel())
+        check(response.status.isSuccess()) { "Download was not successful." }
 
-            if (arrayOf("jpg", "jpeg", "png").any { path.endsWith(it, true) }) {
-                Logger.debug("  Verifying downloaded image integrity...")
-                val result = ImageIntegrity.verifyImageIntegrity(file)
-                check(result.image == true) {
-                    file.delete()
-                    "Downloaded image is corrupted."
-                }
+        val fileName = path.substringAfterLast('/')
+        val file = File(tempDir, fileName.removeAccents().replace(" ", "_"))
+
+        Logger.debug("  Writing $path into $file")
+        val channel = response.bodyAsChannel()
+        val bytes = channel.copyAndClose(file.writeChannel())
+        Logger.info("  Downloaded $bytes bytes")
+
+        if (arrayOf("jpg", "jpeg", "png").any { path.endsWith(it, true) }) {
+            Logger.debug("  Verifying downloaded image integrity...")
+            val result = ImageIntegrity.verifyImageIntegrity(file)
+            check(result.image == true) {
+                file.delete()
+                "Downloaded image is corrupted."
             }
-
-            file
         }
+
+        return file
+    }
 
     private suspend fun downloadFile(path: String, attempts: Int): File? {
         var counter = 0
         while (attempts > counter) {
             try {
                 return downloadFile(path)
-            } catch (_: IllegalStateException) {
+            } catch (e: IllegalStateException) {
+                if (e.message?.contains("corrupt", true) == true) {
+                    Logger.info("$path download was corrupted. Trying again $counter / $attempts")
+                } else {
+                    throw e
+                }
             }
             counter++
         }
