@@ -206,6 +206,7 @@ object DataProvider {
 
         val height = 123U
         val grade = SportsGrade.G6A
+        val ending = Ending.CHAIN_CARABINER
 
         val pitches = listOf(
             PitchInfo(
@@ -267,6 +268,7 @@ object DataProvider {
                     append("sketchId", SamplePath.sketchId.toInt())
                 append("height", SamplePath.height.toInt())
                 append("grade", SamplePath.grade.name)
+                append("ending", SamplePath.ending.name)
                 append("pitches", SamplePath.pitches.toJson().toString())
                 append("stringCount", SamplePath.stringCount.toInt())
                 append("paraboltCount", SamplePath.paraboltCount.toInt())

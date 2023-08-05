@@ -2,6 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
@@ -45,6 +46,7 @@ object NewPathEndpoint : SecureEndpointBase() {
         var sketchId: UInt? = null
         var height: UInt? = null
         var grade: GradeValue? = null
+        var ending: Ending? = null
         var pitches: List<PitchInfo>? = null
         var stringCount: UInt? = null
         val counts: Array<UInt?> = Array(COUNTS_LENGTH) { null }
@@ -63,6 +65,7 @@ object NewPathEndpoint : SecureEndpointBase() {
 
                     "height" -> height = partData.value.toUIntOrNull()
                     "grade" -> grade = partData.value.let { GradeValue.fromString(it) }
+                    "ending" -> ending = partData.value.let { Ending.valueOf(it) }
 
                     "pitches" -> pitches = partData.value.jsonArray.serialize(PitchInfo)
 

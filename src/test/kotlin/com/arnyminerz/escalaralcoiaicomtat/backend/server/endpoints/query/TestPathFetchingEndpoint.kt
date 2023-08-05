@@ -2,6 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
@@ -45,6 +46,7 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
 
                 assertEquals(DataProvider.SamplePath.height, data.getUInt("height"))
                 assertEquals(DataProvider.SamplePath.grade, data.getString("grade").let { GradeValue.fromString(it) })
+                assertEquals(DataProvider.SamplePath.ending, data.getString("ending").let { Ending.valueOf(it) })
 
                 assertEquals(DataProvider.SamplePath.pitches, data.getJSONArray("pitches").serialize(PitchInfo))
 
