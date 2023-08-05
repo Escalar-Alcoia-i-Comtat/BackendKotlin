@@ -32,9 +32,16 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         set(value) { _ending = value?.name }
 
     var pitches: List<PitchInfo>?
-        get() = _pitches
-            ?.split("\n")
-            ?.map { PitchInfo.fromJson(it.json) }
+        get() {
+            // This is invalid, clear
+            if (_pitches == "{\"pitch\":\"0\"}") {
+                _pitches = null
+                return null
+            }
+            return _pitches
+                ?.split("\n")
+                ?.map { PitchInfo.fromJson(it.json) }
+        }
         set(value) {
             _pitches = value?.joinToString("\n") { it.toJson().toString() }
         }
@@ -58,7 +65,13 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     var description: String? by Paths.description
 
     var builder: Builder?
-        get() = _builder?.json?.let { Builder.fromJson(it) }
+        get() {
+            if (_builder.equals("null", true)) {
+                _builder = null
+                return null
+            }
+            return _builder?.json?.let { Builder.fromJson(it) }
+        }
         set(value) { _builder = value?.toJson().toString() }
     var reBuilder: List<Builder>?
         get() = _reBuilder?.jsonArray?.serialize(Builder)
