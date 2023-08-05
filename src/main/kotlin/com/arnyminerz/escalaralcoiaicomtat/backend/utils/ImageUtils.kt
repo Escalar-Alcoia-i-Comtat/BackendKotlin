@@ -1,8 +1,11 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.utils
 
+import java.awt.Color
+import java.awt.Image
 import java.awt.image.BufferedImage
 import java.io.EOFException
 import java.io.File
+import java.io.OutputStream
 import java.nio.file.Files
 import javax.imageio.IIOException
 import javax.imageio.ImageIO
@@ -61,5 +64,30 @@ object ImageUtils {
     class ImageAnalysisResult {
         var image: Boolean? = null
         var truncated: Boolean? = null
+    }
+
+    suspend fun scale(imageFile: File, width: Int?, height: Int?, outputStream: OutputStream) {
+        withContext(Dispatchers.IO) {
+            check(width != null || height != null) { "Must provide either width, height or both, but not none." }
+
+            val img = ImageIO.read(imageFile)
+
+            val imageWidth = if (width == null || width <= 0) {
+                (height!! * img.width) / img.height
+            } else {
+                width
+            }
+            val imageHeight = if (height == null || height <= 0) {
+                (width!! * img.height) / img.width
+            } else {
+                height
+            }
+
+            val scaledImage = img.getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH)
+            val imageBuff = BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB)
+            imageBuff.graphics.drawImage(scaledImage, 0, 0, Color(0, 0, 0), null)
+
+            ImageIO.write(imageBuff, "jpg", outputStream)
+        }
     }
 }
