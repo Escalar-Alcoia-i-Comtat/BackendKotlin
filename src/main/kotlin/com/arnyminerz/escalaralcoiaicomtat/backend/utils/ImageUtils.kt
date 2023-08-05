@@ -10,7 +10,7 @@ import javax.imageio.ImageReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-object ImageIntegrity {
+object ImageUtils {
     private const val TRUNCATED_BYTE_A: Byte = (0xff).toByte()
     private const val TRUNCATED_BYTE_B: Byte = (0xd9).toByte()
 
