@@ -7,19 +7,19 @@ object Logger {
     var level = LogLevel.INFO
 
     fun debug(message: String) {
-        if (level >= LogLevel.DEBUG) println(AnsiColors.WHITE + message + AnsiColors.RESET)
+        if (LogLevel.DEBUG >= level) println(AnsiColors.WHITE + message + AnsiColors.RESET)
     }
 
     fun info(message: String) {
-        if (level >= LogLevel.INFO) println(AnsiColors.BLUE + message + AnsiColors.RESET)
+        if (LogLevel.INFO >= level) println(AnsiColors.BLUE + message + AnsiColors.RESET)
     }
 
     fun warn(message: String) {
-        if (level >= LogLevel.WARN) println(AnsiColors.YELLOW + message + AnsiColors.RESET)
+        if (LogLevel.WARN >= level) println(AnsiColors.YELLOW + message + AnsiColors.RESET)
     }
 
     fun error(message: String) {
-        if (level >= LogLevel.ERROR) println(AnsiColors.YELLOW + message + AnsiColors.RESET)
+        if (LogLevel.ERROR >= level) println(AnsiColors.YELLOW + message + AnsiColors.RESET)
     }
 }
 
