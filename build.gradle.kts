@@ -61,7 +61,7 @@ dependencies {
     }
 
     // For displaying progress bar in terminal
-    implementation("me.tongfei:progressbar:0.9.4")
+    implementation("me.tongfei:progressbar:0.9.5")
 
 
     testImplementation(kotlin("test"))
