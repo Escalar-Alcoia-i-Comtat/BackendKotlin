@@ -11,7 +11,8 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewSe
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.DownloadFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.RequestFileEndpoint
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.ImportOldDataEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.old.ImportOldDataEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.old.ImportStatusEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchAreaEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchSectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchZoneEndpoint
@@ -72,6 +73,7 @@ fun Application.configureEndpoints() {
                 "Importer has been enabled through an environment variable. Make sure to disconnect it for production"
             )
             get("/import") { ImportOldDataEndpoint.call(this) }
+            get("/import/status") { ImportStatusEndpoint.call(this) }
         }
     }
 }
