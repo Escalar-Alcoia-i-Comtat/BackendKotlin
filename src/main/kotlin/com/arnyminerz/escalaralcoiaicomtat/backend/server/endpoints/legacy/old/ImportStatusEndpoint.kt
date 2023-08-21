@@ -26,7 +26,9 @@ object ImportStatusEndpoint : EndpointBase() {
                         }
                     )
                 },
-                "step" to singleton.step
+                "step" to singleton.step,
+                "progress" to singleton.progress,
+                "max" to singleton.max
             )
         )
     }

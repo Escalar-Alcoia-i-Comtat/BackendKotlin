@@ -108,6 +108,14 @@ class OldDataMigrationSingleton private constructor() {
     var step: String = ""
         private set
 
+    @Volatile
+    var progress: Int = -1
+        private set
+
+    @Volatile
+    var max: Int = -1
+        private set
+
     private val client: HttpClient by lazy { HttpClient(CIO) }
 
     private val tempFile: File by lazy { File(System.getProperty("user.home")) }
@@ -120,6 +128,8 @@ class OldDataMigrationSingleton private constructor() {
 
         this.isRunning = true
         this.hostname = hostname
+        this.progress = -1
+        this.max = -1
 
         Logger.info("Scheduling migration...")
         CoroutineScope(Dispatchers.IO).launch {
@@ -175,6 +185,8 @@ class OldDataMigrationSingleton private constructor() {
             isRunning = false
             isFinished = true
             error = throwable
+            progress = -1
+            max = -1
         }
 
         return true
@@ -238,15 +250,22 @@ class OldDataMigrationSingleton private constructor() {
 
         val result = it.bodyAsText().json.getJSONObject("result")
 
+        progress = 0
+        max = result.length()
+
         Logger.debug("Got ${result.length()} $name.")
 
         val pb = ProgressBar("Fetching $name", result.length().toLong())
         for (key in result.keys()) {
             val data = result.getJSONObject(key)
             forEach(pairs, key, data, pb)
+            progress++
             pb.stepBy(1)
         }
         pb.close()
+
+        max = -1
+        progress = -1
 
         pairs
     }
