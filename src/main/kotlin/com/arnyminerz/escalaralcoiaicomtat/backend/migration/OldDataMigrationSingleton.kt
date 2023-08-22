@@ -115,7 +115,7 @@ class OldDataMigrationSingleton private constructor() {
     private val tempFile: File by lazy { File(System.getProperty("user.home")) }
     private val tempDir: File by lazy { File(tempFile, "eaic-tmp") }
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "TooGenericExceptionCaught")
     fun start(hostname: String): Boolean {
         if (isRunning) {
             return false
@@ -129,61 +129,64 @@ class OldDataMigrationSingleton private constructor() {
         Logger.info("Scheduling migration...")
         Logger.startCollect()
         CoroutineScope(Dispatchers.IO).launch {
-            step = STEP_CHECK
-            ServerDatabase.instance.query {
-                val areasEmpty = Area.all().empty()
-                val zonesEmpty = Zone.all().empty()
-                val sectorsEmpty = Sector.all().empty()
-                val pathsEmpty = Path.all().empty()
-                val blockingEmpty = Blocking.all().empty()
+            try {
+                step = STEP_CHECK
+                ServerDatabase.instance.query {
+                    val areasEmpty = Area.all().empty()
+                    val zonesEmpty = Zone.all().empty()
+                    val sectorsEmpty = Sector.all().empty()
+                    val pathsEmpty = Path.all().empty()
+                    val blockingEmpty = Blocking.all().empty()
 
-                check(areasEmpty && zonesEmpty && sectorsEmpty && pathsEmpty && blockingEmpty) {
-                    "Database must be empty for running import."
+                    check(areasEmpty && zonesEmpty && sectorsEmpty && pathsEmpty && blockingEmpty) {
+                        "Database must be empty for running import."
+                    }
                 }
-            }
 
-            step = STEP_FS_STRUCTURE
-            if (tempDir.exists()) {
-                if (tempDir.deleteRecursively()) {
-                    Logger.debug("Deleted Temp dir ($tempDir)")
-                } else {
-                    Logger.error("Could not delete old temp dir! $tempDir")
+                step = STEP_FS_STRUCTURE
+                if (tempDir.exists()) {
+                    if (tempDir.deleteRecursively()) {
+                        Logger.debug("Deleted Temp dir ($tempDir)")
+                    } else {
+                        Logger.error("Could not delete old temp dir! $tempDir")
+                    }
                 }
-            }
 
-            if (!tempDir.exists()) {
-                if (tempDir.mkdirs()) {
-                    Logger.debug("Created Temp dir ($tempDir)")
-                } else {
-                    Logger.error("Could not create temp dir! $tempDir")
+                if (!tempDir.exists()) {
+                    if (tempDir.mkdirs()) {
+                        Logger.debug("Created Temp dir ($tempDir)")
+                    } else {
+                        Logger.error("Could not create temp dir! $tempDir")
+                    }
                 }
+
+                Logger.debug("Starting data import from https://$hostname/...")
+
+                Logger.debug("Importing areas...")
+                step = STEP_FETCH_AREAS
+                val areaPairs = fetchAreas()
+                Logger.debug("Importing zones...")
+                step = STEP_FETCH_ZONES
+                val zonePairs = fetchZones(areaPairs)
+                Logger.debug("Importing sectors...")
+                step = STEP_FETCH_SECTORS
+                val sectorPairs = fetchSectors(zonePairs)
+                Logger.debug("Importing paths...")
+                step = STEP_FETCH_PATHS
+                fetchPaths(sectorPairs)
+
+                Logger.debug("Import complete!")
+
+                tempDir.deleteRecursively()
+            } catch (exception: Exception) {
+                Logger.error("Could not complete import.", exception)
+                error = exception
+            } finally {
+                Logger.info("Import completed.")
+                isRunning = false
+                isFinished = true
+                Logger.stopCollect()
             }
-
-            Logger.debug("Starting data import from https://$hostname/...")
-
-            Logger.debug("Importing areas...")
-            step = STEP_FETCH_AREAS
-            val areaPairs = fetchAreas()
-            Logger.debug("Importing zones...")
-            step = STEP_FETCH_ZONES
-            val zonePairs = fetchZones(areaPairs)
-            Logger.debug("Importing sectors...")
-            step = STEP_FETCH_SECTORS
-            val sectorPairs = fetchSectors(zonePairs)
-            Logger.debug("Importing paths...")
-            step = STEP_FETCH_PATHS
-            fetchPaths(sectorPairs)
-
-            Logger.debug("Import complete!")
-
-            tempDir.deleteRecursively()
-        }.invokeOnCompletion { throwable ->
-            isRunning = false
-            isFinished = true
-            error = throwable
-            progress = -1
-            max = -1
-            Logger.stopCollect()
         }
 
         return true
