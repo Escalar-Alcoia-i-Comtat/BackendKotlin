@@ -1,6 +1,5 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.migration
 
-import HTTP_PORT
 import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder
@@ -12,38 +11,33 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Area
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.BaseEntity
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
-import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.ImageUtils
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getUInt
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getUIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.removeAccents
-import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.urlEncoded
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.request.forms.FormBuilder
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.copyAndClose
 import java.io.File
+import java.net.URL
 import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.tongfei.progressbar.ProgressBar
-import org.json.JSONArray
 import org.json.JSONObject
 
 class OldDataMigrationSingleton private constructor() {
@@ -69,7 +63,7 @@ class OldDataMigrationSingleton private constructor() {
         private const val STEP_FETCH_ZONES = "fetch-zones"
         private const val STEP_FETCH_SECTORS = "fetch-sectors"
         private const val STEP_FETCH_PATHS = "fetch-paths"
-        
+
         @Volatile
         private var instance: OldDataMigrationSingleton? = null
 
@@ -80,7 +74,7 @@ class OldDataMigrationSingleton private constructor() {
             instance ?: OldDataMigrationSingleton().also { instance = it }
         }
     }
-    
+
     private lateinit var hostname: String
 
     /**
@@ -120,7 +114,8 @@ class OldDataMigrationSingleton private constructor() {
 
     private val tempFile: File by lazy { File(System.getProperty("user.home")) }
     private val tempDir: File by lazy { File(tempFile, "eaic-tmp") }
-    
+
+    @Suppress("LongMethod")
     fun start(hostname: String): Boolean {
         if (isRunning) {
             return false
@@ -168,16 +163,16 @@ class OldDataMigrationSingleton private constructor() {
 
             Logger.debug("Importing areas...")
             step = STEP_FETCH_AREAS
-            val areaIdPairs = fetchAreas()
+            val areaPairs = fetchAreas()
             Logger.debug("Importing zones...")
             step = STEP_FETCH_ZONES
-            val zoneIdPairs = fetchZones(areaIdPairs)
+            val zonePairs = fetchZones(areaPairs)
             Logger.debug("Importing sectors...")
             step = STEP_FETCH_SECTORS
-            val sectorIdPairs = fetchSectors(zoneIdPairs)
+            val sectorPairs = fetchSectors(zonePairs)
             Logger.debug("Importing paths...")
             step = STEP_FETCH_PATHS
-            fetchPaths(sectorIdPairs)
+            fetchPaths(sectorPairs)
 
             Logger.debug("Import complete!")
 
@@ -244,11 +239,11 @@ class OldDataMigrationSingleton private constructor() {
         return null
     }
 
-    private suspend inline fun fetch(
+    private suspend inline fun <T : BaseEntity> fetch(
         name: String,
-        forEach: MutableMap<String, Int>.(objectId: String, data: JSONObject, pb: ProgressBar) -> Unit
+        forEach: MutableMap<String, T>.(objectId: String, data: JSONObject, pb: ProgressBar) -> Unit
     ) = client.get("https://${hostname}/v1/list/$name").let {
-        val pairs = hashMapOf<String, Int>()
+        val pairs = hashMapOf<String, T>()
 
         val result = it.bodyAsText().json.getJSONObject("result")
 
@@ -307,58 +302,28 @@ class OldDataMigrationSingleton private constructor() {
             list
         }
 
-    private suspend fun create(endpoint: String, builder: FormBuilder.() -> Unit): Int {
-        val response = client.submitFormWithBinaryData(
-            "http://127.0.0.1:$HTTP_PORT/$endpoint",
-            formData = formData(builder)
-        ) {
-            header(HttpHeaders.Authorization, "Bearer ${EnvironmentVariables.Authentication.AuthToken.value}")
-        }
-        val body = response.bodyAsText()
-        // Get body as JSON
-        val json = body.json
-
-        check(json.has("data")) { "Body didn't return any data. Body: $body" }
-
-        // Get response data
-        val data = json.getJSONObject("data")
-
-        // Extract the element's ID
-        return data.getInt("${endpoint}_id")
-    }
-
     private suspend fun fetchAreas() = fetch("Areas") { objectId, area, pb ->
         // Download image
         val image = area.getString("image")
         Logger.debug("Downloading $image for area $objectId...")
         val imageFile = downloadFile(image, DOWNLOAD_IMAGE_ATTEMPTS)!!
 
-        // Download KMZ
-        val kmz = area.getString("kmz")
-        Logger.debug("Downloading $kmz for area $objectId...")
-        val kmzFile = downloadFile(kmz)
-
         Logger.debug("Creating area $objectId...")
         pb.setExtraMessage(objectId)
 
-        val areaId = create("area") {
-            append("displayName", area.getString("displayName"))
-            append("webUrl", area.getString("webURL"))
-            append("image", imageFile.readBytes(), Headers.build {
-                append(HttpHeaders.ContentType, "image/jpeg")
-                append(HttpHeaders.ContentDisposition, "filename=area.jpg")
-            })
-            append("kmz", kmzFile.readBytes(), Headers.build {
-                append(HttpHeaders.ContentType, "application/vnd")
-                append(HttpHeaders.ContentDisposition, "filename=area.kmz")
-            })
+        val new = ServerDatabase.instance.query {
+            Area.new {
+                this.displayName = area.getString("displayName")
+                this.webUrl = URL(area.getString("webURL"))
+                this.image = imageFile
+            }
         }
 
-        // Append the id of the new area corresponding to the old objectId
-        put(objectId, areaId)
+        // Append the new area corresponding to the old objectId
+        put(objectId, new)
     }
 
-    private suspend fun fetchZones(areaIdPairs: Map<String, Int>) = fetch("Zones") { objectId, zone, pb ->
+    private suspend fun fetchZones(areaPairs: Map<String, Area>) = fetch("Zones") { objectId, zone, pb ->
         // Download image
         val image = zone.getString("image")
         Logger.debug("Downloading $image for zone $objectId...")
@@ -388,91 +353,74 @@ class OldDataMigrationSingleton private constructor() {
             builder
         }
 
-        val areaId = areaIdPairs[zone.getString("area")]
-        if (areaId == null) {
+        val area = areaPairs[zone.getString("area")]
+        if (area == null) {
             Logger.warn("Could not find an area with objectId associated to ${zone.getString("area")}.")
             return@fetch
         }
 
-        Logger.debug("Creating zone $objectId (area=$areaId)...")
+        Logger.debug("Creating zone $objectId (area=${area.id})...")
         pb.setExtraMessage(objectId)
 
-        val zoneId = create("zone") {
-            append("displayName", zone.getString("displayName"))
-            append("webUrl", zone.getString("webURL"))
-            append(
-                "point",
-                LatLng(zone.getDouble("latitude"), zone.getDouble("longitude")).toJson().toString()
-            )
-            points?.let { append("points", it.toJson().toString()) }
-
-            append("image", imageFile.readBytes(), Headers.build {
-                append(HttpHeaders.ContentType, "image/jpeg")
-                append(HttpHeaders.ContentDisposition, "filename=zone.jpg")
-            })
-            append("kmz", kmzFile.readBytes(), Headers.build {
-                append(HttpHeaders.ContentType, "application/vnd")
-                append(HttpHeaders.ContentDisposition, "filename=zone.kmz")
-            })
-
-            append("area", areaId)
+        val new = ServerDatabase.instance.query {
+            Zone.new {
+                this.displayName = zone.getString("displayName")
+                this.webUrl = URL(zone.getString("webURL"))
+                this.point = LatLng(zone.getDouble("latitude"), zone.getDouble("longitude"))
+                points?.let { this.points.addAll(it) }
+                this.image = imageFile
+                this.kmz = kmzFile
+                this.area = area
+            }
         }
 
-        // Append the id of the new zone corresponding to the old objectId
-        put(objectId, zoneId)
+        // Append the new zone corresponding to the old objectId
+        put(objectId, new)
     }
 
-    private suspend fun fetchSectors(zoneIdPairs: Map<String, Int>) = fetch("Sectors") { objectId, sector, pb ->
+    private suspend fun fetchSectors(zonePairs: Map<String, Zone>) = fetch("Sectors") { objectId, sector, pb ->
         // Download image
         val image = sector.getString("image")
         Logger.debug("Downloading $image for sector $objectId...")
         val imageFile = downloadFile(image, DOWNLOAD_IMAGE_ATTEMPTS)!!
 
-        val zoneId = zoneIdPairs[sector.getString("zone")]
-        if (zoneId == null) {
+        val zone = zonePairs[sector.getString("zone")]
+        if (zone == null) {
             Logger.warn("Could not find a zone with objectId associated to ${sector.getString("zone")}.")
             return@fetch
         }
 
-        Logger.debug("Creating sector $objectId (zone=$zoneId)...")
+        Logger.debug("Creating sector $objectId (zone=${zone.id})...")
         pb.setExtraMessage(objectId)
 
-        val sectorId = create("sector") {
-            append("displayName", sector.getString("displayName"))
-            append("kidsApt", sector.getBoolean("kidsApt"))
-            append(
-                "point",
-                LatLng(sector.getDouble("latitude"), sector.getDouble("longitude")).toJson().toString()
-            )
-            append(
-                "sunTime",
-                sector.getString("sunTime")
+        val new = ServerDatabase.instance.query {
+            Sector.new {
+                this.displayName = sector.getString("displayName")
+                this.kidsApt = sector.getBoolean("kidsApt")
+                this.point = LatLng(sector.getDouble("latitude"), sector.getDouble("longitude"))
+                this.sunTime = sector.getString("sunTime")
                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-            )
-            append("weight", sector.getString("weight"))
-            append("walkingTime", sector.getInt("walkingTime"))
-
-            append("image", imageFile.readBytes(), Headers.build {
-                append(HttpHeaders.ContentType, "image/jpeg")
-                append(HttpHeaders.ContentDisposition, "filename=sector.jpg")
-            })
-
-            append("zone", zoneId)
+                    .let { Sector.SunTime.valueOf(it) }
+                this.weight = sector.getString("weight")
+                this.walkingTime = sector.getUIntOrNull("walkingTime")
+                this.image = imageFile
+                this.zone = zone
+            }
         }
 
-        // Append the id of the new area corresponding to the old objectId
-        put(objectId, sectorId)
+        // Append the new sector corresponding to the old objectId
+        put(objectId, new)
     }
 
     @Suppress("LongMethod")
-    private suspend fun fetchPaths(sectorIdPairs: Map<String, Int>) = fetch("Paths") { objectId, path, pb ->
-        val sectorId = sectorIdPairs[path.getString("sector")]
-        if (sectorId == null) {
+    private suspend fun fetchPaths(sectorPairs: Map<String, Sector>) = fetch("Paths") { objectId, path, pb ->
+        val sector = sectorPairs[path.getString("sector")]
+        if (sector == null) {
             Logger.warn("Could not find a sector with objectId associated to ${path.getString("sector")}.")
             return@fetch
         }
 
-        Logger.debug("Creating path $objectId (sector=$sectorId)...")
+        Logger.debug("Creating path $objectId (sector=${sector.id})...")
         pb.setExtraMessage(objectId)
 
         // >¿?\r\n1>¿?\r\n2>¿?\r\n3>¿?\r\n4>¿?\r\n5>¿?
@@ -522,52 +470,55 @@ class OldDataMigrationSingleton private constructor() {
             )
         }
 
-        create("path") {
-            append("displayName", path.getString("displayName"))
-            append("sketchId", path.getInt("sketchId"))
+        val new = ServerDatabase.instance.query {
+            Path.new {
+                displayName = path.getString("displayName")
+                sketchId = path.getUInt("sketchId")
 
-            generalHeight?.let { append("height", it.toLong()) }
-            generalGrade?.let { append("grade", it) }
-            generalEnding?.let { append("ending", it) }
+                this.height = generalHeight
+                this.grade = generalGrade?.let { GradeValue.fromString(it) }
+                this.ending = generalEnding?.let { Ending.valueOf(it.uppercase()) }
 
-            append("pitches", pitches.toList().toJson().toString())
+                this.pitches = pitches.toList().takeIf { it.isNotEmpty() }
 
-            append("stringCount", path.getInt("stringCount"))
-            append("paraboltCount", path.getInt("paraboltCount"))
-            append("burilCount", path.getInt("burilCount"))
-            append("pitonCount", path.getInt("pitonCount"))
-            append("spitCount", path.getInt("spitCount"))
-            append("tensorCount", path.getInt("tensorCount"))
+                this.stringCount = path.getUIntOrNull("stringCount")
+                this.paraboltCount = path.getUIntOrNull("paraboltCount")
+                this.burilCount = path.getUIntOrNull("burilCount")
+                this.pitonCount = path.getUIntOrNull("pitonCount")
+                this.spitCount = path.getUIntOrNull("spitCount")
+                this.tensorCount = path.getUIntOrNull("tensorCount")
 
-            append("crackerRequired", path.getBoolean("crackerRequired"))
-            append("friendRequired", path.getBoolean("friendRequired"))
-            append("lanyardRequired", path.getBoolean("lanyardRequired"))
-            append("nailRequired", path.getBoolean("nailRequired"))
-            append("pitonRequired", path.getBoolean("pitonRequired"))
-            append("stapesRequired", path.getBoolean("stripsRequired"))
+                this.crackerRequired = path.getBoolean("crackerRequired")
+                this.friendRequired = path.getBoolean("friendRequired")
+                this.lanyardRequired = path.getBoolean("lanyardRequired")
+                this.nailRequired = path.getBoolean("nailRequired")
+                this.pitonRequired = path.getBoolean("pitonRequired")
+                this.stapesRequired = path.getBoolean("stripsRequired")
 
-            path.getStringOrNull("builtBy")
-                ?.takeIf { it.isNotBlank() && !it.equals("NULL", true) }
-                ?.let {
-                    val pieces = it.split(";")
-                    val builtBy = Builder(pieces.getOrNull(0), pieces.getOrNull(1))
-                    append("builder", builtBy.toJson().toString())
-                }
-
-            path.getStringOrNull("rebuilders")
-                ?.takeIf { it.isNotBlank() && !it.equals("NULL", true) }
-                ?.let {
-                    val lines = it.replace("\r", "").split("\n")
-                    val array = JSONArray()
-                    for (line in lines) {
-                        val pieces = line.split(";")
-                        val reBuilder = Builder(pieces.getOrNull(0), pieces.getOrNull(1))
-                        array.put(reBuilder.toJson())
+                this.builder = path.getStringOrNull("builtBy")
+                    ?.takeIf { it.isNotBlank() && !it.equals("NULL", true) }
+                    ?.let {
+                        val pieces = it.split(";")
+                        Builder(pieces.getOrNull(0), pieces.getOrNull(1))
                     }
-                    append("reBuilder", array.toString())
-                }
+                this.reBuilder = path.getStringOrNull("rebuilders")
+                    ?.takeIf { it.isNotBlank() && !it.equals("NULL", true) }
+                    ?.let {
+                        val lines = it.replace("\r", "").split("\n")
+                        val list = mutableListOf<Builder>()
+                        for (line in lines) {
+                            val pieces = line.split(";")
+                            val reBuilder = Builder(pieces.getOrNull(0), pieces.getOrNull(1))
+                            list.add(reBuilder)
+                        }
+                        list
+                    }
 
-            append("sector", sectorId)
+                this.sector = sector
+            }
         }
+
+        // Append the new path corresponding to the old objectId
+        put(objectId, new)
     }
 }
