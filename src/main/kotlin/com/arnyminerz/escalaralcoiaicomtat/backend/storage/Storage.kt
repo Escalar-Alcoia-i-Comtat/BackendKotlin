@@ -14,8 +14,8 @@ object Storage {
      */
     var BaseDir: File = File("/var/lib/escalaralcoiaicomtat/files")
 
-    val ImagesDir by lazy { File(BaseDir, "images") }
-    val TracksDir by lazy { File(BaseDir, "tracks") }
+    val ImagesDir by lazy { File(BaseDir, "images").also { if (!it.exists()) it.mkdirs() } }
+    val TracksDir by lazy { File(BaseDir, "tracks").also { if (!it.exists()) it.mkdirs() } }
 
     fun imageFile(path: String) = File(ImagesDir, path)
 
