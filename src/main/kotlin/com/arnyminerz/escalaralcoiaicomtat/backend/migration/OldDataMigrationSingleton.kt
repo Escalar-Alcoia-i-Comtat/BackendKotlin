@@ -367,7 +367,7 @@ class OldDataMigrationSingleton private constructor() {
                 this.displayName = zone.getString("displayName")
                 this.webUrl = URL(zone.getString("webURL"))
                 this.point = LatLng(zone.getDouble("latitude"), zone.getDouble("longitude"))
-                points?.let { this.points.addAll(it) }
+                this.pointsSet = points?.map { it.toJson().toString() } ?: emptyList()
                 this.image = imageFile
                 this.kmz = kmzFile
                 this.area = area
