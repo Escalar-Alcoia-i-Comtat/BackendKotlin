@@ -34,13 +34,11 @@ import io.ktor.utils.io.copyAndClose
 import java.io.File
 import java.net.URL
 import java.util.Locale
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import me.tongfei.progressbar.ProgressBar
 import org.json.JSONObject
 
-class OldDataMigrationSingleton private constructor() {
+class OldDataMigrationSingleton private constructor(private val hostname: String): Thread() {
     companion object {
         private const val BUILDER_PIECES_COUNT = 4
         private const val BUILDER_INDEX_LAT = 0
@@ -70,12 +68,15 @@ class OldDataMigrationSingleton private constructor() {
         /**
          * Creates or fetches the singleton instance of [OldDataMigrationSingleton]
          */
-        fun getInstance(): OldDataMigrationSingleton = instance ?: synchronized(this) {
-            instance ?: OldDataMigrationSingleton().also { instance = it }
+        fun run(hostname: String): Boolean = synchronized(this) {
+            if (instance == null) {
+                instance = OldDataMigrationSingleton(hostname).also { it.start() }
+                true
+            } else {
+                false
+            }
         }
     }
-
-    private lateinit var hostname: String
 
     /**
      * Is true when an import process is currently running.
@@ -116,19 +117,16 @@ class OldDataMigrationSingleton private constructor() {
     private val tempDir: File by lazy { File(tempFile, "eaic-tmp") }
 
     @Suppress("LongMethod", "TooGenericExceptionCaught")
-    fun start(hostname: String): Boolean {
-        if (isRunning) {
-            return false
-        }
+    override fun run() {
+        if (isRunning) return Logger.warn("Tried to schedule migration when already running.")
 
         this.isRunning = true
-        this.hostname = hostname
         this.progress = -1
         this.max = -1
 
-        Logger.info("Scheduling migration...")
-        Logger.startCollect()
-        CoroutineScope(Dispatchers.IO).launch {
+        runBlocking {
+            Logger.info("Scheduling migration...")
+            Logger.startCollect()
             try {
                 step = STEP_CHECK
                 ServerDatabase.instance.query {
@@ -188,8 +186,6 @@ class OldDataMigrationSingleton private constructor() {
                 Logger.stopCollect()
             }
         }
-
-        return true
     }
 
     /**
