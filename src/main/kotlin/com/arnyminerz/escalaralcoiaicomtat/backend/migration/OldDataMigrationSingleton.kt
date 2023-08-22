@@ -16,12 +16,12 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.ImageUtils
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getUInt
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getUIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
-import com.arnyminerz.escalaralcoiaicomtat.backend.utils.removeAccents
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.urlEncoded
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -34,6 +34,7 @@ import io.ktor.utils.io.copyAndClose
 import java.io.File
 import java.net.URL
 import java.util.Locale
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import me.tongfei.progressbar.ProgressBar
 import org.json.JSONObject
@@ -118,6 +119,8 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
     private val tempFile: File by lazy { File(System.getProperty("user.home")) }
     private val tempDir: File by lazy { File(tempFile, "eaic-tmp") }
 
+    enum class FileType { IMAGE, KMZ }
+
     @Suppress("LongMethod", "TooGenericExceptionCaught")
     override fun run() {
         if (isRunning) return Logger.warn("Tried to schedule migration when already running.")
@@ -199,19 +202,23 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
      *
      * @return The new file.
      */
-    private suspend fun downloadFile(path: String): File {
+    private suspend fun downloadFile(path: String, type: FileType): File {
         val response = client.get("https://${hostname}/v1/files/download?path=${path.urlEncoded}")
 
         check(response.status.isSuccess()) { "Download was not successful." }
 
-        val fileName = path.substringAfterLast('/')
-        val file = File(tempDir, fileName.removeAccents().replace(" ", "_"))
+        val dir = when (type) {
+            FileType.IMAGE -> Storage.ImagesDir
+            FileType.KMZ -> Storage.TracksDir
+        }
+        val uuid = UUID.randomUUID()
+        val file = File(dir, uuid.toString())
 
         Logger.debug("  Writing $path into $file")
         val channel = response.bodyAsChannel()
         channel.copyAndClose(file.writeChannel())
 
-        if (arrayOf("jpg", "jpeg", "png").any { path.endsWith(it, true) }) {
+        if (type == FileType.IMAGE) {
             Logger.debug("  Verifying downloaded image integrity...")
             val result = ImageUtils.verifyImageIntegrity(file)
             check(result.image == true) {
@@ -223,11 +230,11 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
         return file
     }
 
-    private suspend fun downloadFile(path: String, attempts: Int): File? {
+    private suspend fun downloadFile(path: String, type: FileType, attempts: Int): File? {
         var counter = 0
         while (attempts > counter) {
             try {
-                return downloadFile(path)
+                return downloadFile(path, type)
             } catch (e: IllegalStateException) {
                 if (e.message?.contains("corrupt", true) == true) {
                     Logger.info("$path download was corrupted. Trying again $counter / $attempts")
@@ -307,7 +314,7 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
         // Download image
         val image = area.getString("image")
         Logger.debug("Downloading $image for area $objectId...")
-        val imageFile = downloadFile(image, DOWNLOAD_IMAGE_ATTEMPTS)!!
+        val imageFile = downloadFile(image, FileType.IMAGE, DOWNLOAD_IMAGE_ATTEMPTS)!!
 
         Logger.debug("Creating area $objectId...")
         pb.setExtraMessage(objectId)
@@ -328,12 +335,12 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
         // Download image
         val image = zone.getString("image")
         Logger.debug("Downloading $image for zone $objectId...")
-        val imageFile = downloadFile(image, DOWNLOAD_IMAGE_ATTEMPTS)!!
+        val imageFile = downloadFile(image, FileType.IMAGE, DOWNLOAD_IMAGE_ATTEMPTS)!!
 
         // Download KMZ
         val kmz = zone.getString("kmz")
         Logger.debug("Downloading $kmz for zone $objectId...")
-        val kmzFile = downloadFile(kmz)
+        val kmzFile = downloadFile(kmz, FileType.KMZ)
 
         val points = zone.getStringOrNull("points")?.let { pointsStr ->
             val lines = pointsStr
@@ -383,7 +390,7 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
         // Download image
         val image = sector.getString("image")
         Logger.debug("Downloading $image for sector $objectId...")
-        val imageFile = downloadFile(image, DOWNLOAD_IMAGE_ATTEMPTS)!!
+        val imageFile = downloadFile(image, FileType.IMAGE, DOWNLOAD_IMAGE_ATTEMPTS)!!
 
         val zone = zonePairs[sector.getString("zone")]
         if (zone == null) {
