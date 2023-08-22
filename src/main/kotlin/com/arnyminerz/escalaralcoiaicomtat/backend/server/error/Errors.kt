@@ -21,4 +21,6 @@ object Errors {
     val AuthenticationRequired = Error(31, "Authentication token is required", HttpStatusCode.Unauthorized)
     val AuthenticationInvalid = Error(32, "Authentication requires a Bearer token", HttpStatusCode.MethodNotAllowed)
     val AuthenticationFailed = Error(33, "Authentication token is not valid", HttpStatusCode.Forbidden)
+
+    val DatabaseNotEmpty = Error(40, "Database must be empty", HttpStatusCode.PreconditionFailed)
 }
