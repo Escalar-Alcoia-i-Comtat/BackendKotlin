@@ -23,4 +23,5 @@ object Errors {
     val AuthenticationFailed = Error(33, "Authentication token is not valid", HttpStatusCode.Forbidden)
 
     val DatabaseNotEmpty = Error(40, "Database must be empty", HttpStatusCode.PreconditionFailed)
+    val NotRunning = Error(41, "Not running", HttpStatusCode.PreconditionFailed)
 }

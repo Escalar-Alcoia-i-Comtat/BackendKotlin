@@ -76,6 +76,8 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
                 false
             }
         }
+
+        fun getInstance(): OldDataMigrationSingleton? = instance
     }
 
     /**
