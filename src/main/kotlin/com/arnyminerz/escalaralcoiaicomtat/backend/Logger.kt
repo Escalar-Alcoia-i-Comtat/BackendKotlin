@@ -54,6 +54,11 @@ object Logger {
     fun error(message: String) {
         print(LogLevel.ERROR, AnsiColors.YELLOW, message)
     }
+
+    fun error(message: String, throwable: Throwable) {
+        print(LogLevel.ERROR, AnsiColors.YELLOW, message)
+        throwable.printStackTrace()
+    }
 }
 
 annotation class LogLevel {
