@@ -1,5 +1,6 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.old
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.migration.OldDataMigrationSingleton
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
@@ -28,7 +29,8 @@ object ImportStatusEndpoint : EndpointBase() {
                 },
                 "step" to singleton.step,
                 "progress" to singleton.progress,
-                "max" to singleton.max
+                "max" to singleton.max,
+                "logs" to Logger.trace
             )
         )
     }

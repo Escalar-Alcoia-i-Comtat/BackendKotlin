@@ -132,6 +132,7 @@ class OldDataMigrationSingleton private constructor() {
         this.max = -1
 
         Logger.info("Scheduling migration...")
+        Logger.startCollect()
         CoroutineScope(Dispatchers.IO).launch {
             step = STEP_CHECK
             ServerDatabase.instance.query {
@@ -187,6 +188,7 @@ class OldDataMigrationSingleton private constructor() {
             error = throwable
             progress = -1
             max = -1
+            Logger.stopCollect()
         }
 
         return true
