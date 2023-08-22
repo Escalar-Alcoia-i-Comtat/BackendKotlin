@@ -24,8 +24,10 @@ object ImportOldDataEndpoint : EndpointBase() {
         }
 
         val migrationSingleton = OldDataMigrationSingleton.getInstance()
-        migrationSingleton.start(hostname!!)
-
-        respondSuccess()
+        if (migrationSingleton.start(hostname!!)) {
+            respondSuccess()
+        } else {
+            respondFailure(Errors.DatabaseNotEmpty)
+        }
     }
 }
