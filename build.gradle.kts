@@ -51,7 +51,7 @@ dependencies {
 
     // Database engines
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("org.xerial:sqlite-jdbc:3.42.0.0")
+    implementation("org.xerial:sqlite-jdbc:3.43.0.0")
 
     // SSL Dependencies
     if (tcnativeClassifier != null) {
