@@ -134,7 +134,7 @@ object NewPathEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            jsonOf("element_id" to path.id.value, "timestamp" to path.timestamp.toEpochMilli()),
+            jsonOf("element" to path.toJson()),
             httpStatusCode = HttpStatusCode.Created
         )
     }

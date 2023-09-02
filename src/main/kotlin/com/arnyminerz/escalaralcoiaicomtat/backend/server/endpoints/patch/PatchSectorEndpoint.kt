@@ -102,7 +102,7 @@ object PatchSectorEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            data = jsonOf("timestamp" to sector.timestamp.toEpochMilli())
+            data = jsonOf("element" to sector.toJson())
         )
     }
 }

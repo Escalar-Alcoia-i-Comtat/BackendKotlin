@@ -80,7 +80,7 @@ object NewZoneEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            jsonOf("element_id" to zone.id.value, "timestamp" to zone.timestamp.toEpochMilli()),
+            jsonOf("element" to zone.toJson()),
             httpStatusCode = HttpStatusCode.Created
         )
     }

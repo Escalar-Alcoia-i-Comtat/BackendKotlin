@@ -68,7 +68,7 @@ object PatchAreaEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            data = jsonOf("timestamp" to area.timestamp.toEpochMilli())
+            data = jsonOf("element" to area.toJson())
         )
     }
 }

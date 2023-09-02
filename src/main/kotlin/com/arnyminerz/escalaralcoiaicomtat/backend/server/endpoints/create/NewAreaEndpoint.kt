@@ -62,7 +62,7 @@ object NewAreaEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            jsonOf("element_id" to area.id.value, "timestamp" to area.timestamp.toEpochMilli()),
+            jsonOf("element" to area.toJson()),
             httpStatusCode = HttpStatusCode.Created
         )
     }

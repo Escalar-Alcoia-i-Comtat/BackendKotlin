@@ -99,7 +99,7 @@ object PatchZoneEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            data = jsonOf("timestamp" to zone.timestamp.toEpochMilli())
+            data = jsonOf("element" to zone.toJson())
         )
     }
 }
