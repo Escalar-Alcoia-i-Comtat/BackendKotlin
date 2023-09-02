@@ -15,6 +15,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllFalse
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -23,6 +24,7 @@ import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
+import java.time.Instant
 import java.util.UUID
 
 object PatchZoneEndpoint : SecureEndpointBase() {
@@ -92,8 +94,12 @@ object PatchZoneEndpoint : SecureEndpointBase() {
             area?.let { zone.area = it }
 
             if (removePoint) zone.point = null
+
+            zone.timestamp = Instant.now()
         }
 
-        respondSuccess()
+        respondSuccess(
+            data = jsonOf("timestamp" to zone.timestamp.toEpochMilli())
+        )
     }
 }

@@ -13,12 +13,14 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllFalse
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
+import java.time.Instant
 import java.util.UUID
 
 object PatchSectorEndpoint : SecureEndpointBase() {
@@ -95,8 +97,12 @@ object PatchSectorEndpoint : SecureEndpointBase() {
 
             if (removePoint) sector.point = null
             if (removeWalkingTime) sector.walkingTime = null
+
+            sector.timestamp = Instant.now()
         }
 
-        respondSuccess()
+        respondSuccess(
+            data = jsonOf("timestamp" to sector.timestamp.toEpochMilli())
+        )
     }
 }

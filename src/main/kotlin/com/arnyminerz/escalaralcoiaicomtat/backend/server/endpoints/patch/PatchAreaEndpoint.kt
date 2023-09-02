@@ -8,6 +8,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -18,6 +19,7 @@ import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
+import java.time.Instant
 import java.util.UUID
 
 object PatchAreaEndpoint : SecureEndpointBase() {
@@ -61,8 +63,12 @@ object PatchAreaEndpoint : SecureEndpointBase() {
         ServerDatabase.instance.query {
             displayName?.let { area.displayName = it }
             webUrl?.let { area.webUrl = URL(it) }
+
+            area.timestamp = Instant.now()
         }
 
-        respondSuccess()
+        respondSuccess(
+            data = jsonOf("timestamp" to area.timestamp.toEpochMilli())
+        )
     }
 }
