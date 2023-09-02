@@ -62,7 +62,7 @@ object NewAreaEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            jsonOf("area_id" to area.id.value),
+            jsonOf("element_id" to area.id.value),
             httpStatusCode = HttpStatusCode.Created
         )
     }

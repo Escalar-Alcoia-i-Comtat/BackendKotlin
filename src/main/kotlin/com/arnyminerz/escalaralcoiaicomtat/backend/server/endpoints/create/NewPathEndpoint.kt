@@ -134,7 +134,7 @@ object NewPathEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            jsonOf("path_id" to path.id.value),
+            jsonOf("element_id" to path.id.value),
             httpStatusCode = HttpStatusCode.Created
         )
     }
