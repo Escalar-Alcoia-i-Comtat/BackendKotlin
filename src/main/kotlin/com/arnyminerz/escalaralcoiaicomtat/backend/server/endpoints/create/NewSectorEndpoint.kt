@@ -78,7 +78,7 @@ object NewSectorEndpoint : SecureEndpointBase() {
         }
 
         respondSuccess(
-            jsonOf("element_id" to sector.id.value),
+            jsonOf("element_id" to sector.id.value, "timestamp" to sector.timestamp.toEpochMilli()),
             httpStatusCode = HttpStatusCode.Created
         )
     }
