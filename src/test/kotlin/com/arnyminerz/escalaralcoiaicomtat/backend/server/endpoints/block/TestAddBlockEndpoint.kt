@@ -10,6 +10,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.client.request.setBody
 import java.time.LocalDateTime
@@ -35,7 +36,9 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
                 ).toString()
             )
         }.apply {
-            assertSuccess()
+            assertSuccess {
+                assertNotNull(it?.getJSONObjectOrNull("element"))
+            }
         }
 
         ServerDatabase.instance.query {
@@ -115,7 +118,9 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
                 ).toString()
             )
         }.apply {
-            assertSuccess()
+            assertSuccess {
+                assertNotNull(it?.getJSONObjectOrNull("element"))
+            }
         }
 
         ServerDatabase.instance.query {
@@ -146,7 +151,9 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
                 ).toString()
             )
         }.apply {
-            assertSuccess()
+            assertSuccess {
+                assertNotNull(it?.getJSONObjectOrNull("element"))
+            }
         }
 
         ServerDatabase.instance.query {
