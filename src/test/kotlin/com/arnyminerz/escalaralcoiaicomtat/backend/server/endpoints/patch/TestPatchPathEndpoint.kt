@@ -15,9 +15,11 @@ import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import org.json.JSONArray
 
 class TestPatchPathEndpoint : ApplicationTestBase() {
     private fun <T> patchProperty(propertyName: String, newValue: T, propertyValue: (Path) -> T) = test {
@@ -39,16 +41,11 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
                 when (newValue) {
                     is JsonSerializable -> append(propertyName, newValue.toJson().toString())
                     is Number -> append(propertyName, newValue)
-                    is Iterable<*> -> if (newValue.none())
-                        append(propertyName, emptyList())
-                    else if (newValue.first() is String)
-                        @Suppress("UNCHECKED_CAST")
-                        append(propertyName, newValue as Iterable<String>)
-                    else if (newValue.first() is JsonSerializable)
+                    is Iterable<*> -> if (newValue.firstOrNull() is JsonSerializable)
                         @Suppress("UNCHECKED_CAST")
                         append(propertyName, (newValue as Iterable<JsonSerializable>).toJson().toString())
                     else
-                        throw UnsupportedOperationException("Cannot append type.")
+                        append(propertyName, JSONArray().toString())
                     else -> append(propertyName, newValue.toString())
                 }
             }
@@ -61,7 +58,10 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
         ServerDatabase.instance.query {
             val path = Path[pathId]
             assertNotNull(path)
-            assertEquals(newValue, path.let(propertyValue))
+            if (newValue is Iterable<*>)
+                assertContentEquals(newValue, path.let(propertyValue) as Iterable<Any?>)
+            else
+                assertEquals(newValue, path.let(propertyValue))
         }
     }
 
@@ -102,7 +102,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Sector - update sketchId`() =
-        patchProperty("sketchId", 10) { it.sketchId }
+        patchProperty("sketchId", 10U) { it.sketchId }
 
     @Test
     fun `test patching Sector - update height`() =
@@ -122,27 +122,27 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Sector - update stringCount`() =
-        patchProperty("stringCount", 456) { it.stringCount }
+        patchProperty("stringCount", 456U) { it.stringCount }
 
     @Test
     fun `test patching Sector - update paraboltCount`() =
-        patchProperty("paraboltCount", 456) { it.paraboltCount }
+        patchProperty("paraboltCount", 456U) { it.paraboltCount }
 
     @Test
     fun `test patching Sector - update burilCount`() =
-        patchProperty("burilCount", 456) { it.burilCount }
+        patchProperty("burilCount", 456U) { it.burilCount }
 
     @Test
     fun `test patching Sector - update pitonCount`() =
-        patchProperty("pitonCount", 456) { it.pitonCount }
+        patchProperty("pitonCount", 456U) { it.pitonCount }
 
     @Test
     fun `test patching Sector - update spitCount`() =
-        patchProperty("spitCount", 456) { it.spitCount }
+        patchProperty("spitCount", 456U) { it.spitCount }
 
     @Test
     fun `test patching Sector - update tensorCount`() =
-        patchProperty("tensorCount", 456) { it.tensorCount }
+        patchProperty("tensorCount", 456U) { it.tensorCount }
 
     @Test
     fun `test patching Sector - update crackerRequired`() =
