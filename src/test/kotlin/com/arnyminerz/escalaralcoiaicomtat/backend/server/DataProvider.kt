@@ -12,6 +12,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.SportsGrade
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -39,8 +40,9 @@ object DataProvider {
             var areaId: Int? = null
             assertSuccess(HttpStatusCode.Created) { data ->
                 assertNotNull(data)
-                areaId = data.getIntOrNull("area_id")
+                areaId = data.getJSONObjectOrNull("element")?.getIntOrNull("id")
             }
+            assertNotNull(areaId)
             areaId
         }
     ): Int? {
@@ -94,8 +96,9 @@ object DataProvider {
             var zoneId: Int? = null
             assertSuccess(HttpStatusCode.Created) { data ->
                 assertNotNull(data)
-                zoneId = data.getIntOrNull("zone_id")
+                zoneId = data.getJSONObjectOrNull("element")?.getIntOrNull("id")
             }
+            assertNotNull(zoneId)
             zoneId
         }
     ): Int? {
@@ -161,8 +164,9 @@ object DataProvider {
             var sectorId: Int? = null
             assertSuccess(HttpStatusCode.Created) { data ->
                 assertNotNull(data)
-                sectorId = data.getIntOrNull("sector_id")
+                sectorId = data.getJSONObjectOrNull("element")?.getIntOrNull("id")
             }
+            assertNotNull(sectorId)
             sectorId
         }
     ): Int? {
@@ -250,8 +254,9 @@ object DataProvider {
             var pathId: Int? = null
             assertSuccess(HttpStatusCode.Created) { data ->
                 assertNotNull(data)
-                pathId = data.getIntOrNull("path_id")
+                pathId = data.getJSONObjectOrNull("element")?.getIntOrNull("id")
             }
+            assertNotNull(pathId)
             pathId
         }
     ): Int? {
