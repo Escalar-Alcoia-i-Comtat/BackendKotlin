@@ -14,6 +14,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.Reques
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.old.ImportOldDataEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.old.ImportStatusEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchAreaEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchPathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchSectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.AreaEndpoint
@@ -59,6 +60,7 @@ fun Application.configureEndpoints() {
 
         get("/path/{pathId}") { PathEndpoint.call(this) }
         post("/path") { NewPathEndpoint.call(this) }
+        post("/path/{pathId}") { PatchPathEndpoint.call(this) }
 
         post("/block/{pathId}") { AddBlockEndpoint.call(this) }
         get("/block/{pathId}") { GetBlockEndpoint.call(this) }
