@@ -9,6 +9,10 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewAr
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewPathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewSectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewZoneEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete.DeleteAreaEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete.DeletePathEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete.DeleteSectorEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete.DeleteZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.DownloadFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.RequestFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.old.ImportOldDataEndpoint
@@ -49,18 +53,22 @@ fun Application.configureEndpoints() {
         get("/area/{areaId}") { AreaEndpoint.call(this) }
         post("/area") { NewAreaEndpoint.call(this) }
         post("/area/{areaId}") { PatchAreaEndpoint.call(this) }
+        delete("/area/{areaId}") { DeleteAreaEndpoint.call(this) }
 
         get("/zone/{zoneId}") { ZoneEndpoint.call(this) }
         post("/zone") { NewZoneEndpoint.call(this) }
         post("/zone/{zoneId}") { PatchZoneEndpoint.call(this) }
+        delete("/zone/{zoneId}") { DeleteZoneEndpoint.call(this) }
 
         get("/sector/{sectorId}") { SectorEndpoint.call(this) }
         post("/sector") { NewSectorEndpoint.call(this) }
         post("/sector/{sectorId}") { PatchSectorEndpoint.call(this) }
+        delete("/sector/{sectorId}") { DeleteSectorEndpoint.call(this) }
 
         get("/path/{pathId}") { PathEndpoint.call(this) }
         post("/path") { NewPathEndpoint.call(this) }
         post("/path/{pathId}") { PatchPathEndpoint.call(this) }
+        delete("/path/{pathId}") { DeletePathEndpoint.call(this) }
 
         post("/block/{pathId}") { AddBlockEndpoint.call(this) }
         get("/block/{pathId}") { GetBlockEndpoint.call(this) }
