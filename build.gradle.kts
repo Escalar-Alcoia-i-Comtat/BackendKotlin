@@ -1,11 +1,10 @@
 import io.ktor.plugin.features.DockerImageRegistry
 import io.ktor.plugin.features.DockerPortMapping
 import io.ktor.plugin.features.DockerPortMappingProtocol
-import io.ktor.plugin.features.JreVersion
 
 plugins {
     kotlin("jvm") version "1.9.0"
-    id("io.ktor.plugin") version "2.3.3"
+    id("io.ktor.plugin") version "2.3.4"
     id("org.jetbrains.kotlinx.kover") version "0.7.3"
 }
 
@@ -87,7 +86,7 @@ kotlin {
 
 ktor {
     docker {
-        jreVersion.set(JreVersion.JRE_17)
+        jreVersion.set(JavaVersion.VERSION_17)
         localImageName.set("escalaralcoiaicomtat")
         imageTag.set(version.toString())
         portMappings.set(
