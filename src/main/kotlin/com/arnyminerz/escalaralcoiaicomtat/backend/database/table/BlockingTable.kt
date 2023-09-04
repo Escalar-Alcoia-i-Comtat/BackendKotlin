@@ -4,7 +4,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
 import java.time.Month
 import org.jetbrains.exposed.sql.javatime.datetime
 
-@OptIn(ExperimentalUnsignedTypes::class)
 object BlockingTable: BaseTable() {
     val type = enumeration<BlockingTypes>("type")
 
