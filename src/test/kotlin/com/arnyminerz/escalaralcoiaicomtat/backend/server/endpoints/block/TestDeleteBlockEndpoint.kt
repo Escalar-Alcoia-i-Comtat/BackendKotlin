@@ -5,8 +5,8 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.client.request.setBody
 import kotlin.test.Test

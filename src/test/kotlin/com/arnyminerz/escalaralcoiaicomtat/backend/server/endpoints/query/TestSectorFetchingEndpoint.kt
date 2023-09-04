@@ -4,8 +4,8 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getBooleanOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getEnumOrNull

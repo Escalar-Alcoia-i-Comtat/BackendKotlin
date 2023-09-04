@@ -2,8 +2,8 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.block
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getEnumOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull

@@ -1,8 +1,8 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.readBytes
 import io.ktor.http.isSuccess

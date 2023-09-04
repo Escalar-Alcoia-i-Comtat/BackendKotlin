@@ -5,8 +5,8 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.DataPoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.HashUtils
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.MessageDigestAlgorithm
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage

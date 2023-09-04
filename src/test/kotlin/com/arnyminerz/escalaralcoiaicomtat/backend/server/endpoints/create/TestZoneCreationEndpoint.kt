@@ -3,8 +3,8 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import java.net.URL
 import kotlin.test.Test

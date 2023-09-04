@@ -1,8 +1,8 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

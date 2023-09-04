@@ -1,6 +1,7 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.assertions
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Error
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONArrayOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import io.ktor.client.statement.HttpResponse
@@ -21,9 +22,14 @@ suspend fun HttpResponse.assertSuccess(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
     block: ((data: JSONObject?) -> Unit)? = null
 ) {
-    assertEquals(statusCode, status, "Expected: $statusCode but was: $status. Body: ${bodyAsText()}")
-
     val json = bodyAsText().json
+
+    assertEquals(
+        statusCode,
+        status,
+        "expected: $statusCode but was: $status. StackTrace: ${json.getJSONObjectOrNull("error")?.getJSONArrayOrNull("stackTrace")?.joinToString("\n  ")}"
+    )
+
     assertEquals(true, json.getBoolean("success"))
     block?.invoke(json.getJSONObjectOrNull("data"))
 }
@@ -36,9 +42,13 @@ suspend fun HttpResponse.assertSuccess(
 suspend fun HttpResponse.assertFailure(
     error: Error
 ) {
-    assertEquals(error.status, status, "expected: ${error.status} but was: $status. Body: ${bodyAsText()}")
-
     val json = bodyAsText().json
+    assertEquals(
+        error.status,
+        status,
+        "expected: ${error.status} but was: $status. StackTrace: ${json.getJSONObjectOrNull("error")?.getJSONArrayOrNull("stackTrace")?.joinToString("\n  ")}"
+    )
+
     assertFalse(json.getBoolean("success"))
 
     val errorJson = json.getJSONObjectOrNull("error")

@@ -1,4 +1,4 @@
-package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints
+package com.arnyminerz.escalaralcoiaicomtat.backend.server
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder

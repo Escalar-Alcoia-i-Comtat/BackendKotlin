@@ -125,6 +125,20 @@ fun JSONObject.getJSONObjectOrNull(key: String): JSONObject? =
     }
 
 /**
+ * Retrieves a JSONArray value from the JSONObject associated with the specified key.
+ *
+ * @param key the key for the JSONArray value to retrieve
+ *
+ * @return the JSONArray value associated with the specified key, or null if the key is not found or the value is not a JSONArray
+ */
+fun JSONObject.getJSONArrayOrNull(key: String): JSONArray? =
+    try {
+        if (has(key)) getJSONArray(key) else null
+    } catch (_: JSONException) {
+        null
+    }
+
+/**
  * Returns the integer value associated with the specified key, or null if the key is not found or the value is not an
  * integer.
  *

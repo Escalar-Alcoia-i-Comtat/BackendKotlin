@@ -8,8 +8,8 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getUInt
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize

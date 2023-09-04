@@ -7,6 +7,7 @@ import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import org.json.JSONArray
 import org.json.JSONObject
@@ -89,6 +90,17 @@ class JsonUtilsTest {
         val json = jsonOf("test" to jsonOf("key" to "value"))
         assertNull(json.getJSONObjectOrNull("null"))
         assertContentEquals(jsonOf("key" to "value"), json.getJSONObjectOrNull("test")!!)
+    }
+
+    @Test
+    fun `test JSONObject_getJSONArrayOrNull`() {
+        val json = jsonOf("test" to JSONArray().apply { put("test") })
+        assertNull(json.getJSONArrayOrNull("null"))
+
+        val array = json.getJSONArrayOrNull("test")
+        assertNotNull(array)
+        assertEquals(1, array.length())
+        assertEquals("test", array.getString(0))
     }
 
     @Test
