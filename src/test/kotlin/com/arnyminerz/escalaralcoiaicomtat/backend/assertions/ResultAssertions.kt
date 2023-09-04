@@ -25,7 +25,7 @@ suspend fun HttpResponse.assertSuccess(
 ) {
     val json = bodyAsText().json
     val error = json.getJSONObjectOrNull("error")
-    val errorMessage = json.getStringOrNull("message")
+    val errorMessage = error?.getStringOrNull("message")
     val errorType = error?.getStringOrNull("type")
     val stackTrace = error?.getJSONArrayOrNull("stackTrace")?.joinToString("\n    ")
 
