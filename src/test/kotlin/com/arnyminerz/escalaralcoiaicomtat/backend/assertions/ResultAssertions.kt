@@ -3,6 +3,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.assertions
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Error
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONArrayOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -23,11 +24,26 @@ suspend fun HttpResponse.assertSuccess(
     block: ((data: JSONObject?) -> Unit)? = null
 ) {
     val json = bodyAsText().json
+    val error = json.getJSONObjectOrNull("error")
+    val errorMessage = json.getStringOrNull("message")
+    val errorType = error?.getStringOrNull("type")
+    val stackTrace = error?.getJSONArrayOrNull("stackTrace")?.joinToString("\n    ")
 
     assertEquals(
         statusCode,
         status,
-        "expected: $statusCode but was: $status. StackTrace: ${json.getJSONObjectOrNull("error")?.getJSONArrayOrNull("stackTrace")?.joinToString("\n  ")}"
+        StringBuilder().apply {
+            appendLine("expected: $statusCode but was: $status")
+            if (errorMessage != null) {
+                appendLine("Message: $errorMessage")
+            }
+            if (errorType != null) {
+                appendLine("Type: $errorType")
+            }
+            if (stackTrace != null) {
+                appendLine("Stack trace:\n    $stackTrace")
+            }
+        }.toString()
     )
 
     assertEquals(true, json.getBoolean("success"))
@@ -43,10 +59,26 @@ suspend fun HttpResponse.assertFailure(
     error: Error
 ) {
     val json = bodyAsText().json
+    val responseError = json.getJSONObjectOrNull("error")
+    val errorMessage = json.getStringOrNull("message")
+    val errorType = responseError?.getStringOrNull("type")
+    val stackTrace = responseError?.getJSONArrayOrNull("stackTrace")?.joinToString("\n    ")
+
     assertEquals(
         error.status,
         status,
-        "expected: ${error.status} but was: $status. StackTrace: ${json.getJSONObjectOrNull("error")?.getJSONArrayOrNull("stackTrace")?.joinToString("\n  ")}"
+        StringBuilder().apply {
+            appendLine("expected: ${error.status} but was: $status")
+            if (errorMessage != null) {
+                appendLine("Message: $errorMessage")
+            }
+            if (errorType != null) {
+                appendLine("Type: $errorType")
+            }
+            if (stackTrace != null) {
+                appendLine("Stack trace:\n    $stackTrace")
+            }
+        }.toString()
     )
 
     assertFalse(json.getBoolean("success"))
