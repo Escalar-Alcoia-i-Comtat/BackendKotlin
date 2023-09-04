@@ -227,18 +227,18 @@ object PatchPathEndpoint : SecureEndpointBase() {
             sector?.let { path.sector = it }
 
             if (removeHeight) path.height = null
-            if (removeGrade) path.height = null
-            if (removeEnding) path.height = null
-            if (removePitches) path.height = null
-            if (removeStringCount) path.height = null
-            if (removeParaboltCount) path.height = null
-            if (removeBurilCount) path.height = null
-            if (removePitonCount) path.height = null
-            if (removeSpitCount) path.height = null
-            if (removeTensorCount) path.height = null
-            if (removeDescription) path.height = null
-            if (removeBuilder) path.height = null
-            if (removeReBuilder) path.height = null
+            if (removeGrade) path.grade = null
+            if (removeEnding) path.ending = null
+            if (removePitches) path.pitches = null
+            if (removeStringCount) path.stringCount = null
+            if (removeParaboltCount) path.paraboltCount = null
+            if (removeBurilCount) path.burilCount = null
+            if (removePitonCount) path.pitonCount = null
+            if (removeSpitCount) path.spitCount = null
+            if (removeTensorCount) path.tensorCount = null
+            if (removeDescription) path.description = null
+            if (removeBuilder) path.builder = null
+            if (removeReBuilder) path.reBuilder = null
 
             path.timestamp = Instant.now()
 
