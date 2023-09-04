@@ -220,7 +220,7 @@ object PatchPathEndpoint : SecureEndpointBase() {
             nailRequired?.let { path.nailRequired = it }
             pitonRequired?.let { path.pitonRequired = it }
             stapesRequired?.let { path.stapesRequired = it }
-            showDescription?.let { path.stapesRequired = it }
+            showDescription?.let { path.showDescription = it }
             description?.let { path.description = it }
             builder?.let { path.builder = it }
             reBuilder?.let { path.reBuilder = it }
