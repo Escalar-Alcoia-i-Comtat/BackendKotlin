@@ -50,7 +50,9 @@ dependencies {
 
     // Database engines
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("org.xerial:sqlite-jdbc:3.43.0.0")
+    // Keep in sync with https://github.com/JetBrains/Exposed/wiki/Database-and-DataSource
+    @Suppress("VulnerableLibrariesLocal", "RedundantSuppression")
+    implementation("org.xerial:sqlite-jdbc:3.30.1")
 
     // SSL Dependencies
     if (tcnativeClassifier != null) {
