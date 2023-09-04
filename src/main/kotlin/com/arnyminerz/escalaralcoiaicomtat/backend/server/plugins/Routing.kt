@@ -5,6 +5,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.RootEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.AddBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.DeleteBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.GetBlockEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.PatchBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewAreaEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewPathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewSectorEndpoint
@@ -30,6 +31,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
 import io.ktor.server.application.Application
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
+import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 
@@ -73,6 +75,7 @@ fun Application.configureEndpoints() {
         post("/block/{pathId}") { AddBlockEndpoint.call(this) }
         get("/block/{pathId}") { GetBlockEndpoint.call(this) }
         delete("/block/{blockId}") { DeleteBlockEndpoint.call(this) }
+        patch("/block/{blockId}") { PatchBlockEndpoint.call(this) }
 
         get("/file/{uuid}") { RequestFileEndpoint.call(this) }
         get("/download/{uuid}") { DownloadFileEndpoint.call(this) }

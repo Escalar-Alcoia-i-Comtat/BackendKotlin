@@ -24,6 +24,7 @@ class Blocking(id: EntityID<Int>) : BaseEntity(id), JsonSerializable {
         else
             null
         set(value) {
+            println("Updating recurrence: $value")
             _fromDay = value?.fromDay
             _fromMonth = value?.fromMonth
             _toDay = value?.toDay

@@ -7,6 +7,7 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.http.HttpHeaders
 import io.ktor.server.testing.ApplicationTestBuilder
@@ -65,6 +66,14 @@ abstract class ApplicationTestBase {
         urlString: String,
         block: HttpRequestBuilder.() -> Unit = {}
     ) = client.post(urlString) {
+        header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        block()
+    }
+
+    suspend fun ApplicationTestBuilder.patch(
+        urlString: String,
+        block: HttpRequestBuilder.() -> Unit = {}
+    ) = client.patch(urlString) {
         header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
         block()
     }

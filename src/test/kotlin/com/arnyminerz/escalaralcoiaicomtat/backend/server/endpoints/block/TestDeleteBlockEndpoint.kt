@@ -9,6 +9,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.client.request.setBody
+import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -28,7 +29,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
                 ).toString()
             )
         }.apply {
-            assertSuccess()
+            assertSuccess(HttpStatusCode.Created)
         }
 
         val block = ServerDatabase.instance.query {

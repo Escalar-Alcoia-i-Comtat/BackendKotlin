@@ -13,6 +13,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.client.request.setBody
+import io.ktor.http.HttpStatusCode
 import java.time.LocalDateTime
 import java.time.Month
 import java.time.temporal.ChronoUnit
@@ -36,7 +37,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
                 ).toString()
             )
         }.apply {
-            assertSuccess {
+            assertSuccess(HttpStatusCode.Created) {
                 assertNotNull(it?.getJSONObjectOrNull("element"))
             }
         }
@@ -118,7 +119,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
                 ).toString()
             )
         }.apply {
-            assertSuccess {
+            assertSuccess(HttpStatusCode.Created) {
                 assertNotNull(it?.getJSONObjectOrNull("element"))
             }
         }
@@ -151,7 +152,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
                 ).toString()
             )
         }.apply {
-            assertSuccess {
+            assertSuccess(HttpStatusCode.Created) {
                 assertNotNull(it?.getJSONObjectOrNull("element"))
             }
         }

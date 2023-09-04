@@ -19,9 +19,9 @@ import org.json.JSONObject
  * @param statusCode If the request doesn't respond OK (200), you can modify it here.
  * @param block If any, allows handling the response if any.
  */
-suspend fun HttpResponse.assertSuccess(
+suspend inline fun HttpResponse.assertSuccess(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
-    block: ((data: JSONObject?) -> Unit)? = null
+    block: (data: JSONObject?) -> Unit = {}
 ) {
     val json = bodyAsText().json
     val error = json.getJSONObjectOrNull("error")
@@ -47,7 +47,7 @@ suspend fun HttpResponse.assertSuccess(
     )
 
     assertEquals(true, json.getBoolean("success"))
-    block?.invoke(json.getJSONObjectOrNull("data"))
+    block(json.getJSONObjectOrNull("data"))
 }
 
 /**

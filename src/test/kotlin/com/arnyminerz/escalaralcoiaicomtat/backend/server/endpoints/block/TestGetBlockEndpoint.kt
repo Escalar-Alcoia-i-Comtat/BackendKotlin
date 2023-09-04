@@ -10,6 +10,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.client.request.setBody
+import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -30,7 +31,7 @@ class TestGetBlockEndpoint: ApplicationTestBase() {
                 ).toString()
             )
         }.apply {
-            assertSuccess()
+            assertSuccess(HttpStatusCode.Created)
         }
 
         get("/block/$pathId").apply {
