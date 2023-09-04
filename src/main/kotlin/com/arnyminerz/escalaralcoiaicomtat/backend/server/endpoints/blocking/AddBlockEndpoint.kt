@@ -13,6 +13,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getEnumOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveText
@@ -39,7 +40,7 @@ object AddBlockEndpoint: SecureEndpointBase() {
             Path.findById(pathId)
         } ?: return respondFailure(Errors.ObjectNotFound)
 
-        ServerDatabase.instance.query {
+        val blocking = ServerDatabase.instance.query {
             Blocking.new {
                 this.type = type
                 if (recurrence != null)
@@ -50,6 +51,8 @@ object AddBlockEndpoint: SecureEndpointBase() {
             }
         }
 
-        respondSuccess()
+        respondSuccess(
+            data = jsonOf("element" to blocking)
+        )
     }
 }
