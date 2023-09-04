@@ -76,11 +76,11 @@ object NewZoneEndpoint : SecureEndpointBase() {
                 this.point = point
                 this.pointsSet = points!!.map { it.toJson().toString() }
                 this.area = area!!
-            }
+            }.toJson()
         }
 
         respondSuccess(
-            jsonOf("element" to zone.toJson()),
+            jsonOf("element" to zone),
             httpStatusCode = HttpStatusCode.Created
         )
     }

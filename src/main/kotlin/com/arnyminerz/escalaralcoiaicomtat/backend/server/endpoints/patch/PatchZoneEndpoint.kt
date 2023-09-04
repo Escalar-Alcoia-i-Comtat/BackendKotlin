@@ -86,7 +86,7 @@ object PatchZoneEndpoint : SecureEndpointBase() {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
-        ServerDatabase.instance.query {
+        val json = ServerDatabase.instance.query {
             displayName?.let { zone.displayName = it }
             webUrl?.let { zone.webUrl = URL(it) }
             point?.let { zone.point = it }
@@ -96,10 +96,12 @@ object PatchZoneEndpoint : SecureEndpointBase() {
             if (removePoint) zone.point = null
 
             zone.timestamp = Instant.now()
+
+            zone.toJson()
         }
 
         respondSuccess(
-            data = jsonOf("element" to zone.toJson())
+            data = jsonOf("element" to json)
         )
     }
 }

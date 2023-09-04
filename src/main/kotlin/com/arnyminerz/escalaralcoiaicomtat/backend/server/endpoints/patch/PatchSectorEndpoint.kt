@@ -86,7 +86,7 @@ object PatchSectorEndpoint : SecureEndpointBase() {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
-        ServerDatabase.instance.query {
+        val json = ServerDatabase.instance.query {
             displayName?.let { sector.displayName = it }
             kidsApt?.let { sector.kidsApt = it }
             sunTime?.let { sector.sunTime = it }
@@ -99,10 +99,12 @@ object PatchSectorEndpoint : SecureEndpointBase() {
             if (removeWalkingTime) sector.walkingTime = null
 
             sector.timestamp = Instant.now()
+
+            sector.toJson()
         }
 
         respondSuccess(
-            data = jsonOf("element" to sector.toJson())
+            data = jsonOf("element" to json)
         )
     }
 }

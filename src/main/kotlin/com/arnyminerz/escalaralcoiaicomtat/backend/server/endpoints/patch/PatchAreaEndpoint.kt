@@ -60,15 +60,17 @@ object PatchAreaEndpoint : SecureEndpointBase() {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
-        ServerDatabase.instance.query {
+        val json = ServerDatabase.instance.query {
             displayName?.let { area.displayName = it }
             webUrl?.let { area.webUrl = URL(it) }
 
             area.timestamp = Instant.now()
+
+            area.toJson()
         }
 
         respondSuccess(
-            data = jsonOf("element" to area.toJson())
+            data = jsonOf("element" to json)
         )
     }
 }

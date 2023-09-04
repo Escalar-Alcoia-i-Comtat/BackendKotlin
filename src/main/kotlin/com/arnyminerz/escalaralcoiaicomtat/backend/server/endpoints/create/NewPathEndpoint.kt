@@ -130,11 +130,11 @@ object NewPathEndpoint : SecureEndpointBase() {
                 this.builder = builder
                 this.reBuilder = reBuilder
                 this.sector = sector!!
-            }
+            }.toJson()
         }
 
         respondSuccess(
-            jsonOf("element" to path.toJson()),
+            jsonOf("element" to path),
             httpStatusCode = HttpStatusCode.Created
         )
     }

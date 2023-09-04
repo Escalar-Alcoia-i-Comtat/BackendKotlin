@@ -58,11 +58,11 @@ object NewAreaEndpoint : SecureEndpointBase() {
                 this.displayName = displayName!!
                 this.image = imageFile!!
                 this.webUrl = URL(webUrl!!)
-            }
+            }.toJson()
         }
 
         respondSuccess(
-            jsonOf("element" to area.toJson()),
+            jsonOf("element" to area),
             httpStatusCode = HttpStatusCode.Created
         )
     }

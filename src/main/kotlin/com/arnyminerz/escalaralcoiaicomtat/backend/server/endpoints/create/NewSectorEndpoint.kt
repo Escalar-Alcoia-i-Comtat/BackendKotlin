@@ -74,11 +74,11 @@ object NewSectorEndpoint : SecureEndpointBase() {
                 this.image = imageFile!!
                 weight?.let { this.weight = it }
                 this.zone = zone!!
-            }
+            }.toJson()
         }
 
         respondSuccess(
-            jsonOf("element" to sector.toJson()),
+            jsonOf("element" to sector),
             httpStatusCode = HttpStatusCode.Created
         )
     }
