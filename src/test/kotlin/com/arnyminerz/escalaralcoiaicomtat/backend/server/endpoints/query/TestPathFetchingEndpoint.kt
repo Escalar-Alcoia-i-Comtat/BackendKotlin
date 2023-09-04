@@ -3,6 +3,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
@@ -15,6 +16,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
 import io.ktor.http.HttpStatusCode
 import java.time.Instant
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -51,7 +53,7 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
                 assertEquals(DataProvider.SamplePath.grade, data.getString("grade").let { GradeValue.fromString(it) })
                 assertEquals(DataProvider.SamplePath.ending, data.getString("ending").let { Ending.valueOf(it) })
 
-                assertEquals(DataProvider.SamplePath.pitches, data.getJSONArray("pitches").serialize(PitchInfo))
+                assertContentEquals(DataProvider.SamplePath.pitches, data.getJSONArray("pitches").serialize(PitchInfo))
 
                 assertEquals(DataProvider.SamplePath.stringCount, data.getUInt("string_count"))
 
@@ -67,6 +69,9 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
                 assertEquals(DataProvider.SamplePath.nailRequired, data.getBoolean("nail_required"))
                 assertEquals(DataProvider.SamplePath.pitonRequired, data.getBoolean("piton_required"))
                 assertEquals(DataProvider.SamplePath.stapesRequired, data.getBoolean("stapes_required"))
+
+                assertEquals(DataProvider.SamplePath.builder, data.getJSONObject("builder").let(Builder::fromJson))
+                assertContentEquals(DataProvider.SamplePath.reBuilder, data.getJSONArray("re_builder").serialize(Builder))
 
                 assertTrue(data.getLong("timestamp") < Instant.now().toEpochMilli())
             }

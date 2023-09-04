@@ -15,6 +15,7 @@ import java.time.Instant
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
+import org.json.JSONException
 import org.json.JSONObject
 
 class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
@@ -39,12 +40,18 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
                 _pitches = null
                 return null
             }
-            return _pitches
-                ?.split("\n")
-                ?.map { PitchInfo.fromJson(it.json) }
+            return try {
+                // The new format for pitches is JSON array
+                _pitches?.jsonArray?.serialize(PitchInfo)
+            } catch (_: JSONException) {
+                // If throwing JSONException, it might be because it's using the old format
+                _pitches
+                    ?.split("\n")
+                    ?.map { PitchInfo.fromJson(it.json) }
+            }
         }
         set(value) {
-            _pitches = value?.joinToString("\n") { it.toJson().toString() }
+            _pitches = value?.toJson()?.toString()
         }
 
     var stringCount: UInt? by Paths.stringCount
