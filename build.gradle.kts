@@ -3,7 +3,7 @@ import io.ktor.plugin.features.DockerPortMapping
 import io.ktor.plugin.features.DockerPortMappingProtocol
 
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.10"
     id("io.ktor.plugin") version "2.3.4"
     id("org.jetbrains.kotlinx.kover") version "0.7.3"
 }
@@ -50,7 +50,7 @@ dependencies {
 
     // Database engines
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("org.xerial:sqlite-jdbc:3.42.0.0")
+    implementation("org.xerial:sqlite-jdbc:3.43.0.0")
 
     // SSL Dependencies
     if (tcnativeClassifier != null) {
@@ -60,7 +60,7 @@ dependencies {
     }
 
     // For displaying progress bar in terminal
-    implementation("me.tongfei:progressbar:0.9.4")
+    implementation("me.tongfei:progressbar:0.10.0")
 
 
     testImplementation(kotlin("test"))
