@@ -12,6 +12,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import java.io.File
+import org.jetbrains.exposed.sql.StdOutSqlLogger
 import setupApplication
 
 /**
@@ -29,6 +30,7 @@ abstract class ApplicationTestBase {
     fun test(block: suspend ApplicationTestBuilder.() -> Unit) {
         // Configure database
         ServerDatabase.url = "jdbc:sqlite:testing.db"
+        ServerDatabase.logger = StdOutSqlLogger
         File("testing.db").takeIf { it.exists() }?.delete()
 
         // Access the database once to initialize

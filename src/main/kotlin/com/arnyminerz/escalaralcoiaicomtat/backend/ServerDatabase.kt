@@ -9,6 +9,8 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 /**
@@ -32,6 +34,9 @@ class ServerDatabase private constructor() {
 
         /** The password to use for connecting to the database. */
         var password: String = ""
+
+        /** The logger to be used in the database. */
+        var logger: SqlLogger? = null
 
         /**
          * Gives access to the database instance. Gets initialized lazily the first time it's fetched. Uses the
@@ -70,6 +75,8 @@ class ServerDatabase private constructor() {
 
     suspend fun <T> query(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
         SchemaUtils.create(Areas, Zones, Sectors, Paths, BlockingTable)
+
+        logger?.let { addLogger(it) }
 
         block()
     }
