@@ -238,6 +238,9 @@ object DataProvider {
         val pitonRequired = false
         val stapesRequired = true
 
+        val showDescription = true
+        val description = "this is a sample description"
+
         val builder: Builder = Builder("Name", "April 2023")
         val reBuilder: List<Builder> = listOf(
             Builder("Name 1 ", "April 2023"),
@@ -287,6 +290,8 @@ object DataProvider {
                 append("nailRequired", SamplePath.nailRequired)
                 append("pitonRequired", SamplePath.pitonRequired)
                 append("stapesRequired", SamplePath.stapesRequired)
+                append("showDescription", SamplePath.showDescription)
+                append("description", SamplePath.description)
                 append("builder", SamplePath.builder.toJson().toString())
                 append("reBuilder", SamplePath.reBuilder.toJson().toString())
             }
