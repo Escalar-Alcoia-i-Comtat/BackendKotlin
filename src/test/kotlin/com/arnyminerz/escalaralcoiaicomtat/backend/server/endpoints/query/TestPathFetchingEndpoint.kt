@@ -71,7 +71,10 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
                 assertEquals(DataProvider.SamplePath.stapesRequired, data.getBoolean("stapes_required"))
 
                 assertEquals(DataProvider.SamplePath.builder, data.getJSONObject("builder").let(Builder::fromJson))
-                assertContentEquals(DataProvider.SamplePath.reBuilder, data.getJSONArray("re_builder").serialize(Builder))
+                assertContentEquals(
+                    DataProvider.SamplePath.reBuilder,
+                    data.getJSONArray("re_builder").serialize(Builder)
+                )
 
                 assertTrue(data.getLong("timestamp") < Instant.now().toEpochMilli())
             }

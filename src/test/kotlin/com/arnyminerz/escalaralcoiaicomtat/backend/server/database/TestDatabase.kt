@@ -17,6 +17,7 @@ import kotlin.test.assertNotNull
 
 class TestDatabase: ApplicationTestBase() {
     @Test
+    @Suppress("LongMethod")
     fun `test creating data classes`() = test {
         val area = ServerDatabase.instance.query {
             Area.new {
