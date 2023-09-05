@@ -4,6 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.RootEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.AddBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.DeleteBlockEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.GetAllBlocksEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.GetBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.PatchBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create.NewAreaEndpoint
@@ -72,6 +73,7 @@ fun Application.configureEndpoints() {
         post("/path/{pathId}") { PatchPathEndpoint.call(this) }
         delete("/path/{pathId}") { DeletePathEndpoint.call(this) }
 
+        get("/blocks") { GetAllBlocksEndpoint.call(this) }
         post("/block/{pathId}") { AddBlockEndpoint.call(this) }
         get("/block/{pathId}") { GetBlockEndpoint.call(this) }
         delete("/block/{blockId}") { DeleteBlockEndpoint.call(this) }
