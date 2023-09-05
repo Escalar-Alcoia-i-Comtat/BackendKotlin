@@ -56,8 +56,10 @@ class Blocking(id: EntityID<Int>) : BaseEntity(id), JsonSerializable {
 
     override fun toJson(): JSONObject = jsonOf(
         "id" to id.value,
+        "timestamp" to timestamp,
         "type" to type,
         "recurrence" to recurrence,
-        "end_date" to endDate
+        "end_date" to endDate,
+        "path_id" to path.id.value,
     )
 }

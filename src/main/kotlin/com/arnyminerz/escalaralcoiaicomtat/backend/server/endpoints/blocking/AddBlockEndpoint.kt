@@ -49,7 +49,7 @@ object AddBlockEndpoint: SecureEndpointBase() {
                 else
                     this.endDate = endDate?.let { LocalDateTime.parse(it) }
                 this.path = path
-            }
+            }.toJson()
         }
 
         respondSuccess(

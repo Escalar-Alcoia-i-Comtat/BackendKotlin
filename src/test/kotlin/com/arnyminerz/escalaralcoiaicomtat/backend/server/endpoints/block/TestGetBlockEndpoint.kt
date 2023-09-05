@@ -7,6 +7,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBa
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getEnumOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getIntOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getLongOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.client.request.setBody
@@ -43,9 +44,11 @@ class TestGetBlockEndpoint: ApplicationTestBase() {
 
                 val block = blocksJson.getJSONObject(0)
                 assertNotNull(block.getIntOrNull("id"))
+                assertNotNull(block.getLongOrNull("timestamp"))
                 assertEquals(BlockingTypes.BUILD, block.getEnumOrNull(BlockingTypes::class, "type"))
                 assertNull(block.getJSONObjectOrNull("recurrence"))
                 assertNull(block.getStringOrNull("end_date"))
+                assertEquals(pathId, block.getIntOrNull("path_id"))
             }
         }
     }
