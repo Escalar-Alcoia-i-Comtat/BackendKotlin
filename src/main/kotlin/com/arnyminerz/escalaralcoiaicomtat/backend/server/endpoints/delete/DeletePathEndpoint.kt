@@ -1,7 +1,9 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -15,8 +17,17 @@ object DeletePathEndpoint : SecureEndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val pathId: Int by call.parameters
 
-        ServerDatabase.instance.query { Path.findById(pathId)?.delete() }
+        val path = ServerDatabase.instance.query { Path.findById(pathId) }
             ?: return respondFailure(Errors.ObjectNotFound)
+
+        // All blocks must be deleted before removing the path
+        ServerDatabase.instance.query {
+            val blocks = Blocking.find { BlockingTable.path eq path.id }
+            blocks.forEach { it.delete() }
+        }
+
+        // Now remove the path
+        ServerDatabase.instance.query { path.delete() }
 
         respondSuccess()
     }
