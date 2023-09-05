@@ -4,6 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Builder
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
+import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.SportsGrade
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
@@ -118,7 +119,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Sector - update pitches`() =
-        patchProperty("pitches", emptyList()) { it.pitches }
+        patchProperty("pitches", listOf(PitchInfo(1U))) { it.pitches }
 
     @Test
     fun `test patching Sector - update stringCount`() =

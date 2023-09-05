@@ -40,6 +40,11 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
                 _pitches = null
                 return null
             }
+            // If is blank, should be null, update to null
+            if (_pitches.isNullOrBlank()) {
+                _pitches = null
+                return null
+            }
             return try {
                 // The new format for pitches is JSON array
                 _pitches?.jsonArray?.serialize(PitchInfo)
@@ -51,7 +56,7 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
             }
         }
         set(value) {
-            _pitches = value?.toJson()?.toString()
+            _pitches = value?.toJson()?.takeIf { !it.isEmpty }?.toString()
         }
 
     var stringCount: UInt? by Paths.stringCount
