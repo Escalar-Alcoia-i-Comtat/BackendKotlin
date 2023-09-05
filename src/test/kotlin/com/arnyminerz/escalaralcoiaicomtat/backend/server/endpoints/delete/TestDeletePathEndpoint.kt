@@ -15,6 +15,7 @@ import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class TestDeletePathEndpoint: ApplicationTestBase() {
     @Test
@@ -46,7 +47,7 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
 
         assertNotNull(pathId)
 
-        ServerDatabase.instance.query {
+        val blocking = ServerDatabase.instance.query {
             Blocking.new {
                 type = BlockingTypes.BUILD
                 path = Path.findById(pathId)!!
@@ -69,6 +70,11 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
             header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
         }.apply {
             assertFailure(Errors.ObjectNotFound)
+        }
+
+        ServerDatabase.instance.query {
+            val block = Blocking.findById(blocking.id)
+            assertNull(block)
         }
     }
 }
