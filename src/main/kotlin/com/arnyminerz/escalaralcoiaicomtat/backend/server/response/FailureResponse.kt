@@ -2,6 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.response
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Error
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
+import com.crowdin.client.core.http.exceptions.HttpBadRequestException
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -55,6 +56,23 @@ suspend fun ApplicationCall.respondFailure(throwable: Throwable) {
                     "type" to throwable::class.java.simpleName,
                     "stackTrace" to JSONArray().apply {
                         putAll(throwable.stackTrace)
+                    },
+                    "errors" to (throwable as? HttpBadRequestException)?.let { exception ->
+                        JSONArray().apply {
+                            exception.errors.forEach { errorHolder ->
+                                val holdingError = errorHolder.error
+                                jsonOf(
+                                    "key" to holdingError.key,
+                                    "errors" to JSONArray().apply {
+                                        holdingError.errors.forEach { error ->
+                                            put(
+                                                jsonOf("code" to error.code, "message" to error.message)
+                                            )
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
                 )
             )
