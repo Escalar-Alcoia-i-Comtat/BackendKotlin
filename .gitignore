@@ -43,3 +43,6 @@ bin/
 
 ### Ignore testing database ###
 testing.db
+
+### Ignore secrets file ###
+secrets.env
