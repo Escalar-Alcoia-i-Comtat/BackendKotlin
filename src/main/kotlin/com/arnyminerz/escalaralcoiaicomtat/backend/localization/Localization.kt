@@ -100,6 +100,7 @@ object Localization {
      *
      * @throws HttpException If a request to the Crowdin API fails.
      * @throws HttpBadRequestException If a request to the Crowdin API was badly formatted.
+     * @throws IllegalArgumentException If the path doesn't have a description, or it's empty.
      */
     suspend fun synchronizePathDescription(path: Path) {
         val pathDescriptionsFile = pathDescriptionsFile
@@ -108,11 +109,14 @@ object Localization {
             return
         }
 
+        val description = path.description?.takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("Description must not be null or empty.")
+
         ServerDatabase.instance.query {
             getSourceString(
                 pathDescriptionsFile,
                 "path_${path.id.value}",
-                path.description ?: "",
+                description,
                 "Description for path ${path.id} (${path.displayName})"
             )
         }
