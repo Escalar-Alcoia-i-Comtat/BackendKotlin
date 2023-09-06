@@ -52,7 +52,7 @@ object Localization {
         projectId = EnvironmentVariables.Localization.CrowdinProjectId.value?.toLongOrNull()
 
         if (token == null || projectId == null) {
-            Logger.debug("Won't enable Crowdin integration: Environment variables not set")
+            Logger.warn("Won't enable Crowdin integration: Environment variables not set")
             return
         }
         Logger.info("Initializing Crowdin integration...")
@@ -82,12 +82,12 @@ object Localization {
             Path.all().filter { it.description != null }
         }
         if (paths.isEmpty()) {
-            Logger.debug("There isn't any path with a description.")
-        } else {
+            Logger.info("There isn't any path with a description.")
+        } else ServerDatabase.instance.query {
             paths.forEach { path ->
                 getSourceString(
                     pathDescriptionsFile,
-                    "path_${path.id}",
+                    "path_${path.id.value}",
                     path.description ?: "",
                     "Description for path ${path.id} (${path.displayName})"
                 )
@@ -252,7 +252,7 @@ object Localization {
         ).data
 
         return if (sourceStrings.isEmpty()) {
-            Logger.debug("Creating source string ID#$identifier")
+            Logger.info("Creating source string ID#$identifier")
 
             sourceStringsApi.addSourceString(
                 projectId,
@@ -281,8 +281,10 @@ object Localization {
                     }
                 }
                 if (patchRequests.isNotEmpty()) {
-                    Logger.debug("Source string ID#$identifier has been updated. Notifying Crowdin...")
+                    Logger.info("Source string ID#$identifier has been updated. Notifying Crowdin...")
                     sourceStringsApi.editSourceString(projectId, sourceString.id, patchRequests)
+                } else {
+                    Logger.debug("Source string ID#$identifier already up to date.")
                 }
             }
         }
