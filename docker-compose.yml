@@ -2,19 +2,24 @@ version: '3.7'
 
 services:
   backend:
-    image: escalaralcoiaicomtat:1.0.7-SNAPSHOT
+    image: escalaralcoiaicomtat:latest
     container_name: escalaralcoiaicomtat_backend
-    restart: unless-stopped
+    restart: "no"
     environment:
-      # Configure database
+      # -- Configure database
       DATABASE_DRIVER: "org.postgresql.Driver"
       DATABASE_URL: "jdbc:postgresql://db:5432/postgres"
       DATABASE_USERNAME: "postgres"
       DATABASE_PASSWORD: "AbfEwudQ8AqhhVVqTiRURpbMmQTW46"
-      # Configure Secure Endpoints
+      # -- Configure Secure Endpoints
       AUTH_TOKEN: "cwBsTxhjf8mFQrN8zPUpGstmtCeg3z"
-      # Enable Importer
+      # -- Enable Importer
       ENABLE_IMPORTER: "true"
+      # -- Configure Crowdin
+      # Required: CROWDIN_TOKEN, CROWDIN_PROJECT_ID
+      # Optional: CROWDIN_ORGANIZATION
+    env_file:
+      - "secrets.env"
     networks:
       - escalaralcoiaicomtat_backend
     depends_on:
