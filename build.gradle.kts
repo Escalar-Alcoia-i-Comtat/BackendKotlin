@@ -9,10 +9,11 @@ plugins {
 }
 
 group = "com.arnyminerz.escalaralcoiaicomtat.backend"
-version = "1.0.15"
+version = "1.0.16"
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 val exposedVersion: String by project
@@ -63,6 +64,9 @@ dependencies {
 
     // For displaying progress bar in terminal
     implementation("me.tongfei:progressbar:0.10.0")
+
+    // Crowdin localization
+    implementation("com.github.crowdin:crowdin-api-client-java:1.11.2")
 
 
     testImplementation(kotlin("test"))
