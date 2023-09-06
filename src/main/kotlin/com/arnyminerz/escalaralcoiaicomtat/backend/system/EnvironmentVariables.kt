@@ -36,6 +36,12 @@ object EnvironmentVariables {
         data object AuthToken : EnvironmentVariable("AUTH_TOKEN")
     }
 
+    object Localization {
+        data object CrowdinToken : EnvironmentVariable("CROWDIN_TOKEN")
+        data object CrowdinOrganization : EnvironmentVariable("CROWDIN_ORGANIZATION")
+        data object CrowdinProjectId : EnvironmentVariable("CROWDIN_PROJECT_ID")
+    }
+
     object Legacy {
         data object Importer : EnvironmentVariable("ENABLE_IMPORTER")
     }
