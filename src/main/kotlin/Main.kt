@@ -1,5 +1,6 @@
 import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
+import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.configureEndpoints
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.installPlugins
 import io.ktor.server.application.Application
@@ -12,6 +13,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.util.decodeBase64String
 import java.io.File
 import java.security.KeyStore
+import kotlinx.coroutines.runBlocking
 
 const val HTTP_PORT = 8080
 const val HTTPS_PORT = 8443
@@ -21,6 +23,13 @@ fun main() {
 
     Logger.info("Connecting to the database, and creating tables...")
     ServerDatabase.instance
+
+    Logger.info("Initializing Crowdin connection...")
+    Localization.init()
+
+    runBlocking {
+        Localization.synchronizePathDescriptions()
+    }
 
     val environment = applicationEngineEnvironment {
         connector { port = HTTP_PORT }
