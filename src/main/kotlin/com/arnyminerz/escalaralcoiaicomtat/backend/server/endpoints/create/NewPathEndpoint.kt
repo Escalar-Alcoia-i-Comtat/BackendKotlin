@@ -131,13 +131,13 @@ object NewPathEndpoint : SecureEndpointBase() {
                 this.builder = builder
                 this.reBuilder = reBuilder
                 this.sector = sector!!
-            }.also {
-                Localization.synchronizePathDescription(it)
-            }.toJson()
+            }
         }
 
+        Localization.synchronizePathDescription(path)
+
         respondSuccess(
-            jsonOf("element" to path),
+            jsonOf("element" to ServerDatabase.instance.query { path.toJson() }),
             httpStatusCode = HttpStatusCode.Created
         )
     }

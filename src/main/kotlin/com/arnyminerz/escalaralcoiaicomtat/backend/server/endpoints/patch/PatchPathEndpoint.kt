@@ -202,7 +202,7 @@ object PatchPathEndpoint : SecureEndpointBase() {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
-        val json = ServerDatabase.instance.query {
+        ServerDatabase.instance.query {
             displayName?.let { path.displayName = it }
             sketchId?.let { path.sketchId = it }
             height?.let { path.height = it }
@@ -242,14 +242,12 @@ object PatchPathEndpoint : SecureEndpointBase() {
             if (removeReBuilder) path.reBuilder = null
 
             path.timestamp = Instant.now()
-
-            Localization.synchronizePathDescription(path)
-
-            path.toJson()
         }
 
+        Localization.synchronizePathDescription(path)
+
         respondSuccess(
-            data = jsonOf("element" to json)
+            data = jsonOf("element" to ServerDatabase.instance.query { path.toJson() })
         )
     }
 }
