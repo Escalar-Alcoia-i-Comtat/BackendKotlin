@@ -59,19 +59,21 @@ suspend fun ApplicationCall.respondFailure(throwable: Throwable) {
                     },
                     "errors" to (throwable as? HttpBadRequestException)?.let { exception ->
                         JSONArray().apply {
-                            exception.errors.forEach { errorHolder ->
-                                val holdingError = errorHolder.error
-                                jsonOf(
-                                    "key" to holdingError.key,
-                                    "errors" to JSONArray().apply {
-                                        holdingError.errors.forEach { error ->
-                                            put(
-                                                jsonOf("code" to error.code, "message" to error.message)
-                                            )
+                            putAll(
+                                exception.errors.map { errorHolder ->
+                                    val holdingError = errorHolder.error
+                                    jsonOf(
+                                        "key" to holdingError.key,
+                                        "errors" to JSONArray().apply {
+                                            holdingError.errors.forEach { error ->
+                                                put(
+                                                    jsonOf("code" to error.code, "message" to error.message)
+                                                )
+                                            }
                                         }
-                                    }
-                                )
-                            }
+                                    )
+                                }
+                            )
                         }
                     }
                 )
