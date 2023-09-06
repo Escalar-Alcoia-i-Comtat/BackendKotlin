@@ -83,7 +83,7 @@ object Localization {
         }
         if (paths.isEmpty()) {
             Logger.info("There isn't any path with a description.")
-        } else ServerDatabase.instance.query {
+        } else {
             paths.forEach { path ->
                 getSourceString(
                     pathDescriptionsFile,
@@ -92,6 +92,47 @@ object Localization {
                     "Description for path ${path.id} (${path.displayName})"
                 )
             }
+        }
+    }
+
+    /**
+     * Synchronizes the path description with Crowdin.
+     *
+     * @throws HttpException If a request to the Crowdin API fails.
+     * @throws HttpBadRequestException If a request to the Crowdin API was badly formatted.
+     */
+    suspend fun synchronizePathDescription(path: Path) {
+        val pathDescriptionsFile = pathDescriptionsFile
+        if (pathDescriptionsFile == null) {
+            Logger.debug("Won't synchronize path descriptions with Crowdin: Not initialized")
+            return
+        }
+
+        ServerDatabase.instance.query {
+            getSourceString(
+                pathDescriptionsFile,
+                "path_${path.id.value}",
+                path.description ?: "",
+                "Description for path ${path.id} (${path.displayName})"
+            )
+        }
+    }
+
+    /**
+     * Deletes the given path's description from Crowdin.
+     *
+     * @throws HttpException If a request to the Crowdin API fails.
+     * @throws HttpBadRequestException If a request to the Crowdin API was badly formatted.
+     */
+    suspend fun deletePathDescription(path: Path) {
+        val pathDescriptionsFile = pathDescriptionsFile
+        if (pathDescriptionsFile == null) {
+            Logger.debug("Won't synchronize path descriptions with Crowdin: Not initialized")
+            return
+        }
+
+        ServerDatabase.instance.query {
+            deleteSourceString(pathDescriptionsFile, "path_${path.id.value}")
         }
     }
 
@@ -287,6 +328,43 @@ object Localization {
                     Logger.debug("Source string ID#$identifier already up to date.")
                 }
             }
+        }
+    }
+
+    /**
+     * Deletes the source string that matches the given [identifier]. Does nothing if it doesn't exist.
+     *
+     * @param fileInfo The information of the file where the string will be added at. See [getFile].
+     * @param identifier Defines unique string identifier.
+     *
+     * @throws HttpException If a request to the Crowdin API fails.
+     * @throws HttpBadRequestException If a request to the Crowdin API was badly formatted.
+     * @throws IllegalStateException If [client] or [projectId] is null
+     */
+    private fun deleteSourceString(fileInfo: FileInfo, identifier: String) {
+        val sourceStringsApi = client?.sourceStringsApi
+
+        check(sourceStringsApi != null) { "Client has not been initialized." }
+        check(projectId != null) { "projectId has not been initialized." }
+
+        val sourceString = sourceStringsApi.listSourceStrings(
+            projectId,
+            fileInfo.id,
+            0,
+            null,
+            null,
+            null,
+            identifier,
+            "identifier",
+            1,
+            0
+        ).data.firstOrNull()?.data
+
+        if (sourceString == null) {
+            Logger.debug("Source string ID#$identifier not found. Cannot delete.")
+        } else {
+            Logger.info("Deleting source string ID#$identifier...")
+            sourceStringsApi.deleteSourceString(projectId, sourceString.id)
         }
     }
 }

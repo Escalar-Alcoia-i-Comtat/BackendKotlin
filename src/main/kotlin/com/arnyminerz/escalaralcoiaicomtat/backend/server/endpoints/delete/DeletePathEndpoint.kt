@@ -4,6 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
+import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -25,6 +26,9 @@ object DeletePathEndpoint : SecureEndpointBase() {
             val blocks = Blocking.find { BlockingTable.path eq path.id }
             blocks.forEach { it.delete() }
         }
+
+        // Delete the path's description from Crowdin if any
+        Localization.deletePathDescription(path)
 
         // Now remove the path
         ServerDatabase.instance.query { path.delete() }
