@@ -3,6 +3,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
+import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization.projectId
 import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
 import com.crowdin.client.Client
 import com.crowdin.client.core.http.exceptions.HttpBadRequestException
@@ -10,6 +11,7 @@ import com.crowdin.client.core.http.exceptions.HttpException
 import com.crowdin.client.core.model.Credentials
 import com.crowdin.client.core.model.PatchOperation
 import com.crowdin.client.core.model.PatchRequest
+import com.crowdin.client.languages.model.Language
 import com.crowdin.client.sourcefiles.model.AddBranchRequest
 import com.crowdin.client.sourcefiles.model.AddDirectoryRequest
 import com.crowdin.client.sourcefiles.model.AddFileRequest
@@ -18,6 +20,7 @@ import com.crowdin.client.sourcefiles.model.Directory
 import com.crowdin.client.sourcefiles.model.FileInfo
 import com.crowdin.client.sourcestrings.model.AddSourceStringRequest
 import com.crowdin.client.sourcestrings.model.SourceString
+import com.crowdin.client.stringtranslations.model.StringTranslation
 import org.json.JSONObject
 
 object Localization {
@@ -84,13 +87,17 @@ object Localization {
         if (paths.isEmpty()) {
             Logger.info("There isn't any path with a description.")
         } else {
-            paths.forEach { path ->
-                getSourceString(
-                    pathDescriptionsFile,
-                    "path_${path.id.value}",
-                    path.description ?: "",
-                    "Description for path ${path.id} (${path.displayName})"
-                )
+            try {
+                paths.forEach { path ->
+                    getOrAddSourceString(
+                        pathDescriptionsFile,
+                        "path_${path.id.value}",
+                        path.description ?: "",
+                        "Description for path ${path.id} (${path.displayName})"
+                    )
+                }
+            } catch (_: IllegalStateException) {
+                /* Crowdin is not enabled */
             }
         }
     }
@@ -112,13 +119,17 @@ object Localization {
         val description = path.description?.takeIf { it.isNotBlank() }
             ?: throw IllegalArgumentException("Description must not be null or empty.")
 
-        ServerDatabase.instance.query {
-            getSourceString(
-                pathDescriptionsFile,
-                "path_${path.id.value}",
-                description,
-                "Description for path ${path.id} (${path.displayName})"
-            )
+        try {
+            ServerDatabase.instance.query {
+                getOrAddSourceString(
+                    pathDescriptionsFile,
+                    "path_${path.id.value}",
+                    description,
+                    "Description for path ${path.id} (${path.displayName})"
+                )
+            }
+        } catch (_: IllegalStateException) {
+            /* Crowdin is not enabled */
         }
     }
 
@@ -135,8 +146,41 @@ object Localization {
             return
         }
 
-        ServerDatabase.instance.query {
-            deleteSourceString(pathDescriptionsFile, "path_${path.id.value}")
+        try {
+            ServerDatabase.instance.query {
+                deleteSourceString(pathDescriptionsFile, "path_${path.id.value}")
+            }
+        } catch (_: IllegalStateException) {
+            /* Crowdin is not enabled */
+        }
+    }
+
+    /**
+     * Tries getting the description of a given [path] translated to [languageId] from Crowdin.
+     *
+     * @throws HttpException If a request to the Crowdin API fails.
+     * @throws HttpBadRequestException If a request to the Crowdin API was badly formatted.
+     *
+     * @return `null` if no translation or [languageId] is not supported. Otherwise the translated string.
+     */
+    suspend fun getPathDescription(path: Path, languageId: String): String? {
+        val pathDescriptionsFile = pathDescriptionsFile
+        if (pathDescriptionsFile == null) {
+            Logger.debug("Won't synchronize path descriptions with Crowdin: Not initialized")
+            return null
+        }
+
+        return try {
+            val translation = ServerDatabase.instance.query {
+                getSourceString(pathDescriptionsFile, "path_${path.id.value}", languageId)
+            }
+            translation?.text
+        } catch (e: IllegalArgumentException) {
+            Logger.debug(e.message ?: "Language $languageId not supported.")
+            null
+        } catch (_: IllegalStateException) {
+            // Crowdin is not enabled
+            null
         }
     }
 
@@ -277,7 +321,12 @@ object Localization {
      *
      * @return The requested [SourceString].
      */
-    private fun getSourceString(fileInfo: FileInfo, identifier: String, text: String, context: String?): SourceString {
+    private fun getOrAddSourceString(
+        fileInfo: FileInfo,
+        identifier: String,
+        text: String,
+        context: String?
+    ): SourceString {
         val sourceStringsApi = client?.sourceStringsApi
 
         check(sourceStringsApi != null) { "Client has not been initialized." }
@@ -333,6 +382,60 @@ object Localization {
                 }
             }
         }
+    }
+
+    /**
+     * Tries getting a translation for an identifier.
+     *
+     * @param fileInfo The information of the file where the string will be added at. See [getFile].
+     * @param identifier Defines unique string identifier.
+     * @param languageId The language identifier to get the translation for.
+     *
+     * @throws HttpException If a request to the Crowdin API fails.
+     * @throws HttpBadRequestException If a request to the Crowdin API was badly formatted.
+     * @throws IllegalStateException If [client] or [projectId] is null
+     *
+     * @return The translation element, or `null` if there is no translation.
+     */
+    private fun getSourceString(fileInfo: FileInfo, identifier: String, languageId: String): StringTranslation? {
+        val stringTranslationsApi = client?.stringTranslationsApi
+        val sourceStringsApi = client?.sourceStringsApi
+        val languagesApi = client?.languagesApi
+
+        check(stringTranslationsApi != null) { "Client has not been initialized." }
+        check(sourceStringsApi != null) { "Client has not been initialized." }
+        check(languagesApi != null) { "Client has not been initialized." }
+        check(projectId != null) { "projectId has not been initialized." }
+
+        // Check if the project supports language
+        val language: Language = try {
+            languagesApi.getLanguage(languageId).data
+        } catch (_: HttpException) {
+            // Language is not supported
+            throw IllegalArgumentException("Language $languageId is not supported by Crowdin.")
+        }
+
+        val sourceString = sourceStringsApi
+            .listSourceStrings(
+                projectId,
+                fileInfo.id,
+                0,
+                null,
+                null,
+                null,
+                identifier,
+                "identifier",
+                1,
+                0
+            ).data
+            .firstOrNull()
+            ?.data
+            ?: return null
+
+        return stringTranslationsApi.listStringTranslations(projectId, sourceString.id, language.id, 1, 0)
+            .data
+            .firstOrNull()
+            ?.data
     }
 
     /**
