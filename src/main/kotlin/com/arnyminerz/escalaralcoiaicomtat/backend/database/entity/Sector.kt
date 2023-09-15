@@ -82,12 +82,12 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     /**
      * Uses [toJson] to convert the data into a [JSONObject], but adds a new key called `paths` with the data of the
      * paths.
+     * This method requires a list of [paths] which will be used for knowing the whole dataset.
      *
      * **Must be in a transaction to use**
      */
-    fun toJsonWithPaths(): JSONObject = toJson().apply {
-        val paths = Path.all().filter { it.sector.id == id }
-        put("paths", paths.toJson())
+    fun toJsonWithPaths(paths: Iterable<Path>): JSONObject = toJson().apply {
+        put("paths", paths.filter { it.sector.id == id }.toJson())
     }
 
     override fun equals(other: Any?): Boolean {

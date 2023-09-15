@@ -150,12 +150,12 @@ class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
     /**
      * Uses [toJson] to convert the data into a [JSONObject], but adds a new key called `zones` with the data of the
      * zones.
+     * This method requires a list of [sectors] and [paths] which will be used for knowing the whole dataset.
      *
      * **Must be in a transaction to use**
      */
-    fun toJsonWithSectors(): JSONObject = toJson().apply {
-        val sectors = Sector.all().filter { it.zone.id == id }
-        put("sectors", sectors.mapJson { it.toJsonWithPaths() })
+    fun toJsonWithSectors(sectors: Iterable<Sector>, paths: Iterable<Path>): JSONObject = toJson().apply {
+        put("sectors", sectors.filter { it.zone.id == id }.mapJson { it.toJsonWithPaths(paths) })
     }
 
     override fun equals(other: Any?): Boolean {

@@ -47,12 +47,12 @@ class Area(id: EntityID<Int>): DataEntity(id), JsonSerializable {
     /**
      * Uses [toJson] to convert the data into a [JSONObject], but adds a new key called `zones` with the data of the
      * zones.
+     * This method requires a list of [zones], [sectors] and [paths] which will be used for knowing the whole dataset.
      *
      * **Must be in a transaction to use**
      */
-    fun toJsonWithZones(): JSONObject = toJson().apply {
-        val zones = Zone.all().filter { it.area.id == id }
-        put("zones", zones.mapJson { it.toJsonWithSectors() })
+    fun toJsonWithZones(zones: Iterable<Zone>, sectors: Iterable<Sector>, paths: Iterable<Path>): JSONObject = toJson().apply {
+        put("zones", zones.filter { it.area.id == id }.mapJson { it.toJsonWithSectors(sectors, paths) })
     }
 
     override fun equals(other: Any?): Boolean {
