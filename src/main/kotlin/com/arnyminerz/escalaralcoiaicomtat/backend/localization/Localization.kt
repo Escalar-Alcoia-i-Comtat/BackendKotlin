@@ -185,6 +185,35 @@ object Localization {
     }
 
     /**
+     * Tries getting the description of all the paths available translated to [languageId] from Crowdin.
+     *
+     * @throws HttpException If a request to the Crowdin API fails.
+     * @throws HttpBadRequestException If a request to the Crowdin API was badly formatted.
+     */
+    suspend fun getAllPathDescription(languageId: String): Map<Int, String?> {
+        val pathDescriptionsFile = pathDescriptionsFile
+        if (pathDescriptionsFile == null) {
+            Logger.debug("Won't synchronize path descriptions with Crowdin: Not initialized")
+            return emptyMap()
+        }
+
+        return try {
+            val translation = ServerDatabase.instance.query {
+                getSourceStrings(pathDescriptionsFile, "path", languageId)
+            }
+            translation
+                .mapKeys { (source, _) -> source.identifier.substringAfter('_').toInt() }
+                .mapValues { (_, translation) -> translation?.text }
+        } catch (e: IllegalArgumentException) {
+            Logger.debug(e.message ?: "Language $languageId not supported.")
+            emptyMap()
+        } catch (_: IllegalStateException) {
+            // Crowdin is not enabled
+            emptyMap()
+        }
+    }
+
+    /**
      * Fetches the localization branch for the current [projectId] using [client].
      *
      * @throws HttpException If a request to the Crowdin API fails.
@@ -436,6 +465,84 @@ object Localization {
             .data
             .firstOrNull()
             ?.data
+    }
+
+    /**
+     * Tries getting all translations for an identifier.
+     *
+     * @param fileInfo The information of the file where the string will be added at. See [getFile].
+     * @param identifier Defines unique string identifier.
+     * @param languageId The language identifier to get the translation for.
+     *
+     * @throws HttpException If a request to the Crowdin API fails.
+     * @throws HttpBadRequestException If a request to the Crowdin API was badly formatted.
+     * @throws IllegalStateException If [client] or [projectId] is null
+     */
+    private fun getSourceStrings(
+        fileInfo: FileInfo,
+        identifier: String,
+        languageId: String,
+        pageLimit: Int = 50
+    ): Map<SourceString, StringTranslation?> {
+        val stringTranslationsApi = client?.stringTranslationsApi
+        val sourceStringsApi = client?.sourceStringsApi
+        val languagesApi = client?.languagesApi
+
+        check(stringTranslationsApi != null) { "Client has not been initialized." }
+        check(sourceStringsApi != null) { "Client has not been initialized." }
+        check(languagesApi != null) { "Client has not been initialized." }
+        check(projectId != null) { "projectId has not been initialized." }
+
+        // Check if the project supports language
+        val language: Language = try {
+            languagesApi.getLanguage(languageId).data
+        } catch (_: HttpException) {
+            // Language is not supported
+            throw IllegalArgumentException("Language $languageId is not supported by Crowdin.")
+        }
+
+        val sourceStringBuilder = mutableListOf<SourceString>()
+
+        var offset = 0
+        var sourceStrings = sourceStringsApi
+            .listSourceStrings(
+                projectId,
+                fileInfo.id,
+                0,
+                null,
+                null,
+                null,
+                identifier,
+                "identifier",
+                pageLimit,
+                offset
+            ).data
+        do {
+            sourceStringBuilder.addAll(
+                sourceStrings.map { it.data }.also { offset += it.size }
+            )
+
+            sourceStrings = sourceStringsApi
+                .listSourceStrings(
+                    projectId,
+                    fileInfo.id,
+                    0,
+                    null,
+                    null,
+                    null,
+                    identifier,
+                    "identifier",
+                    pageLimit,
+                    offset
+                ).data
+        } while (sourceStrings.size >= pageLimit)
+
+        return sourceStringBuilder.associate { sourceString ->
+            sourceString to stringTranslationsApi.listStringTranslations(projectId, sourceString.id, language.id, 1, 0)
+                .data
+                .firstOrNull()
+                ?.data
+        }
     }
 
     /**
