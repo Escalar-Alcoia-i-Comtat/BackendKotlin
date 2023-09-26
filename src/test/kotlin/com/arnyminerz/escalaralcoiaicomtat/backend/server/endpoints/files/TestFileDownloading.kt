@@ -70,7 +70,7 @@ class TestFileDownloading : ApplicationTestBase() {
     fun `test downloading resized files - height`() = test {
         provideImageFile { image ->
             val tempFile = File.createTempFile("eaic", null)
-            val response = get("/download/$image?height=75")
+            val response = get("/download/$image?height=200")
             assertTrue(
                 response.status.isSuccess(),
                 "Got a non-successful response from server. Status: ${response.status}"
@@ -81,7 +81,8 @@ class TestFileDownloading : ApplicationTestBase() {
 
             try {
                 val img: BufferedImage? = ImageIO.read(tempFile)
-                assertEquals(75, img?.height)
+                assertNotNull(img)
+                assertEquals(75, img.height)
             } finally {
                 tempFile.delete()
             }
