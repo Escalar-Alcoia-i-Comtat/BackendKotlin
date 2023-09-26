@@ -1,8 +1,10 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.block
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingRecurrenceYearly
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getJSONObjectOrNull
@@ -13,6 +15,7 @@ import java.time.LocalDateTime
 import java.time.Month
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import org.json.JSONObject
 
@@ -24,6 +27,8 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
         val pathId = DataProvider.provideSamplePath(sectorId)
 
         var blockId: Int? = null
+
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         post("/block/$pathId") {
             setBody(
@@ -37,6 +42,8 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
                 assertNotNull(element)
                 blockId = element.getInt("id")
             }
+
+            ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
         }
         assertNotNull(blockId)
 

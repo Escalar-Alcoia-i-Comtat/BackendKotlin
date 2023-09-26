@@ -3,6 +3,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
@@ -32,6 +33,8 @@ object DeletePathEndpoint : SecureEndpointBase() {
 
         // Now remove the path
         ServerDatabase.instance.query { path.delete() }
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess()
     }

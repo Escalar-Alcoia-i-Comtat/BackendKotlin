@@ -6,6 +6,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingRecurrenceYearly
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
@@ -19,6 +20,7 @@ import java.time.Month
 import java.time.temporal.ChronoUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -29,6 +31,8 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
         val zoneId = DataProvider.provideSampleZone(areaId)
         val sectorId = DataProvider.provideSampleSector(zoneId)
         val pathId = DataProvider.provideSamplePath(sectorId)
+
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         post("/block/$pathId") {
             setBody(
@@ -50,6 +54,8 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
             assertEquals(BlockingTypes.BUILD, block.type)
             assertNull(block.recurrence)
             assertNull(block.endDate)
+
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
     }
 
