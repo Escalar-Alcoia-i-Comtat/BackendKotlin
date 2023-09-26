@@ -16,24 +16,27 @@ import org.json.JSONObject
 /**
  * Represents the data structure of an Area, which contains Zones.
  */
-class Area(id: EntityID<Int>): DataEntity(id), JsonSerializable {
-    companion object: IntEntityClass<Area>(Areas)
+class Area(id: EntityID<Int>) : DataEntity(id), JsonSerializable {
+    companion object : IntEntityClass<Area>(Areas)
 
     override var timestamp: Instant by Areas.timestamp
     override var displayName: String by Areas.displayName
 
     var image: File
         get() = File(Storage.ImagesDir, _image)
-        set(value) { _image = value.toRelativeString(Storage.ImagesDir) }
+        set(value) {
+            _image = value.toRelativeString(Storage.ImagesDir)
+        }
 
     override var webUrl: URL
         get() = URL(_webUrl)
-        set(value) { _webUrl = value.toString() }
+        set(value) {
+            _webUrl = value.toString()
+        }
 
     private var _image: String by Areas.imagePath
 
     private var _webUrl: String by Areas.webUrl
-
 
 
     override fun toJson(): JSONObject = jsonOf(
@@ -51,9 +54,10 @@ class Area(id: EntityID<Int>): DataEntity(id), JsonSerializable {
      *
      * **Must be in a transaction to use**
      */
-    fun toJsonWithZones(zones: Iterable<Zone>, sectors: Iterable<Sector>, paths: Iterable<Path>): JSONObject = toJson().apply {
-        put("zones", zones.filter { it.area.id == id }.mapJson { it.toJsonWithSectors(sectors, paths) })
-    }
+    fun toJsonWithZones(zones: Iterable<Zone>, sectors: Iterable<Sector>, paths: Iterable<Path>): JSONObject =
+        toJson().apply {
+            put("zones", zones.filter { it.area.id == id }.mapJson { it.toJsonWithSectors(sectors, paths) })
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
