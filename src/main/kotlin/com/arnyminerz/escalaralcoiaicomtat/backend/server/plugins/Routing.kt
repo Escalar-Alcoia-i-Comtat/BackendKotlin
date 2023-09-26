@@ -24,6 +24,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchP
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchSectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.AreaEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.LastUpdateEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.PathEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.SectorEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.TreeEndpoint
@@ -52,6 +53,7 @@ fun Application.configureEndpoints() {
         get("/") { RootEndpoint.call(this) }
 
         get("/tree") { TreeEndpoint.call(this) }
+        get("/last_update") { LastUpdateEndpoint.call(this) }
 
         get("/area/{areaId}") { AreaEndpoint.call(this) }
         post("/area") { NewAreaEndpoint.call(this) }
