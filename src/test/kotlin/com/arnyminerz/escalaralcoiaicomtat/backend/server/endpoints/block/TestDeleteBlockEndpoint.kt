@@ -4,6 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
@@ -11,6 +12,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -32,6 +34,8 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
             assertSuccess(HttpStatusCode.Created)
         }
 
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+
         val block = ServerDatabase.instance.query {
             Blocking.find { BlockingTable.path eq pathId }.firstOrNull()
         }
@@ -46,5 +50,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
         }?.let {
             assertNull(it)
         }
+
+        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
     }
 }

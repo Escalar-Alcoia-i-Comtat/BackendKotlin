@@ -5,6 +5,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.DataPoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.HashUtils
@@ -19,6 +20,7 @@ import io.ktor.http.HttpHeaders
 import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -32,6 +34,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
         val zoneId = DataProvider.provideSampleZone(areaId)
         assertNotNull(zoneId)
 
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+
         client.submitFormWithBinaryData(
             url = "/zone/$zoneId",
             formData = formData {
@@ -42,6 +46,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
         }.apply {
             assertSuccess()
         }
+
+        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
 
         ServerDatabase.instance.query {
             val zone = Zone[zoneId]

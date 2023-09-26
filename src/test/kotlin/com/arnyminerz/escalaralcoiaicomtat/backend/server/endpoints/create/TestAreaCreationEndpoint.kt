@@ -3,18 +3,22 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Area
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TestAreaCreationEndpoint: ApplicationTestBase() {
     @Test
     fun `test area creation`() = test {
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+
         val areaId: Int? = DataProvider.provideSampleArea()
         assertNotNull(areaId)
 
@@ -26,6 +30,8 @@ class TestAreaCreationEndpoint: ApplicationTestBase() {
 
             val imageFile = area.image
             assertTrue(imageFile.exists())
+
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
     }
 

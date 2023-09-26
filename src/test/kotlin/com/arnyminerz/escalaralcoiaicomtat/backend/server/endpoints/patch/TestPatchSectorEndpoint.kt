@@ -4,6 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.storage.HashUtils
@@ -17,6 +18,7 @@ import io.ktor.http.HttpHeaders
 import java.security.MessageDigest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -33,6 +35,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
 
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
             formData = formData {
@@ -43,6 +47,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
         }.apply {
             assertSuccess()
         }
+
+        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
 
         ServerDatabase.instance.query {
             val sector = Sector[sectorId]
