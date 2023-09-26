@@ -82,7 +82,7 @@ class TestFileDownloading : ApplicationTestBase() {
             try {
                 val img: BufferedImage? = ImageIO.read(tempFile)
                 assertNotNull(img)
-                assertEquals(75, img.height)
+                assertEquals(200, img.height)
             } finally {
                 tempFile.delete()
             }
