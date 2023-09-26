@@ -4,6 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingRecurrenceYearly
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -47,6 +48,8 @@ object PatchBlockEndpoint: EndpointBase() {
 
             block.toJson()
         }
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess(
             jsonOf("element" to updatedBlock)

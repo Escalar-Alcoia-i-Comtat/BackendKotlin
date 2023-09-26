@@ -2,6 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -17,6 +18,8 @@ object DeleteSectorEndpoint : SecureEndpointBase() {
 
         ServerDatabase.instance.query { Sector.findById(sectorId)?.delete() }
             ?: return respondFailure(Errors.ObjectNotFound)
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess()
     }

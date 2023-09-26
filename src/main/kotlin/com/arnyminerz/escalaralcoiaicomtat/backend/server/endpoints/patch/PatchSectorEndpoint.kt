@@ -4,6 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Zone
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
@@ -102,6 +103,8 @@ object PatchSectorEndpoint : SecureEndpointBase() {
 
             sector.toJson()
         }
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess(
             data = jsonOf("element" to json)

@@ -7,6 +7,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
@@ -135,6 +136,8 @@ object NewPathEndpoint : SecureEndpointBase() {
         }
 
         Localization.synchronizePathDescription(path)
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess(
             jsonOf("element" to ServerDatabase.instance.query { path.toJson() }),

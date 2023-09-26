@@ -2,6 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Area
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.MissingData
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
@@ -18,6 +19,7 @@ import io.ktor.server.request.receiveMultipart
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
+import java.time.Instant
 
 object NewAreaEndpoint : SecureEndpointBase() {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -60,6 +62,8 @@ object NewAreaEndpoint : SecureEndpointBase() {
                 this.webUrl = URL(webUrl!!)
             }.toJson()
         }
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess(
             jsonOf("element" to area),
