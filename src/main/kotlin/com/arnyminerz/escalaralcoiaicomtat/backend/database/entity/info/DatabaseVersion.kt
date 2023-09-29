@@ -6,7 +6,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Transaction
 
 class DatabaseVersion(id: EntityID<String>): InfoEntry(id) {
-    companion object: EntityClass<String, LastUpdate>(InfoTable), InfoEntryCompanion<Int> {
+    companion object: EntityClass<String, DatabaseVersion>(InfoTable), InfoEntryCompanion<Int> {
         private const val ID = "database_version"
 
         context(Transaction)
