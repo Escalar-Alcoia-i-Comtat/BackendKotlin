@@ -3,17 +3,21 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.create
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
 class TestPathCreationEndpoint: ApplicationTestBase() {
     @Test
     fun `test path creation`() = test {
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+
         val areaId: Int? = DataProvider.provideSampleArea()
         assertNotNull(areaId)
 
@@ -55,6 +59,8 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
 
             assertEquals(DataProvider.SamplePath.builder, path.builder)
             assertContentEquals(DataProvider.SamplePath.reBuilder, path.reBuilder)
+
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
     }
 

@@ -2,6 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -22,6 +23,8 @@ object DeleteBlockEndpoint: SecureEndpointBase() {
         ServerDatabase.instance.query {
             block.delete()
         }
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess()
     }

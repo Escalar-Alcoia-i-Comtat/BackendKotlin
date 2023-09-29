@@ -2,6 +2,7 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Area
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
@@ -68,6 +69,8 @@ object PatchAreaEndpoint : SecureEndpointBase() {
 
             area.toJson()
         }
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess(
             data = jsonOf("element" to json)

@@ -23,6 +23,7 @@ import com.crowdin.client.sourcestrings.model.SourceString
 import com.crowdin.client.stringtranslations.model.StringTranslation
 import org.json.JSONObject
 
+@Suppress("TooManyFunctions")
 object Localization {
     private const val BRANCH_NAME = "backend"
     private const val BRANCH_TITLE = "Backend Localization"

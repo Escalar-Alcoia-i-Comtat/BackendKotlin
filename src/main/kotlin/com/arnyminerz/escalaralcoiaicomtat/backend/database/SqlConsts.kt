@@ -1,6 +1,12 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.database
 
 object SqlConsts {
+    /** The maximum length of an identifier in InfoTable */
+    const val INFO_ID_LENGTH = 32
+
+    /** The maximum length of a value in InfoTable */
+    const val INFO_VALUE_LENGTH = 128
+
     /** The maximum length of a display name. */
     const val DISPLAY_NAME_LENGTH = 64
 

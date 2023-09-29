@@ -5,6 +5,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingRecurrenceYearly
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.BlockingTypes
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Blocking
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
@@ -51,6 +52,8 @@ object AddBlockEndpoint: SecureEndpointBase() {
                 this.path = path
             }.toJson()
         }
+
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         respondSuccess(
             data = jsonOf("element" to blocking),

@@ -7,6 +7,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.SportsGrade
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializable
@@ -18,6 +19,7 @@ import io.ktor.http.HttpHeaders
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import org.json.JSONArray
@@ -35,6 +37,8 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
         val pathId = DataProvider.provideSamplePath(sectorId)
         assertNotNull(pathId)
+
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         client.submitFormWithBinaryData(
             url = "/path/$sectorId",
@@ -55,6 +59,8 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
         }.apply {
             assertSuccess()
         }
+
+        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
 
         ServerDatabase.instance.query {
             val path = Path[pathId]
