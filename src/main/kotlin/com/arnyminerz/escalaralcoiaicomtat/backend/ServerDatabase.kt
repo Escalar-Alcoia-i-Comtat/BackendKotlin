@@ -1,5 +1,7 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.DatabaseVersion
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.migration.Migrations
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Areas
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.InfoTable
@@ -11,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlLogger
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
@@ -74,8 +77,14 @@ class ServerDatabase private constructor() {
         Database.connect(url, driver, username, password)
     }
 
-    suspend fun <T> query(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
+    suspend fun <T> query(block: suspend Transaction.() -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
+        val isFirstRun = SchemaUtils.listDatabases().isEmpty()
+
         SchemaUtils.create(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
+
+        if (isFirstRun) {
+            DatabaseVersion.update(Migrations.DATABASE_VERSION)
+        }
 
         logger?.let { addLogger(it) }
 

@@ -7,21 +7,23 @@ import org.jetbrains.exposed.dao.id.EntityID
 
 class LastUpdate(id: EntityID<String>): InfoEntry(id) {
 
-    companion object: EntityClass<String, LastUpdate>(InfoTable) {
+    companion object: EntityClass<String, LastUpdate>(InfoTable), InfoEntryCompanion<Instant> {
         private const val ID = "last_update"
 
-        fun get(): Instant? = findById(ID)?.value?.toLong()?.let(Instant::ofEpochMilli)
+        override fun get(): Instant? = findById(ID)?.value?.toLong()?.let(Instant::ofEpochMilli)
 
-        fun set(timestamp: Instant = Instant.now()) {
+        override fun update(value: Instant) {
             val entry = findById(ID)
             if (entry != null) {
                 // Already exists, update
-                entry.value = timestamp.toEpochMilli().toString()
+                entry.value = value.toEpochMilli().toString()
             } else {
                 LastUpdate.new(ID) {
-                    value = timestamp.toEpochMilli().toString()
+                    this.value = value.toEpochMilli().toString()
                 }
             }
         }
+
+        fun set(value: Instant = Instant.now()) = update(value)
     }
 }
