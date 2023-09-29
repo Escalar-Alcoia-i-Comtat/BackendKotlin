@@ -83,6 +83,7 @@ class ServerDatabase private constructor() {
         SchemaUtils.create(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
 
         if (isFirstRun) {
+            Logger.info("First boot. Setting database version...")
             DatabaseVersion.update(Migrations.DATABASE_VERSION)
         }
 

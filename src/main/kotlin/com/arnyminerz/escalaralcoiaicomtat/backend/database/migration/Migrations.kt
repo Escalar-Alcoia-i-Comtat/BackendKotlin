@@ -19,7 +19,9 @@ object Migrations {
                 }
                 migration.performMigration()
 
-                currentVersion = DatabaseVersion.get()
+                val newVersion = DatabaseVersion.get()
+                require(newVersion != currentVersion) { "Migration unsuccessful" }
+                currentVersion = newVersion
             }
             Logger.info("Database is up to date.")
         }
