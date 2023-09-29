@@ -1,7 +1,5 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend
 
-import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.DatabaseVersion
-import com.arnyminerz.escalaralcoiaicomtat.backend.database.migration.Migrations
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Areas
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.BlockingTable
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.InfoTable
@@ -78,14 +76,7 @@ class ServerDatabase private constructor() {
     }
 
     suspend fun <T> query(block: suspend Transaction.() -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
-        val isFirstRun = SchemaUtils.listDatabases().isEmpty()
-
-        SchemaUtils.create(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
-
-        if (isFirstRun) {
-            Logger.info("First boot. Setting database version...")
-            DatabaseVersion.update(Migrations.DATABASE_VERSION)
-        }
+        SchemaUtils.createMissingTablesAndColumns(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
 
         logger?.let { addLogger(it) }
 
