@@ -93,6 +93,36 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
     }
 
     @Test
+    fun `test path creation - with multiple images`() = test {
+        val areaId: Int? = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId: Int? = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        // Include only an image, using uixola as sample
+        val pathId: Int? = DataProvider.provideSamplePath(
+            sectorId,
+            images = listOf("/images/uixola.jpg", "/images/uixola.jpg")
+        )
+        assertNotNull(pathId)
+
+        ServerDatabase.instance.query {
+            val path = Path[pathId]
+            assertNotNull(path)
+
+            val images = path.images
+            assertNotNull(images)
+            assertEquals(2, images.size)
+            assertTrue(images[0].exists())
+            assertTrue(images[1].exists())
+        }
+    }
+
+    @Test
     fun `test path creation - missing arguments`() = test {
         val areaId = DataProvider.provideSampleArea()
         val zoneId: Int? = DataProvider.provideSampleZone(areaId)
