@@ -1,5 +1,6 @@
 import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.migration.Migrations
 import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.configureEndpoints
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.installPlugins
@@ -23,6 +24,11 @@ fun main() {
 
     Logger.info("Connecting to the database, and creating tables...")
     ServerDatabase.instance
+
+    Logger.info("Running database migration if required...")
+    runBlocking {
+        Migrations.runMigrations()
+    }
 
     Logger.info("Initializing Crowdin connection...")
     Localization.init()
