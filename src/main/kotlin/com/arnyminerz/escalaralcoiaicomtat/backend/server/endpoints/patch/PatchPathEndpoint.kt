@@ -75,6 +75,7 @@ object PatchPathEndpoint : SecureEndpointBase() {
         var removeDescription = false
         var removeBuilder = false
         var removeReBuilder = false
+        var removeImages = emptyList<String>()
 
         receiveMultipart(
             forEachFormItem = { partData ->
@@ -181,6 +182,10 @@ object PatchPathEndpoint : SecureEndpointBase() {
                             reBuilder = value.jsonArray.serialize(Builder)
                     }
 
+                    "removeImages" -> partData.value.let { value ->
+                        removeImages = value.split('\n').filter { it.isNotBlank() }
+                    }
+
                     "path" -> ServerDatabase.instance.query {
                         sector = Sector.findById(partData.value.toInt())
                             ?: return@query respondFailure(Errors.ParentNotFound)
@@ -198,8 +203,14 @@ object PatchPathEndpoint : SecureEndpointBase() {
                 removeHeight, removeGrade, removeEnding, removePitches, removeStringCount, removeParaboltCount,
                 removeBurilCount, removePitonCount, removeSpitCount, removeTensorCount, removeDescription,
                 removeBuilder, removeReBuilder
-            )
+            ) &&
+            removeImages.isEmpty()
         ) {
+            return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
+        }
+
+        if (removeImages.isNotEmpty() && path.images?.isEmpty() == true) {
+            // There are no images to remove
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
@@ -241,6 +252,10 @@ object PatchPathEndpoint : SecureEndpointBase() {
             if (removeDescription) path.description = null
             if (removeBuilder) path.builder = null
             if (removeReBuilder) path.reBuilder = null
+
+            if (removeImages.isNotEmpty()) {
+                path.images = path.images?.filter { !removeImages.contains(it.name) }
+            }
 
             path.timestamp = Instant.now()
         }
