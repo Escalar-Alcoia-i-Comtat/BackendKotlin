@@ -15,6 +15,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
+import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -243,7 +244,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
         val pathId = DataProvider.provideSamplePath(
             sectorId,
-                images = listOf("/images/uixola.jpg", "/images/uixola.jpg")
+            images = listOf("/images/uixola.jpg", "/images/uixola.jpg")
         )
         assertNotNull(pathId)
 
@@ -267,6 +268,90 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
             val images = path.images
             assertNotNull(images)
             assertEquals(1, images.size) // one image has been removed
+        }
+    }
+
+    @Test
+    fun `test patching Path - add image`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        val pathId = DataProvider.provideSamplePath(sectorId)
+        assertNotNull(pathId)
+
+        val image = this::class.java.getResourceAsStream("/images/uixola.jpg")!!.use { it.readBytes() }
+
+        client.submitFormWithBinaryData(
+            url = "/path/$sectorId",
+            formData = formData {
+                append("image", image, Headers.build {
+                    append(HttpHeaders.ContentType, "image/jpeg")
+                    append(HttpHeaders.ContentDisposition, "filename=path.jpg")
+                })
+            }
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
+            assertSuccess()
+        }
+
+        ServerDatabase.instance.query {
+            val path = Path[pathId]
+            assertNotNull(path)
+
+            val images = path.images
+            assertNotNull(images)
+            assertEquals(1, images.size)
+        }
+    }
+
+    @Test
+    fun `test patching Path - add and remove image`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        val pathId = DataProvider.provideSamplePath(sectorId, images = listOf("/images/uixola.jpg"))
+        assertNotNull(pathId)
+
+        val newPath = ServerDatabase.instance.query { Path[pathId] }
+
+        val image = this::class.java.getResourceAsStream("/images/uixola.jpg")!!.use { it.readBytes() }
+
+        client.submitFormWithBinaryData(
+            url = "/path/$sectorId",
+            formData = formData {
+                append("removeImages", newPath.images!!.first().name)
+
+                append("image", image, Headers.build {
+                    append(HttpHeaders.ContentType, "image/jpeg")
+                    append(HttpHeaders.ContentDisposition, "filename=path.jpg")
+                })
+            }
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
+            assertSuccess()
+        }
+
+        ServerDatabase.instance.query {
+            val path = Path[pathId]
+            assertNotNull(path)
+
+            val images = path.images
+            assertNotNull(images)
+            assertEquals(1, images.size)
         }
     }
 }

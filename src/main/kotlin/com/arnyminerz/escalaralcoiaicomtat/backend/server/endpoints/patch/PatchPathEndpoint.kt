@@ -8,11 +8,14 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
 import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllFalse
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.areAllNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
@@ -24,6 +27,7 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
+import java.io.File
 import java.time.Instant
 
 object PatchPathEndpoint : SecureEndpointBase() {
@@ -59,6 +63,7 @@ object PatchPathEndpoint : SecureEndpointBase() {
         var description: String? = null
         var builder: Builder? = null
         var reBuilder: List<Builder>? = null
+        var imageFiles: List<File>? = null
 
         var sector: Sector? = null
 
@@ -191,13 +196,20 @@ object PatchPathEndpoint : SecureEndpointBase() {
                             ?: return@query respondFailure(Errors.ParentNotFound)
                     }
                 }
+            },
+            forEachFileItem = { partData ->
+                when (partData.name) {
+                    "image" -> imageFiles = (imageFiles ?: emptyList())
+                        .toMutableList()
+                        .apply { add(partData.save(Storage.ImagesDir)) }
+                }
             }
         )
 
         if (areAllNull(
                 displayName, sketchId, height, grade, ending, pitches, stringCount, paraboltCount, burilCount,
                 pitonCount, spitCount, tensorCount, crackerRequired, friendRequired, lanyardRequired, nailRequired,
-                pitonRequired, stapesRequired, showDescription, description, builder, reBuilder, sector
+                pitonRequired, stapesRequired, showDescription, description, builder, reBuilder, imageFiles, sector
             ) &&
             areAllFalse(
                 removeHeight, removeGrade, removeEnding, removePitches, removeStringCount, removeParaboltCount,
@@ -212,6 +224,19 @@ object PatchPathEndpoint : SecureEndpointBase() {
         if (removeImages.isNotEmpty() && path.images?.isEmpty() == true) {
             // There are no images to remove
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
+        }
+
+        if (path.images != null && imageFiles != null && path.images!!.size + imageFiles!!.size > Paths.MAX_IMAGES) {
+            imageFiles?.forEach {
+                if (!it.delete()) {
+                    return respondFailure(
+                        Errors.CouldNotClear,
+                        "Could not remove image from invalid request: $it.\n" +
+                                "Exists? ${if (it.exists()) "true" else "false"}"
+                    )
+                }
+            }
+            return respondFailure(Errors.TooManyImages)
         }
 
         ServerDatabase.instance.query {
@@ -237,6 +262,7 @@ object PatchPathEndpoint : SecureEndpointBase() {
             description?.let { path.description = it }
             builder?.let { path.builder = it }
             reBuilder?.let { path.reBuilder = it }
+            imageFiles?.let { path.images = it }
             sector?.let { path.sector = it }
 
             if (removeHeight) path.height = null
