@@ -1,5 +1,6 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.database.migration
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.DatabaseVersion
 import org.jetbrains.exposed.sql.Transaction
 
@@ -9,6 +10,8 @@ abstract class Migration(
 ) {
     context (Transaction)
     suspend fun performMigration() {
+        Logger.info("Migrating from $from to $to...")
+
         migrate()
 
         DatabaseVersion.update(to)
