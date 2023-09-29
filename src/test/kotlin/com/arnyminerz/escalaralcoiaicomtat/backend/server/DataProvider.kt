@@ -253,6 +253,10 @@ object DataProvider {
         sectorId: Int?,
         skipDisplayName: Boolean = false,
         skipSketchId: Boolean = false,
+        /**
+         * Should contain the path in resources of all the images to include.
+         */
+        images: List<String>? = null,
         assertion: suspend HttpResponse.() -> Int? = {
             var pathId: Int? = null
             assertSuccess(HttpStatusCode.Created) { data ->
@@ -264,6 +268,10 @@ object DataProvider {
         }
     ): Int? {
         var pathId: Int?
+
+        val imagesData = images?.map { path ->
+            this::class.java.getResourceAsStream(path)!!.use { it.readBytes() }
+        }
 
         client.submitFormWithBinaryData(
             url = "/path",
@@ -294,6 +302,13 @@ object DataProvider {
                 append("description", SamplePath.description)
                 append("builder", SamplePath.builder.toJson().toString())
                 append("reBuilder", SamplePath.reBuilder.toJson().toString())
+
+                imagesData?.forEachIndexed { index, image ->
+                    append("image", image, Headers.build {
+                        append(HttpHeaders.ContentType, "image/jpeg")
+                        append(HttpHeaders.ContentDisposition, "filename=path-$index.jpg")
+                    })
+                }
             }
         ) {
             header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")

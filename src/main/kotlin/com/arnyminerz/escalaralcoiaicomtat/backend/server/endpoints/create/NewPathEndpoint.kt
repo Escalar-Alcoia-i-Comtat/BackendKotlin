@@ -8,12 +8,17 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
 import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.SecureEndpointBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.CouldNotClear
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.MissingData
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors.TooManyImages
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.request.save
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSuccess
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
@@ -21,6 +26,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
+import java.io.File
 
 object NewPathEndpoint : SecureEndpointBase() {
     /** The number of different count properties. */
@@ -58,6 +64,8 @@ object NewPathEndpoint : SecureEndpointBase() {
         var builder: Builder? = null
         val reBuilder: MutableList<Builder> = mutableListOf()
         var sector: Sector? = null
+
+        var imageFiles: List<File>? = null
 
         receiveMultipart(
             forEachFormItem = { partData ->
@@ -97,6 +105,13 @@ object NewPathEndpoint : SecureEndpointBase() {
                             ?: return@query respondFailure(Errors.ParentNotFound)
                     }
                 }
+            },
+            forEachFileItem = { partData ->
+                when (partData.name) {
+                    "image" -> imageFiles = (imageFiles ?: emptyList())
+                        .toMutableList()
+                        .apply { add(partData.save(Storage.ImagesDir)) }
+                }
             }
         )
 
@@ -105,6 +120,18 @@ object NewPathEndpoint : SecureEndpointBase() {
                 MissingData,
                 rawMultipartFormItems.toList().joinToString(", ") { (k, v) -> "$k=$v" }
             )
+        }
+        if (imageFiles != null && imageFiles!!.size > Paths.MAX_IMAGES) {
+            imageFiles?.forEach {
+                if (!it.delete()) {
+                    return respondFailure(
+                        CouldNotClear,
+                        "Could not remove image from invalid request: $it.\n" +
+                                "Exists? ${if (it.exists()) "true" else "false"}"
+                    )
+                }
+            }
+            return respondFailure(TooManyImages)
         }
 
         val path = ServerDatabase.instance.query {
@@ -131,6 +158,7 @@ object NewPathEndpoint : SecureEndpointBase() {
                 this.description = description
                 this.builder = builder
                 this.reBuilder = reBuilder
+                this.images = imageFiles
                 this.sector = sector!!
             }
         }

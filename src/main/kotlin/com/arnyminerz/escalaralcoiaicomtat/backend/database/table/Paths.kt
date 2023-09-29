@@ -3,6 +3,11 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.database.table
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.SqlConsts
 
 object Paths: BaseTable() {
+    /**
+     * The maximum amount of images allowed in a path.
+     */
+    const val MAX_IMAGES = 10
+
     val displayName = varchar("display_name", SqlConsts.DISPLAY_NAME_LENGTH)
     val sketchId = uinteger("sketch_id")
 
@@ -32,6 +37,8 @@ object Paths: BaseTable() {
 
     val builder = varchar("builder", SqlConsts.BUILDER_LENGTH).nullable()
     val reBuilder = varchar("re_builder", SqlConsts.RE_BUILDER_LENGTH).nullable()
+
+    val images = varchar("images", SqlConsts.FILE_LENGTH * MAX_IMAGES).nullable().default(null)
 
     val sector = reference("sector", Sectors)
 }

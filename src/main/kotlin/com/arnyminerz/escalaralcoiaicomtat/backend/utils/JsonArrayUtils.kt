@@ -53,3 +53,24 @@ fun <T: Any> Iterable<T>.mapJson(block: (T) -> JSONObject): JSONArray {
     }
     return array
 }
+
+/**
+ * Maps each element of the iterable to a JSON primitive using the specified block.
+ *
+ * The value should be a [Boolean], [Double], [Integer], [JSONArray], [JSONObject], [Long], or [String], or the
+ * [JSONObject.NULL] object.
+ *
+ * Returns a JSON array containing the mapped elements.
+ *
+ * @param block the transformation block that converts an element of the iterable to a JSON-supported object.
+ *
+ * @return a JSON array containing the mapped elements
+ */
+fun <T: Any, I> Iterable<T>.mapJsonPrimitive(block: (T) -> I): JSONArray {
+    val array = JSONArray()
+    for (i in 0 until count()) {
+        val entry = block(elementAt(i))
+        array.put(entry)
+    }
+    return array
+}
