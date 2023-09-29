@@ -11,6 +11,8 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getLongOrNull
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getStringOrNull
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.getUInt
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
 import io.ktor.http.HttpStatusCode
@@ -77,6 +79,44 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
                 )
 
                 assertTrue(data.getLong("timestamp") < Instant.now().toEpochMilli())
+            }
+        }
+    }
+
+    @Test
+    fun `test getting path - with image`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        val pathId = DataProvider.provideSamplePath(sectorId, images = listOf("/images/uixola.jpg"))
+        assertNotNull(pathId)
+
+        var image: String? = null
+
+        get("/path/$pathId").apply {
+            assertSuccess { data ->
+                assertNotNull(data)
+
+                val images = data.getJSONArray("images")
+                assertEquals(1, images.length())
+                image = images.getString(0)
+            }
+        }
+
+        assertNotNull(image)
+
+        get("/file/$image").apply {
+            assertSuccess { data ->
+                assertNotNull(data?.getStringOrNull("download"))
+                assertNotNull(data?.getStringOrNull("filename"))
+                assertNotNull(data?.getStringOrNull("hash"))
+                assertNotNull(data?.getLongOrNull("size"))
             }
         }
     }

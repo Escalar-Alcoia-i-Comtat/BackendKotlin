@@ -1,5 +1,6 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.error
 
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
 import io.ktor.http.HttpStatusCode
 
 /**
@@ -14,6 +15,7 @@ object Errors {
 
     val MissingData = Error(10, "The request misses some required data.", HttpStatusCode.BadRequest)
     val InvalidData = Error(11, "The request has some data of the wrong type.", HttpStatusCode.BadRequest)
+    val TooManyImages = Error(12, "Too many images added. Maximum: ${Paths.MAX_IMAGES}", HttpStatusCode.BadRequest)
 
     val Conflict = Error(20, "Multiple parameters in the request conflict.", HttpStatusCode.Conflict)
 
@@ -24,4 +26,6 @@ object Errors {
 
     val DatabaseNotEmpty = Error(40, "Database must be empty", HttpStatusCode.PreconditionFailed)
     val NotRunning = Error(41, "Not running", HttpStatusCode.PreconditionFailed)
+
+    val CouldNotClear = Error(50, "Could not clear an invalid request", HttpStatusCode.InternalServerError)
 }

@@ -5,12 +5,15 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.data.Ending
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.GradeValue
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.PitchInfo
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
+import com.arnyminerz.escalaralcoiaicomtat.backend.storage.Storage
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.json
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonArray
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
+import com.arnyminerz.escalaralcoiaicomtat.backend.utils.mapJsonPrimitive
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialization.JsonSerializable
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.serialize
 import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
+import java.io.File
 import java.time.Instant
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -90,6 +93,10 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         get() = _reBuilder?.jsonArray?.serialize(Builder)
         set(value) { _reBuilder = value?.toJson()?.toString() }
 
+    var images: List<File>?
+        get() = _images?.split('\n')?.map { File(Storage.ImagesDir, it) }
+        set(value) { _images = value?.joinToString("\n") { it.toRelativeString(Storage.ImagesDir) } }
+
     var sector by Sector referencedOn Paths.sector
 
 
@@ -106,6 +113,8 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     @set:VisibleForTesting
     var _builder: String? by Paths.builder
     private var _reBuilder: String? by Paths.reBuilder
+
+    private var _images: String? by Paths.images
 
     override fun toJson(): JSONObject = jsonOf(
         "id" to id.value,
@@ -140,6 +149,8 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
 
         "builder" to builder,
         "re_builder" to reBuilder,
+
+        "images" to images?.mapJsonPrimitive { it.toRelativeString(Storage.ImagesDir) },
 
         "sector_id" to sector.id.value
     )
@@ -178,6 +189,7 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         result = 31 * result + (description?.hashCode() ?: 0)
         result = 31 * result + (builder?.hashCode() ?: 0)
         result = 31 * result + (reBuilder?.hashCode() ?: 0)
+        result = 31 * result + (_images?.hashCode() ?: 0)
         result = 31 * result + sector.hashCode()
         return result
     }

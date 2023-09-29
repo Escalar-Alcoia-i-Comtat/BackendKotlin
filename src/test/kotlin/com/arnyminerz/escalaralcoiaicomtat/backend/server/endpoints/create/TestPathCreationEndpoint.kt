@@ -4,6 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Path
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.info.LastUpdate
+import com.arnyminerz.escalaralcoiaicomtat.backend.database.table.Paths
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.error.Errors
@@ -12,6 +13,7 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class TestPathCreationEndpoint: ApplicationTestBase() {
     @Test
@@ -65,6 +67,32 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
     }
 
     @Test
+    fun `test path creation - with image`() = test {
+        val areaId: Int? = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId: Int? = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        // Include only an image, using uixola as sample
+        val pathId: Int? = DataProvider.provideSamplePath(sectorId, images = listOf("/images/uixola.jpg"))
+        assertNotNull(pathId)
+
+        ServerDatabase.instance.query {
+            val path = Path[pathId]
+            assertNotNull(path)
+
+            val images = path.images
+            assertNotNull(images)
+            assertEquals(1, images.size)
+            assertTrue(images[0].exists())
+        }
+    }
+
+    @Test
     fun `test path creation - missing arguments`() = test {
         val areaId = DataProvider.provideSampleArea()
         val zoneId: Int? = DataProvider.provideSampleZone(areaId)
@@ -83,6 +111,22 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
     fun `test path creation - invalid zone id`() = test {
         DataProvider.provideSamplePath(123) {
             assertFailure(Errors.ParentNotFound)
+            null
+        }
+    }
+
+    @Test
+    fun `test path creation - too many images`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
+        val sectorId: Int? = DataProvider.provideSampleSector(zoneId)
+        DataProvider.provideSamplePath(
+            sectorId,
+            images = arrayOfNulls<String>(Paths.MAX_IMAGES + 1)
+                .map { "/images/uixola.jpg" }
+                .toList()
+        ) {
+            assertFailure(Errors.TooManyImages)
             null
         }
     }

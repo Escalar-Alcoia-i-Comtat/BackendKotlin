@@ -39,11 +39,4 @@ object SqlConsts {
     const val RE_BUILDER_LENGTH = 4096
 
     const val DESCRIPTION_LENGTH = 10240
-
-    /**
-     * The maximum length of the images column in paths.
-     *
-     * Matches 10 files.
-     */
-    const val IMAGES_LENGTH = FILE_LENGTH * 10
 }
