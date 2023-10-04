@@ -66,7 +66,7 @@ dependencies {
     implementation("me.tongfei:progressbar:0.10.0")
 
     // Crowdin localization
-    implementation("com.github.crowdin:crowdin-api-client-java:1.11.3")
+    implementation("com.github.crowdin:crowdin-api-client-java:1.11.5")
 
 
     testImplementation(kotlin("test"))
