@@ -4,7 +4,7 @@ import io.ktor.plugin.features.DockerPortMappingProtocol
 
 plugins {
     kotlin("jvm") version "1.9.10"
-    id("io.ktor.plugin") version "2.3.4"
+    id("io.ktor.plugin") version "2.3.5"
     id("org.jetbrains.kotlinx.kover") version "0.7.3"
 }
 
