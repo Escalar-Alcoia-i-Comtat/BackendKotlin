@@ -163,7 +163,9 @@ object NewPathEndpoint : SecureEndpointBase() {
             }
         }
 
-        Localization.synchronizePathDescription(path)
+        if (path.description != null) {
+            Localization.synchronizePathDescription(path)
+        }
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
