@@ -8,7 +8,7 @@ kotlinx-kover = "0.7.3"
 ktor = "2.3.4"
 postgresql = "42.6.0"
 progressbar = "0.10.0"
-sqlite = "3.30.1"
+sqlite = "3.43.2.1"
 
 [libraries]
 crowdin = { module = "com.github.crowdin:crowdin-api-client-java", version.ref = "crowdin" }
