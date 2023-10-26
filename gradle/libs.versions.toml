@@ -1,6 +1,6 @@
 [versions]
 crowdin = "1.11.3"
-exposed = "0.44.0"
+exposed = "0.44.1"
 foojay-resolver = "0.7.0"
 json = "20231013"
 kotlin = "1.9.10"
