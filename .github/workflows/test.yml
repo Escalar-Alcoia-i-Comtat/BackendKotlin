@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run detekt review
-        uses: alaegin/Detekt-Action@v1.23.0
+        uses: alaegin/Detekt-Action@v1.23.3
         if: github.event_name == 'pull_request'
         with:
           github_token: ${{ secrets.github_token }}
@@ -20,7 +20,7 @@ jobs:
           reviewdog_reporter: github-pr-review
           reviewdog_level: error
       - name: Run detekt
-        uses: alaegin/Detekt-Action@v1.23.1
+        uses: alaegin/Detekt-Action@v1.23.3
         if: github.event_name != 'pull_request'
         with:
           github_token: ${{ secrets.github_token }}
