@@ -286,7 +286,9 @@ object PatchPathEndpoint : SecureEndpointBase() {
             path.timestamp = Instant.now()
         }
 
-        Localization.synchronizePathDescription(path)
+        if (path.description != null) {
+            Localization.synchronizePathDescription(path)
+        }
 
         ServerDatabase.instance.query { LastUpdate.set() }
 

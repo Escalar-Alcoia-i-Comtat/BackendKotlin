@@ -3,13 +3,13 @@ import io.ktor.plugin.features.DockerPortMapping
 import io.ktor.plugin.features.DockerPortMappingProtocol
 
 plugins {
-    kotlin("jvm") version "1.9.10"
-    id("io.ktor.plugin") version "2.3.5"
-    id("org.jetbrains.kotlinx.kover") version "0.7.4"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlinx.kover)
 }
 
 group = "com.arnyminerz.escalaralcoiaicomtat.backend"
-version = "1.0.22"
+version = "1.0.23"
 
 repositories {
     mavenCentral()
@@ -29,31 +29,31 @@ val tcnativeClassifier = when {
 
 dependencies {
     // JSON support
-    implementation("org.json:json:20230618")
+    implementation(libs.json)
 
     // Ktor dependencies
-    implementation("io.ktor:ktor-server-core")
-    implementation("io.ktor:ktor-server-netty")
-    implementation("io.ktor:ktor-server-locations")
-    implementation("io.ktor:ktor-server-status-pages")
-    implementation("io.ktor:ktor-network-tls-certificates")
-    implementation("io.ktor:ktor-utils")
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.locations)
+    implementation(libs.ktor.server.statusPages)
+    implementation(libs.ktor.tlsCertificates)
+    implementation(libs.ktor.utils)
 
     // Ktor client for making requests
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-client-cio")
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
 
     // Exposed dependencies
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.javaTime)
 
     // Database engines
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation(libs.postgresql)
     // Keep in sync with https://github.com/JetBrains/Exposed/wiki/Database-and-DataSource
     @Suppress("VulnerableLibrariesLocal", "RedundantSuppression")
-    implementation("org.xerial:sqlite-jdbc:3.30.1")
+    implementation(libs.sqlite)
 
     // SSL Dependencies
     if (tcnativeClassifier != null) {
@@ -63,17 +63,17 @@ dependencies {
     }
 
     // For displaying progress bar in terminal
-    implementation("me.tongfei:progressbar:0.10.0")
+    implementation(libs.progressbar)
 
     // Crowdin localization
-    implementation("com.github.crowdin:crowdin-api-client-java:1.11.5")
+    implementation(libs.crowdin)
 
 
     testImplementation(kotlin("test"))
 
     // Add Ktor's testing dependencies
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation(libs.ktor.test.server)
+    testImplementation(libs.kotlin.test)
 }
 
 tasks.test {
