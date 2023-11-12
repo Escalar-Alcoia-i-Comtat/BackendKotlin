@@ -94,7 +94,9 @@ ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_17)
         localImageName.set("escalaralcoiaicomtat")
-        imageTag.set(version.toString())
+        imageTag.set(
+            if (System.getenv("IS_PRODUCTION") == "true") version.toString() else "development"
+        )
         portMappings.set(
             listOf(
                 DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)
