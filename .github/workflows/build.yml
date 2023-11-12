@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  release:
+    types:
+      - released
 
 permissions:
   checks: write
@@ -26,5 +29,6 @@ jobs:
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          IS_PRODUCTION: ${{ github.event_name == "release" }}
         with:
           arguments: publishImage
