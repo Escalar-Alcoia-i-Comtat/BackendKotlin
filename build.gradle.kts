@@ -69,11 +69,10 @@ dependencies {
     implementation(libs.crowdin)
 
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
 
     // Add Ktor's testing dependencies
     testImplementation(libs.ktor.test.server)
-    testImplementation(libs.kotlin.test)
 }
 
 tasks.test {
