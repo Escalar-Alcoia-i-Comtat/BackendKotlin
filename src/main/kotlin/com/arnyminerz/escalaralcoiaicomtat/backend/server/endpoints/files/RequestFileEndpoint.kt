@@ -21,6 +21,8 @@ import kotlinx.coroutines.withContext
 object RequestFileEndpoint : EndpointBase() {
     private const val DEFAULT_HTTP_PORT = 80
 
+    private val digest = MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256)
+
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val uuid: String by call.parameters
 
@@ -33,10 +35,7 @@ object RequestFileEndpoint : EndpointBase() {
 
         respondSuccess(
             jsonOf(
-                "hash" to HashUtils.getCheckSumFromFile(
-                    MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256),
-                    file
-                ),
+                "hash" to HashUtils.getCheckSumFromFile(digest, file),
                 "filename" to file.name,
                 "download" to downloadAddress,
                 "size" to size
