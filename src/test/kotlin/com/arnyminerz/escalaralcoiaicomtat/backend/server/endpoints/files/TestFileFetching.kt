@@ -23,6 +23,7 @@ class TestFileFetching : ApplicationTestBase() {
         get("/file/${area.image.name}").apply {
             assertSuccess { data ->
                 assertNotNull(data)
+                assertTrue(data.has("uuid"))
                 assertTrue(data.has("hash"))
                 assertTrue(data.has("filename"))
                 assertTrue(data.has("download"))
@@ -57,6 +58,7 @@ class TestFileFetching : ApplicationTestBase() {
                 (0 until files.length())
                     .map { files.getJSONObject(it) }
                     .forEach { file ->
+                        assertTrue(file.has("uuid"))
                         assertTrue(file.has("hash"))
                         assertTrue(file.has("filename"))
                         assertTrue(file.has("download"))
