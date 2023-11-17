@@ -34,6 +34,7 @@ object RequestFileEndpoint : EndpointBase() {
         val size = withContext(Dispatchers.IO) { Files.size(file.toPath()) }
 
         return jsonOf(
+            "uuid" to uuid,
             "hash" to HashUtils.getCheckSumFromFile(digest, file),
             "filename" to file.name,
             "download" to downloadAddress,
