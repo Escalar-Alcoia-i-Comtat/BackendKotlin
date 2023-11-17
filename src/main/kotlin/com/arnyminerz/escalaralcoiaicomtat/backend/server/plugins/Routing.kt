@@ -81,7 +81,7 @@ fun Application.configureEndpoints() {
         delete("/block/{blockId}") { DeleteBlockEndpoint.call(this) }
         patch("/block/{blockId}") { PatchBlockEndpoint.call(this) }
 
-        get("/file/{uuid}") { RequestFileEndpoint.call(this) }
+        get("/file/{uuids}") { RequestFileEndpoint.call(this) }
         get("/download/{uuid}") { DownloadFileEndpoint.call(this) }
 
         val enableImporter = EnvironmentVariables.Legacy.Importer.value
