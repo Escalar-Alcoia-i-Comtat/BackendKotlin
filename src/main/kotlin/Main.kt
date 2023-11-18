@@ -1,9 +1,9 @@
 import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
+import com.arnyminerz.escalaralcoiaicomtat.backend.diagnostics.Diagnostics
 import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.configureEndpoints
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.installPlugins
-import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
 import io.ktor.server.application.Application
 import io.ktor.server.engine.ApplicationEngineEnvironmentBuilder
 import io.ktor.server.engine.applicationEngineEnvironment
@@ -12,7 +12,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.engine.sslConnector
 import io.ktor.server.netty.Netty
 import io.ktor.util.decodeBase64String
-import io.sentry.Sentry
 import java.io.File
 import java.security.KeyStore
 import kotlinx.coroutines.runBlocking
@@ -33,16 +32,11 @@ fun main() {
         Localization.synchronizePathDescriptions()
     }
 
-    EnvironmentVariables.Diagnostics.SentryDsn.value?.let { dsn ->
-        Logger.info("Enabling Sentry integration...")
-
-        Sentry.init { options ->
-            options.dsn = dsn
-            options.tracesSampleRate = 1.0
-            options.isDebug = EnvironmentVariables.Environment.IsProduction.value != "true"
-        }
-
-    } ?: Logger.info("Sentry not configured, disabling feature...")
+    if (Diagnostics.init()) {
+        Logger.info("Sentry integration is enabled!")
+    } else {
+        Logger.info("Sentry not configured, won't enable feature...")
+    }
 
     val environment = applicationEngineEnvironment {
         connector { port = HTTP_PORT }
