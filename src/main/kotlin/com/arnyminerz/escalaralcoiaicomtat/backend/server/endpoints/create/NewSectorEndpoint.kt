@@ -20,7 +20,7 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 
-object NewSectorEndpoint : SecureEndpointBase() {
+object NewSectorEndpoint : SecureEndpointBase("/sector") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         var displayName: String? = null
         var point: LatLng? = null

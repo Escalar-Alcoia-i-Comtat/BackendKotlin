@@ -1,5 +1,6 @@
 import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
 import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
+import com.arnyminerz.escalaralcoiaicomtat.backend.diagnostics.Diagnostics
 import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.configureEndpoints
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.installPlugins
@@ -29,6 +30,12 @@ fun main() {
 
     runBlocking {
         Localization.synchronizePathDescriptions()
+    }
+
+    if (Diagnostics.init()) {
+        Logger.info("Sentry integration is enabled!")
+    } else {
+        Logger.info("Sentry not configured, won't enable feature...")
     }
 
     val environment = applicationEngineEnvironment {

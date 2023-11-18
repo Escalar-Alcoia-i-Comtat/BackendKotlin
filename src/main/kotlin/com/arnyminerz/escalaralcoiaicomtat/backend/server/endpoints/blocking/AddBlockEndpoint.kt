@@ -23,7 +23,7 @@ import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 import java.time.LocalDateTime
 
-object AddBlockEndpoint: SecureEndpointBase() {
+object AddBlockEndpoint: SecureEndpointBase("/block/{pathId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val pathId: Int by call.parameters
 

@@ -18,6 +18,9 @@ services:
       # -- Configure Crowdin
       # Required: CROWDIN_TOKEN, CROWDIN_PROJECT_ID
       # Optional: CROWDIN_ORGANIZATION
+      # -- Configure Sentry
+      # Optional: SENTRY_DSN
+      # IS_PRODUCTION: false by default
     env_file:
       - "secrets.env"
     networks:

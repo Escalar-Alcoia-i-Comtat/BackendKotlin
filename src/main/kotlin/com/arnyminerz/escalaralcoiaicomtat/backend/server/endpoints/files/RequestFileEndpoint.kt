@@ -20,7 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
-object RequestFileEndpoint : EndpointBase() {
+object RequestFileEndpoint : EndpointBase("/file/{uuids}") {
     private const val DEFAULT_HTTP_PORT = 80
 
     private val digest = MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256)

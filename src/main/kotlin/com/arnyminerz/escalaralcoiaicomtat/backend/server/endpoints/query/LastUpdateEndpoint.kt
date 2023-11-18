@@ -8,7 +8,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.jsonOf
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 
-object LastUpdateEndpoint: EndpointBase() {
+object LastUpdateEndpoint: EndpointBase("/last_update") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 

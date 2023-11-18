@@ -12,7 +12,7 @@ import io.ktor.server.plugins.ParameterConversionException
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 
-object SectorEndpoint : EndpointBase() {
+object SectorEndpoint : EndpointBase("/sector/{sectorId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val sectorId = try {
             val sectorId: Int by call.parameters

@@ -19,9 +19,8 @@ import io.ktor.server.request.receiveMultipart
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
-import java.time.Instant
 
-object NewAreaEndpoint : SecureEndpointBase() {
+object NewAreaEndpoint : SecureEndpointBase("/area") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val multipart = call.receiveMultipart()
 

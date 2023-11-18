@@ -12,7 +12,7 @@ import io.ktor.server.application.call
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 
-object DeleteBlockEndpoint: SecureEndpointBase() {
+object DeleteBlockEndpoint: SecureEndpointBase("/block/{blockId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val blockId: Int by call.parameters
 

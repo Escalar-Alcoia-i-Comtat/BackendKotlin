@@ -13,7 +13,7 @@ import io.ktor.util.pipeline.PipelineContext
 /**
  * Starts an asynchronous task to import some data into the database. Progress can then be supervised.
  */
-object ImportOldDataEndpoint : EndpointBase() {
+object ImportOldDataEndpoint : EndpointBase("/import") {
 
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val hostname: String? by call.parameters

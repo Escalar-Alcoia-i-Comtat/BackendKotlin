@@ -12,7 +12,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.mapJson
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 
-object TreeEndpoint : EndpointBase() {
+object TreeEndpoint : EndpointBase("/tree") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val array = ServerDatabase.instance.query {
             val zones = Zone.all()

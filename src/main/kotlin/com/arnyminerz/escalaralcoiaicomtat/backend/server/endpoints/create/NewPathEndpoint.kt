@@ -28,7 +28,7 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 
-object NewPathEndpoint : SecureEndpointBase() {
+object NewPathEndpoint : SecureEndpointBase("/path") {
     /** The number of different count properties. */
     private const val COUNTS_LENGTH = 5
 
