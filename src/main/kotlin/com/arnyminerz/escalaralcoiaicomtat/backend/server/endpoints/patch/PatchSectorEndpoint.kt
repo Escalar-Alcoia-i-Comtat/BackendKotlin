@@ -24,7 +24,7 @@ import java.io.File
 import java.time.Instant
 import java.util.UUID
 
-object PatchSectorEndpoint : SecureEndpointBase() {
+object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val sectorId: Int by call.parameters

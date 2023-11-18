@@ -9,7 +9,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.utils.toJson
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 
-object GetAllBlocksEndpoint: EndpointBase() {
+object GetAllBlocksEndpoint: EndpointBase("/blocks") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         // Check that the path exists
         val blocks = ServerDatabase.instance.query {

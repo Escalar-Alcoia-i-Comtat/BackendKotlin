@@ -12,7 +12,7 @@ import io.ktor.server.response.respondOutputStream
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 
-object DownloadFileEndpoint : EndpointBase() {
+object DownloadFileEndpoint : EndpointBase("/download/{uuid}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val uuid: String by call.parameters
 

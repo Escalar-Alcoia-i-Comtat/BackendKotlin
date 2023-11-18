@@ -30,7 +30,7 @@ import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.time.Instant
 
-object PatchPathEndpoint : SecureEndpointBase() {
+object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val pathId: Int by call.parameters

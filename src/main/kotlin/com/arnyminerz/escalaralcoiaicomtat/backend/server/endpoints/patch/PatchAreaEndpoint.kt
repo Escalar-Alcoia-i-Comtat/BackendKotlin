@@ -23,7 +23,7 @@ import java.net.URL
 import java.time.Instant
 import java.util.UUID
 
-object PatchAreaEndpoint : SecureEndpointBase() {
+object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val areaId: Int by call.parameters
 

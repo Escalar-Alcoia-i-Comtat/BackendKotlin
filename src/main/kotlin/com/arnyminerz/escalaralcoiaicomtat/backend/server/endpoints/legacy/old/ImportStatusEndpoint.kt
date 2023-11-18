@@ -11,7 +11,7 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import org.json.JSONArray
 
-object ImportStatusEndpoint : EndpointBase() {
+object ImportStatusEndpoint : EndpointBase("/import/status") {
 
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val singleton = OldDataMigrationSingleton.getInstance()

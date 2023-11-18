@@ -8,7 +8,7 @@ import io.ktor.server.application.call
 import io.ktor.server.request.receiveMultipart
 import io.ktor.util.pipeline.PipelineContext
 
-abstract class EndpointModel {
+abstract class EndpointModel(val endpoint: String) {
     protected val rawMultipartFormItems = mutableMapOf<String, Any>()
 
     /**

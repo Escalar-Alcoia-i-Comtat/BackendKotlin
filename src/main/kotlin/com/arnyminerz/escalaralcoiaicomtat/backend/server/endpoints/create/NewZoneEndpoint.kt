@@ -24,7 +24,7 @@ import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
 
-object NewZoneEndpoint : SecureEndpointBase() {
+object NewZoneEndpoint : SecureEndpointBase("/zone") {
     @Suppress("DuplicatedCode")
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         var displayName: String? = null

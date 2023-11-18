@@ -4,7 +4,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.response.respondSucces
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 
-object RootEndpoint: EndpointBase() {
+object RootEndpoint: EndpointBase("/") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         respondSuccess()
     }

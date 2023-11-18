@@ -16,7 +16,7 @@ import io.ktor.server.response.header
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 
-object PathEndpoint : EndpointBase() {
+object PathEndpoint : EndpointBase("/path/{pathId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val pathId = try {
             val pathId: Int by call.parameters

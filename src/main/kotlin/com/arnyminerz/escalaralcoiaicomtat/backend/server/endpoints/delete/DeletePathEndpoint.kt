@@ -15,7 +15,7 @@ import io.ktor.server.application.call
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 
-object DeletePathEndpoint : SecureEndpointBase() {
+object DeletePathEndpoint : SecureEndpointBase("/path/{pathId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val pathId: Int by call.parameters
 
