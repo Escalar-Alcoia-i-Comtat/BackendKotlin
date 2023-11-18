@@ -8,6 +8,7 @@ kotlinx-kover = "0.7.4"
 ktor = "2.3.6"
 postgresql = "42.6.0"
 progressbar = "0.10.0"
+sentry = "3.14.0"
 sqlite = "3.44.0.0"
 
 [libraries]
@@ -36,3 +37,4 @@ gradle-toolchains-fooljayResolver = { id = "org.gradle.toolchains.foojay-resolve
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kotlinx-kover" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+sentry = { id = "io.sentry.jvm.gradle", version.ref = "sentry" }
