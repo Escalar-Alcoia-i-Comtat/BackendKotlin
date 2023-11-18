@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.SqlLogger
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
 
 /**
  * A utility class for interacting with the database.
@@ -75,9 +76,15 @@ class ServerDatabase private constructor() {
         Database.connect(url, driver, username, password)
     }
 
-    suspend fun <T> query(block: suspend Transaction.() -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
+    /**
+     * Creates all the missing tables and columns for the database.
+     * Should be run as soon as possible in the program's lifecycle.
+     */
+    fun initialize() = transaction(database) {
         SchemaUtils.createMissingTablesAndColumns(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
+    }
 
+    suspend fun <T> query(block: suspend Transaction.() -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
         logger?.let { addLogger(it) }
 
         block()
