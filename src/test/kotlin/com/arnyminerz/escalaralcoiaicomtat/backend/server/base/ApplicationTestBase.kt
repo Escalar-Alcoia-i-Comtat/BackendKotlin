@@ -35,7 +35,7 @@ abstract class ApplicationTestBase {
         File("testing.db").takeIf { it.exists() }?.delete()
 
         // Access the database once to initialize
-        ServerDatabase.instance
+        ServerDatabase.instance.initialize()
 
         // Configure storage
         Storage.BaseDir = File(System.getProperty("user.home"), ".EAIC-Testing")

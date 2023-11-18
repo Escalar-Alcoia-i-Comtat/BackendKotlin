@@ -23,7 +23,7 @@ fun main() {
     ServerDatabase.configureFromEnvironment()
 
     Logger.info("Connecting to the database, and creating tables...")
-    ServerDatabase.instance
+    ServerDatabase.instance.initialize()
 
     Logger.info("Initializing Crowdin connection...")
     Localization.init()
