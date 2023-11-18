@@ -1,6 +1,10 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointModel.Companion.delete
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointModel.Companion.get
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointModel.Companion.patch
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.EndpointModel.Companion.post
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.RootEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.AddBlockEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.blocking.DeleteBlockEndpoint
@@ -31,10 +35,6 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.TreeEn
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query.ZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.system.EnvironmentVariables
 import io.ktor.server.application.Application
-import io.ktor.server.routing.delete
-import io.ktor.server.routing.get
-import io.ktor.server.routing.patch
-import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 
 /**
@@ -50,47 +50,47 @@ fun Application.configureEndpoints() {
     }
 
     routing {
-        get("/") { RootEndpoint.call(this) }
+        get(RootEndpoint)
 
-        get("/tree") { TreeEndpoint.call(this) }
-        get("/last_update") { LastUpdateEndpoint.call(this) }
+        get(TreeEndpoint)
+        get(LastUpdateEndpoint)
 
-        get("/area/{areaId}") { AreaEndpoint.call(this) }
-        post("/area") { NewAreaEndpoint.call(this) }
-        post("/area/{areaId}") { PatchAreaEndpoint.call(this) }
-        delete("/area/{areaId}") { DeleteAreaEndpoint.call(this) }
+        get(AreaEndpoint)
+        post(NewAreaEndpoint)
+        post(PatchAreaEndpoint)
+        delete(DeleteAreaEndpoint)
 
-        get("/zone/{zoneId}") { ZoneEndpoint.call(this) }
-        post("/zone") { NewZoneEndpoint.call(this) }
-        post("/zone/{zoneId}") { PatchZoneEndpoint.call(this) }
-        delete("/zone/{zoneId}") { DeleteZoneEndpoint.call(this) }
+        get(ZoneEndpoint)
+        post(NewZoneEndpoint)
+        post(PatchZoneEndpoint)
+        delete(DeleteZoneEndpoint)
 
-        get("/sector/{sectorId}") { SectorEndpoint.call(this) }
-        post("/sector") { NewSectorEndpoint.call(this) }
-        post("/sector/{sectorId}") { PatchSectorEndpoint.call(this) }
-        delete("/sector/{sectorId}") { DeleteSectorEndpoint.call(this) }
+        get(SectorEndpoint)
+        post(NewSectorEndpoint)
+        post(PatchSectorEndpoint)
+        delete(DeleteSectorEndpoint)
 
-        get("/path/{pathId}") { PathEndpoint.call(this) }
-        post("/path") { NewPathEndpoint.call(this) }
-        post("/path/{pathId}") { PatchPathEndpoint.call(this) }
-        delete("/path/{pathId}") { DeletePathEndpoint.call(this) }
+        get(PathEndpoint)
+        post(NewPathEndpoint)
+        post(PatchPathEndpoint)
+        delete(DeletePathEndpoint)
 
-        get("/blocks") { GetAllBlocksEndpoint.call(this) }
-        post("/block/{pathId}") { AddBlockEndpoint.call(this) }
-        get("/block/{pathId}") { GetBlockEndpoint.call(this) }
-        delete("/block/{blockId}") { DeleteBlockEndpoint.call(this) }
-        patch("/block/{blockId}") { PatchBlockEndpoint.call(this) }
+        get(GetAllBlocksEndpoint)
+        post(AddBlockEndpoint)
+        get(GetBlockEndpoint)
+        delete(DeleteBlockEndpoint)
+        patch(PatchBlockEndpoint)
 
-        get("/file/{uuids}") { RequestFileEndpoint.call(this) }
-        get("/download/{uuid}") { DownloadFileEndpoint.call(this) }
+        get(RequestFileEndpoint)
+        get(DownloadFileEndpoint)
 
         val enableImporter = EnvironmentVariables.Legacy.Importer.value
         if (enableImporter == "true") {
             Logger.warn(
                 "Importer has been enabled through an environment variable. Make sure to disconnect it for production"
             )
-            get("/import") { ImportOldDataEndpoint.call(this) }
-            get("/import/status") { ImportStatusEndpoint.call(this) }
+            get(ImportOldDataEndpoint)
+            get(ImportStatusEndpoint)
         }
     }
 }

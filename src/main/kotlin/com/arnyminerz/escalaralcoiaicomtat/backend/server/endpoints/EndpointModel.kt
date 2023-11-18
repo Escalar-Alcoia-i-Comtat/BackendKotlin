@@ -6,9 +6,23 @@ import io.ktor.http.content.forEachPart
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveMultipart
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.util.pipeline.PipelineContext
 
 abstract class EndpointModel(val endpoint: String) {
+    companion object {
+        fun Routing.delete(endpoint: EndpointModel) = delete(endpoint.endpoint) { endpoint.call(this) }
+
+        fun Routing.get(endpoint: EndpointModel) = get(endpoint.endpoint) { endpoint.call(this) }
+
+        fun Routing.patch(endpoint: EndpointModel) = post(endpoint.endpoint) { endpoint.call(this) }
+
+        fun Routing.post(endpoint: EndpointModel) = post(endpoint.endpoint) { endpoint.call(this) }
+    }
+
     protected val rawMultipartFormItems = mutableMapOf<String, Any>()
 
     /**
