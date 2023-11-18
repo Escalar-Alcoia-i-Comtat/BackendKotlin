@@ -6,6 +6,10 @@ package com.arnyminerz.escalaralcoiaicomtat.backend.system
 object EnvironmentVariables {
     data object Testing : EnvironmentVariable("TESTING")
 
+    object Authentication {
+        data object AuthToken : EnvironmentVariable("AUTH_TOKEN")
+    }
+
     object Database {
         /**
          * This variable represents the URL of the database connection.
@@ -32,8 +36,18 @@ object EnvironmentVariables {
         data object Password : EnvironmentVariable("DATABASE_PASSWORD")
     }
 
-    object Authentication {
-        data object AuthToken : EnvironmentVariable("AUTH_TOKEN")
+    object Diagnostics {
+        /**
+         * The DSN for reporting crashes and performance issues to Sentry.
+         */
+        data object SentryDsn: EnvironmentVariable("SENTRY_DSN")
+    }
+
+    object Environment {
+        /**
+         * States whether the system is running in production mode.
+         */
+        data object IsProduction : EnvironmentVariable("IS_PRODUCTION", "false")
     }
 
     object Localization {
