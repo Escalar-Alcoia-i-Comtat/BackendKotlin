@@ -9,7 +9,7 @@ ktor = "2.3.7"
 postgresql = "42.6.0"
 progressbar = "0.10.0"
 sentry = "4.1.0"
-sqlite = "3.44.0.0"
+sqlite = "3.44.1.0"
 
 [libraries]
 crowdin = { module = "com.github.crowdin:crowdin-api-client-java", version.ref = "crowdin" }
