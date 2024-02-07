@@ -2,7 +2,7 @@
 crowdin = "1.14.1"
 exposed = "0.47.0"
 foojay-resolver = "0.8.0"
-json = "20231013"
+json = "20240205"
 kotlin = "1.9.22"
 kotlinx-kover = "0.7.5"
 ktor = "2.3.8"
