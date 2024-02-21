@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.arnyminerz.escalaralcoiaicomtat.backend"
-version = file("version.txt").readText().trim()
+version = file("package/version.txt").readText().trim()
 
 repositories {
     mavenCentral()
@@ -86,6 +86,7 @@ kotlin {
     sourceSets {
         all {
             languageSettings.enableLanguageFeature("ContextReceivers")
+            resources.srcDir(file("package"))
         }
     }
 }
