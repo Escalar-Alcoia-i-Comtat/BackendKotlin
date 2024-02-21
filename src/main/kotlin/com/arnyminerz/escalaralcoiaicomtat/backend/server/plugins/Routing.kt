@@ -21,6 +21,7 @@ import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete.Delet
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.delete.DeleteZoneEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.DownloadFileEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.files.RequestFileEndpoint
+import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.info.ServerInfoEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.old.ImportOldDataEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.legacy.old.ImportStatusEndpoint
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.patch.PatchAreaEndpoint
@@ -51,6 +52,7 @@ fun Application.configureEndpoints() {
 
     routing {
         get(RootEndpoint)
+        get(ServerInfoEndpoint)
 
         get(TreeEndpoint)
         get(LastUpdateEndpoint)
