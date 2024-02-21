@@ -6,12 +6,13 @@ object Package {
      * @return The version string.
      * @throws IllegalStateException If the version file is not found.
      */
-    fun getVersion() {
-        return this::class.java.getResourceAsStream("/version.txt").use { input ->
+    fun getVersion(): String {
+        val version: String = this::class.java.getResourceAsStream("/version.txt").use { input ->
             if (input == null) {
                 throw IllegalStateException("Version file not found")
             }
             input.bufferedReader().readText()
         }
+        return version
     }
 }
