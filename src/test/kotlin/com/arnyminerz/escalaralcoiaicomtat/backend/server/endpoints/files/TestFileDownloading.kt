@@ -39,6 +39,13 @@ class TestFileDownloading : ApplicationTestBase() {
     fun `test downloading files`() = test {
         provideImageFile { image ->
             get("/download/$image").apply {
+                headers["Content-Type"].let { contentType ->
+                    assertEquals(
+                        "image/jpeg",
+                        contentType,
+                        "Content-Type header is not JPEG. Got: $contentType"
+                    )
+                }
                 readBytes()
             }
         }
