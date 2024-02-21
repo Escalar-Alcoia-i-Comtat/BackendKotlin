@@ -25,6 +25,13 @@ object DownloadFileEndpoint : EndpointBase("/download/{uuid}") {
 
         val file = Storage.find(uuid) ?: return respondFailure(Errors.FileNotFound)
 
+        // Add the file's MIME type to the response
+        withContext(Dispatchers.IO) {
+            Files.probeContentType(file.toPath())
+        }?.let { contentType ->
+            call.response.header("Content-Type", contentType)
+        }
+
         if (listOf("png", "jpeg", "jpg").any { file.extension.equals(it, true) }) {
             // File is image, resizing is supported
             if (width != null || height != null) {
@@ -37,11 +44,6 @@ object DownloadFileEndpoint : EndpointBase("/download/{uuid}") {
         }
 
         // No special treatment required, respond file
-        withContext(Dispatchers.IO) {
-            Files.probeContentType(file.toPath())
-        }?.let { contentType ->
-            call.response.header("Content-Type", contentType)
-        }
         call.respondFile(file, file.name)
     }
 }
