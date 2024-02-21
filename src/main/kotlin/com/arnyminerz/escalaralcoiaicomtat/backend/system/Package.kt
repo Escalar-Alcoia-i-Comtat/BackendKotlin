@@ -8,9 +8,7 @@ object Package {
      */
     fun getVersion(): String {
         val version: String = this::class.java.getResourceAsStream("/version.txt").use { input ->
-            if (input == null) {
-                throw IllegalStateException("Version file not found")
-            }
+            checkNotNull(input) { "Version file not found" }
             input.bufferedReader().readText()
         }
         return version
