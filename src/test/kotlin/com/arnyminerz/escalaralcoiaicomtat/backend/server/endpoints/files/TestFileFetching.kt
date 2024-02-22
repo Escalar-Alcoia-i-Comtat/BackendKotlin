@@ -39,7 +39,6 @@ class TestFileFetching : ApplicationTestBase() {
 
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
 
-        println("Image: ${area.image.nameWithoutExtension}")
         get("/file/${area.image.nameWithoutExtension}").apply {
             assertSuccess { data ->
                 assertNotNull(data)
