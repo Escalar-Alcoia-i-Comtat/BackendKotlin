@@ -33,6 +33,26 @@ class TestFileFetching : ApplicationTestBase() {
     }
 
     @Test
+    fun `test data no extension`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val area: Area = ServerDatabase.instance.query { Area[areaId] }
+
+        println("Image: ${area.image.nameWithoutExtension}")
+        get("/file/${area.image.nameWithoutExtension}").apply {
+            assertSuccess { data ->
+                assertNotNull(data)
+                assertTrue(data.has("uuid"))
+                assertTrue(data.has("hash"))
+                assertTrue(data.has("filename"))
+                assertTrue(data.has("download"))
+                assertTrue(data.has("size"))
+            }
+        }
+    }
+
+    @Test
     fun `test doesn't exist`() = test {
         get("/file/unknown").apply {
             assertFailure(Errors.FileNotFound)

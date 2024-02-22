@@ -27,9 +27,9 @@ object Storage {
      * @return The found File object, or null if no file is found.
      */
     fun find(uuid: String): File? {
-        val imageFile = File(ImagesDir, uuid).takeIf { it.exists() }
-        val trackFile = File(TracksDir, uuid).takeIf { it.exists() }
+        val imageFiles = ImagesDir.listFiles() ?: emptyArray()
+        val trackFiles = TracksDir.listFiles() ?: emptyArray()
 
-        return imageFile ?: trackFile
+        return (imageFiles + trackFiles).find { it.name.startsWith(uuid) }
     }
 }
