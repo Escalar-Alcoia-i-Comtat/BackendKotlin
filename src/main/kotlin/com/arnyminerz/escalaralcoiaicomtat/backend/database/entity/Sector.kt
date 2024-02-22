@@ -73,7 +73,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         "kids_apt" to kidsApt,
         "sun_time" to sunTime,
         "walking_time" to walkingTime,
-        "image" to _image,
+        "image" to _image.substringBeforeLast('.'),
         "point" to point,
         "weight" to weight,
         "zone_id" to zone.id.value

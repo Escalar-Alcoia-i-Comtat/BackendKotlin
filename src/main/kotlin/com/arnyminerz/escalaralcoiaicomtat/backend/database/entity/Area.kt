@@ -43,7 +43,7 @@ class Area(id: EntityID<Int>) : DataEntity(id), JsonSerializable {
         "id" to id.value,
         "timestamp" to timestamp.toEpochMilli(),
         "display_name" to displayName,
-        "image" to _image,
+        "image" to _image.substringBeforeLast('.'),
         "web_url" to webUrl
     )
 

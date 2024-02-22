@@ -1,6 +1,7 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
+import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertIsUUID
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.data.LatLng
 import com.arnyminerz.escalaralcoiaicomtat.backend.database.entity.Sector
@@ -59,6 +60,7 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
         }
 
         assertNotNull(image)
+        assertIsUUID(image!!)
 
         get("/file/$image").apply {
             assertSuccess { data ->

@@ -1,6 +1,7 @@
 package com.arnyminerz.escalaralcoiaicomtat.backend.server.endpoints.query
 
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertFailure
+import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertIsUUID
 import com.arnyminerz.escalaralcoiaicomtat.backend.assertions.assertSuccess
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.DataProvider
 import com.arnyminerz.escalaralcoiaicomtat.backend.server.base.ApplicationTestBase
@@ -42,7 +43,9 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
         }
 
         assertNotNull(image)
+        assertIsUUID(image!!)
         assertNotNull(kmz)
+        assertIsUUID(kmz!!)
 
         get("/file/$image").apply {
             assertSuccess { data ->
