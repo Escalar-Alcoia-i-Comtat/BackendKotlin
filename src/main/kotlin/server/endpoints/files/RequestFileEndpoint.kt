@@ -58,7 +58,15 @@ object RequestFileEndpoint : EndpointBase("/file/{uuids}") {
                 }
             )
         } catch (_: FileNotFoundException) {
-            respondFailure(Errors.FileNotFound)
+            respondFailure(
+                Errors.FileNotFound.withExtra(
+                    jsonOf(
+                        "ImagesDir" to Storage.ImagesDir.absolutePath,
+                        "TracksDir" to Storage.TracksDir.absolutePath,
+                        "list" to list
+                    )
+                )
+            )
         }
     }
 }
