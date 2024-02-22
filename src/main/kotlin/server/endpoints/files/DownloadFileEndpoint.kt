@@ -53,6 +53,6 @@ object DownloadFileEndpoint : EndpointBase("/download/{uuid}") {
         }
 
         // No special treatment required, respond file
-        call.respondFile(file, file.name)
+        call.respondFile(file)
     }
 }
