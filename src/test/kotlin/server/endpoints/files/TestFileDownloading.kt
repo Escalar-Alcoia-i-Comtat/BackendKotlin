@@ -18,8 +18,11 @@ import server.DataProvider
 import server.base.ApplicationTestBase
 
 class TestFileDownloading : ApplicationTestBase() {
-    private suspend inline fun ApplicationTestBuilder.provideImageFile(block: (imageUUID: String) -> Unit) {
-        val areaId = DataProvider.provideSampleArea()
+    private suspend inline fun ApplicationTestBuilder.provideImageFile(
+        imageFile: String = "/images/alcoi.jpg",
+        block: (imageUUID: String) -> Unit
+    ) {
+        val areaId = DataProvider.provideSampleArea(imageFile = imageFile)
 
         var image: String? = null
 
@@ -76,6 +79,29 @@ class TestFileDownloading : ApplicationTestBase() {
     @Test
     fun `test downloading resized files - height`() = test {
         provideImageFile { image ->
+            val tempFile = File.createTempFile("eaic", null)
+            val response = get("/download/$image?height=200")
+            assertTrue(
+                response.status.isSuccess(),
+                "Got a non-successful response from server. Status: ${response.status}"
+            )
+
+            val channel = response.bodyAsChannel()
+            channel.copyAndClose(tempFile.writeChannel())
+
+            try {
+                val img: BufferedImage? = ImageIO.read(tempFile)
+                assertNotNull(img)
+                assertEquals(200, img.height)
+            } finally {
+                tempFile.delete()
+            }
+        }
+    }
+
+    @Test
+    fun `test downloading resized files (webp)`() = test {
+        provideImageFile("/images/alcoi.webp") { image ->
             val tempFile = File.createTempFile("eaic", null)
             val response = get("/download/$image?height=200")
             assertTrue(

@@ -69,6 +69,9 @@ dependencies {
     // Crowdin localization
     implementation(libs.crowdin)
 
+    // WebP image support
+    implementation(libs.imageio.webp)
+
 
     testImplementation(libs.kotlin.test)
 

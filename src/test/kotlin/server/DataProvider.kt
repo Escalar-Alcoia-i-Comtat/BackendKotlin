@@ -36,6 +36,7 @@ object DataProvider {
         skipDisplayName: Boolean = false,
         skipWebUrl: Boolean = false,
         skipImage: Boolean = false,
+        imageFile: String = "/images/alcoi.jpg",
         assertion: suspend HttpResponse.() -> Int? = {
             var areaId: Int? = null
             assertSuccess(HttpStatusCode.Created) { data ->
@@ -46,7 +47,7 @@ object DataProvider {
             areaId
         }
     ): Int? {
-        val image = this::class.java.getResourceAsStream("/images/alcoi.jpg")!!.use {
+        val image = this::class.java.getResourceAsStream(imageFile)!!.use {
             it.readBytes()
         }
 

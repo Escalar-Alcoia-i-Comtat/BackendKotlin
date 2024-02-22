@@ -2,6 +2,7 @@
 crowdin = "1.14.1"
 exposed = "0.47.0"
 foojay-resolver = "0.8.0"
+imageio-webp = "0.1.6"
 json = "20240205"
 kotlin = "1.9.22"
 kotlinx-kover = "0.7.6"
@@ -13,6 +14,7 @@ sqlite = "3.44.0.0"
 
 [libraries]
 crowdin = { module = "com.github.crowdin:crowdin-api-client-java", version.ref = "crowdin" }
+imageio-webp = { module = "org.sejda.imageio:webp-imageio", version.ref = "imageio-webp" }
 json = { module = "org.json:json", version.ref = "json" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }

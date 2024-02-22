@@ -41,7 +41,7 @@ object DownloadFileEndpoint : EndpointBase("/download/{uuid}") {
             call.response.header("Content-Type", contentType)
         }
 
-        if (listOf("png", "jpeg", "jpg").any { file.extension.equals(it, true) }) {
+        if (ImageUtils.supportedExtensions.any { file.extension.equals(it, true) }) {
             // File is image, resizing is supported
             if (width != null || height != null) {
                 // Respond the image resized

@@ -17,6 +17,8 @@ object ImageUtils {
     private const val TRUNCATED_BYTE_A: Byte = (0xff).toByte()
     private const val TRUNCATED_BYTE_B: Byte = (0xd9).toByte()
 
+    val supportedExtensions = listOf("png", "jpeg", "jpg", "webp")
+
     /**
      * Verifies the integrity of an image file.
      *
@@ -66,7 +68,7 @@ object ImageUtils {
         var truncated: Boolean? = null
     }
 
-    suspend fun scale(imageFile: File, width: Int?, height: Int?, outputStream: OutputStream) {
+    suspend fun scale(imageFile: File, width: Int?, height: Int?, outputStream: OutputStream, format: String = "webp") {
         withContext(Dispatchers.IO) {
             check(width != null || height != null) { "Must provide either width, height or both, but not none." }
 
@@ -93,7 +95,7 @@ object ImageUtils {
             val imageBuff = BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB)
             imageBuff.graphics.drawImage(scaledImage, 0, 0, Color(0, 0, 0), null)
 
-            ImageIO.write(imageBuff, "jpg", outputStream)
+            ImageIO.write(imageBuff, format, outputStream)
         }
     }
 }
