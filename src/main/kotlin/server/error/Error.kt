@@ -2,6 +2,7 @@ package server.error
 
 import io.ktor.http.HttpStatusCode
 import org.json.JSONObject
+import system.EnvironmentVariables
 import utils.jsonOf
 import utils.serialization.JsonSerializable
 
@@ -17,5 +18,16 @@ data class Error(
     val message: String,
     val status: HttpStatusCode = HttpStatusCode.BadRequest
 ): JsonSerializable {
-    override fun toJson(): JSONObject = jsonOf("code" to code, "message" to message)
+    private var extra: JSONObject? = null
+
+    fun withExtra(extra: JSONObject): Error {
+        this.extra = extra
+        return this
+    }
+
+    override fun toJson(): JSONObject = jsonOf(
+        "code" to code,
+        "message" to message,
+        "extra" to extra?.takeIf { EnvironmentVariables.Environment.IsProduction.value != "true" }
+    )
 }
