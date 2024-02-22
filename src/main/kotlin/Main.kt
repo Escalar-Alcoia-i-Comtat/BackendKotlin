@@ -1,9 +1,4 @@
-import com.arnyminerz.escalaralcoiaicomtat.backend.Logger
-import com.arnyminerz.escalaralcoiaicomtat.backend.ServerDatabase
-import com.arnyminerz.escalaralcoiaicomtat.backend.diagnostics.Diagnostics
-import com.arnyminerz.escalaralcoiaicomtat.backend.localization.Localization
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.configureEndpoints
-import com.arnyminerz.escalaralcoiaicomtat.backend.server.plugins.installPlugins
+import diagnostics.Diagnostics
 import io.ktor.server.application.Application
 import io.ktor.server.engine.ApplicationEngineEnvironmentBuilder
 import io.ktor.server.engine.applicationEngineEnvironment
@@ -15,6 +10,9 @@ import io.ktor.util.decodeBase64String
 import java.io.File
 import java.security.KeyStore
 import kotlinx.coroutines.runBlocking
+import localization.Localization
+import server.plugins.configureEndpoints
+import server.plugins.installPlugins
 
 const val HTTP_PORT = 8080
 const val HTTPS_PORT = 8443
