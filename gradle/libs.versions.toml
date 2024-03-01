@@ -1,5 +1,5 @@
 [versions]
-crowdin = "1.14.1"
+crowdin = "1.15.0"
 exposed = "0.47.0"
 foojay-resolver = "0.8.0"
 imageio-webp = "0.1.6"
