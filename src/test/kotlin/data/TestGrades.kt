@@ -13,6 +13,7 @@ class TestGrades {
         assertEquals(SportsGrade.G6B_PLUS, GradeValue.fromString("6b+"))
         assertEquals(SportsGrade.G7C, GradeValue.fromString("7c"))
         assertEquals(SportsGrade.G9C_PLUS, GradeValue.fromString("9c+"))
+        assertEquals(ArtificialGrade.A2, GradeValue.fromString("A2"))
         assertEquals(SportsGrade.UNKNOWN, GradeValue.fromString("¿?"))
     }
 }

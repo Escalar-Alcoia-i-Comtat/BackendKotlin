@@ -1,1 +1,1 @@
-interface KoverIgnore
+annotation class KoverIgnore
