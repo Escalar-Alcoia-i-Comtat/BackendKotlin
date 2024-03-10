@@ -21,8 +21,8 @@ object DownloadFileEndpoint : EndpointBase("/download/{uuid}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val uuid: String by call.parameters
 
-        val width = call.parameters["width"]?.toIntOrNull()
-        val height = call.parameters["height"]?.toIntOrNull()
+        val width = call.request.queryParameters["width"]?.toIntOrNull()
+        val height = call.request.queryParameters["height"]?.toIntOrNull()
 
         val file = Storage.find(uuid) ?: return respondFailure(
             Errors.FileNotFound.withExtra(
