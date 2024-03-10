@@ -131,3 +131,22 @@ sentry {
 application {
     mainClass.set("MainKt")
 }
+
+koverReport {
+    filters {
+        excludes {
+            annotatedBy("KoverIgnore")
+        }
+    }
+
+    verify {
+        // verification rules for all reports
+    }
+
+    defaults {
+        xml { /* default XML report config */ }
+        html { /* default HTML report config */ }
+        verify { /* default verification config */ }
+        log { /* default logging config */ }
+    }
+}
