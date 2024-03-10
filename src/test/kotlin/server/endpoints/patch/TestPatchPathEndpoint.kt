@@ -26,7 +26,12 @@ import utils.serialization.JsonSerializable
 import utils.toJson
 
 class TestPatchPathEndpoint : ApplicationTestBase() {
-    private fun <T> patchProperty(propertyName: String, newValue: T, propertyValue: (Path) -> T) = test {
+    data class PropertyValuePair<T>(val propertyName: String, val newValue: T, val propertyValue: (Path) -> T)
+
+    private fun <T> patchProperty(propertyName: String, newValue: T, propertyValue: (Path) -> T) =
+        patchProperty(PropertyValuePair(propertyName, newValue, propertyValue))
+
+    private fun <T> patchProperty(vararg pairs: PropertyValuePair<T>) = test {
         val areaId = DataProvider.provideSampleArea()
         assertNotNull(areaId)
 
@@ -44,15 +49,18 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
         client.submitFormWithBinaryData(
             url = "/path/$sectorId",
             formData = formData {
-                when (newValue) {
-                    is JsonSerializable -> append(propertyName, newValue.toJson().toString())
-                    is Number -> append(propertyName, newValue)
-                    is Iterable<*> -> if (newValue.firstOrNull() is JsonSerializable)
-                        @Suppress("UNCHECKED_CAST")
-                        append(propertyName, (newValue as Iterable<JsonSerializable>).toJson().toString())
-                    else
-                        append(propertyName, JSONArray().toString())
-                    else -> append(propertyName, newValue.toString())
+                for ((propertyName, newValue) in pairs) {
+                    when (newValue) {
+                        is JsonSerializable -> append(propertyName, newValue.toJson().toString())
+                        is Number -> append(propertyName, newValue)
+                        is Iterable<*> -> if (newValue.firstOrNull() is JsonSerializable)
+                            @Suppress("UNCHECKED_CAST")
+                            append(propertyName, (newValue as Iterable<JsonSerializable>).toJson().toString())
+                        else
+                            append(propertyName, JSONArray().toString())
+
+                        else -> append(propertyName, newValue.toString())
+                    }
                 }
             }
         ) {
@@ -66,10 +74,12 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
         ServerDatabase.instance.query {
             val path = Path[pathId]
             assertNotNull(path)
-            if (newValue is Iterable<*>)
-                assertContentEquals(newValue, path.let(propertyValue) as Iterable<Any?>)
-            else
-                assertEquals(newValue, path.let(propertyValue))
+            for ((_, newValue, propertyValue) in pairs) {
+                if (newValue is Iterable<*>)
+                    assertContentEquals(newValue, path.let(propertyValue) as Iterable<Any?>)
+                else
+                    assertEquals(newValue, path.let(propertyValue))
+            }
         }
     }
 
@@ -127,6 +137,13 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
     @Test
     fun `test patching Path - update pitches`() =
         patchProperty("pitches", listOf(PitchInfo(1U))) { it.pitches }
+
+    @Test
+    fun `test patching Path - update pitches and gradle`() =
+        patchProperty(
+            PropertyValuePair("pitches", listOf(PitchInfo(1U))) { it.pitches },
+            PropertyValuePair("grade", SportsGrade.G7C) { it.grade }
+        )
 
     @Test
     fun `test patching Path - update stringCount`() =
