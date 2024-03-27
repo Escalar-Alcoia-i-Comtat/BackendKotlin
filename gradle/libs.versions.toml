@@ -1,6 +1,6 @@
 [versions]
 crowdin = "1.15.2"
-exposed = "0.48.0"
+exposed = "0.49.0"
 foojay-resolver = "0.8.0"
 imageio-webp = "0.1.6"
 json = "20240303"
