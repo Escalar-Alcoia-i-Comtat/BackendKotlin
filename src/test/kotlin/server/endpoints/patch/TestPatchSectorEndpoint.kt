@@ -23,7 +23,7 @@ import storage.HashUtils
 import storage.MessageDigestAlgorithm
 import storage.Storage
 
-class TestPatchSectorEndpoint: ApplicationTestBase() {
+class TestPatchSectorEndpoint : ApplicationTestBase() {
     @Test
     fun `test patching Sector - update display name`() = test {
         val areaId = DataProvider.provideSampleArea()
@@ -36,6 +36,7 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
         assertNotNull(sectorId)
 
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
@@ -54,6 +55,7 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
             val sector = Sector[sectorId]
             assertNotNull(sector)
             assertEquals("New Display Name", sector.displayName)
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
     }
 
@@ -67,6 +69,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
 
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
@@ -83,6 +87,7 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
             val sector = Sector[sectorId]
             assertNotNull(sector)
             assertEquals(LatLng(0.456, 0.789), sector.point)
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
     }
 
@@ -96,6 +101,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
 
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
@@ -112,6 +119,7 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
             val sector = Sector[sectorId]
             assertNotNull(sector)
             assertEquals(false, sector.kidsApt)
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
     }
 
@@ -125,6 +133,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
 
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
@@ -141,6 +151,7 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
             val sector = Sector[sectorId]
             assertNotNull(sector)
             assertEquals(Sector.SunTime.Morning, sector.sunTime)
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
     }
 
@@ -154,6 +165,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
 
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
@@ -170,6 +183,7 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
             val sector = Sector[sectorId]
             assertNotNull(sector)
             assertEquals(9510U, sector.walkingTime)
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
     }
 
@@ -183,6 +197,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
 
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
@@ -199,6 +215,7 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
             val sector = Sector[sectorId]
             assertNotNull(sector)
             assertEquals("0123", sector.weight)
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
     }
 
@@ -212,6 +229,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
 
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
         val image = this::class.java.getResourceAsStream("/images/desploms2.jpg")!!.use {
             it.readBytes()
@@ -240,6 +259,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
             val imageFile = sector.image
             sectorImage = imageFile.toRelativeString(Storage.ImagesDir)
             assertTrue(imageFile.exists())
+
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
 
         get("/file/$sectorImage").apply {
@@ -265,6 +286,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
 
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
@@ -295,6 +318,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
         val sectorId = DataProvider.provideSampleSector(zoneId)
         assertNotNull(sectorId)
 
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
+
         client.submitFormWithBinaryData(
             url = "/sector/$sectorId",
             formData = formData {
@@ -310,6 +335,8 @@ class TestPatchSectorEndpoint: ApplicationTestBase() {
             val sector = Sector[sectorId]
             assertNotNull(sector)
             assertNull(sector.point)
+
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
     }
 }

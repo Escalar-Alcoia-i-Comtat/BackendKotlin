@@ -24,6 +24,7 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
         assertNotNull(areaId)
 
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val oldAreaTimestamp = ServerDatabase.instance.query { Area[areaId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/area/$areaId",
@@ -42,6 +43,8 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
             val area = Area[areaId]
             assertNotNull(area)
             assertEquals("New Display Name", area.displayName)
+            // Make sure the timestamp was updated
+            assertNotEquals(oldAreaTimestamp, area.timestamp)
         }
     }
 
@@ -49,6 +52,8 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
     fun `test patching Area - update web url`() = test {
         val areaId = DataProvider.provideSampleArea()
         assertNotNull(areaId)
+
+        val oldAreaTimestamp = ServerDatabase.instance.query { Area[areaId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/area/$areaId",
@@ -65,6 +70,8 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
             val area = Area[areaId]
             assertNotNull(area)
             assertEquals("https://example.com/new", area.webUrl.toString())
+            // Make sure the timestamp was updated
+            assertNotEquals(oldAreaTimestamp, area.timestamp)
         }
     }
 
@@ -72,6 +79,8 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
     fun `test patching Area - update image`() = test {
         val areaId = DataProvider.provideSampleArea()
         assertNotNull(areaId)
+
+        val oldAreaTimestamp = ServerDatabase.instance.query { Area[areaId].timestamp }
 
         val image = this::class.java.getResourceAsStream("/images/cocentaina.jpg")!!.use {
             it.readBytes()
@@ -97,6 +106,9 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
 
             val imageFile = area.image
             assertTrue(imageFile.exists())
+
+            // Make sure the timestamp was updated
+            assertNotEquals(oldAreaTimestamp, area.timestamp)
         }
     }
 }

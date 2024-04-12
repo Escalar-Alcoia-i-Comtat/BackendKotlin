@@ -35,6 +35,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
         assertNotNull(zoneId)
 
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/zone/$zoneId",
@@ -53,6 +54,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             val zone = Zone[zoneId]
             assertNotNull(zone)
             assertEquals("New Display Name", zone.displayName)
+            assertNotEquals(oldTimestamp, zone.timestamp)
         }
     }
 
@@ -63,6 +65,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
 
         val zoneId = DataProvider.provideSampleZone(areaId)
         assertNotNull(zoneId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/zone/$zoneId",
@@ -79,6 +83,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             val zone = Zone[zoneId]
             assertNotNull(zone)
             assertEquals("https://example.com/new", zone.webUrl.toString())
+            assertNotEquals(oldTimestamp, zone.timestamp)
         }
     }
 
@@ -89,6 +94,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
 
         val zoneId = DataProvider.provideSampleZone(areaId)
         assertNotNull(zoneId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/zone/$zoneId",
@@ -112,6 +119,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             val zone = Zone[zoneId]
             assertNotNull(zone)
             assertEquals(LatLng(latitude = 0.98765, longitude = 0.43210), zone.point)
+            assertNotEquals(oldTimestamp, zone.timestamp)
         }
     }
 
@@ -122,6 +130,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
 
         val zoneId = DataProvider.provideSampleZone(areaId)
         assertNotNull(zoneId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/zone/$zoneId",
@@ -151,6 +161,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
                 DataPoint(LatLng(0.12345, 0.67890), "Label 2", "testing-icon"),
                 zone.points.first()
             )
+            assertNotEquals(oldTimestamp, zone.timestamp)
         }
     }
 
@@ -161,6 +172,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
 
         val zoneId = DataProvider.provideSampleZone(areaId)
         assertNotNull(zoneId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/zone/$zoneId",
@@ -177,6 +190,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             val zone = Zone[zoneId]
             assertNotNull(zone)
             assertNull(zone.point)
+            assertNotEquals(oldTimestamp, zone.timestamp)
         }
     }
 
@@ -191,6 +205,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
         val image = this::class.java.getResourceAsStream("/images/cocentaina.jpg")!!.use {
             it.readBytes()
         }
+
+        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/zone/$zoneId",
@@ -215,6 +231,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             val imageFile = zone.image
             zoneImage = imageFile.toRelativeString(Storage.ImagesDir)
             assertTrue(imageFile.exists())
+
+            assertNotEquals(oldTimestamp, zone.timestamp)
         }
 
         get("/file/$zoneImage").apply {
@@ -242,6 +260,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             it.readBytes()
         }
 
+        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
+
         client.submitFormWithBinaryData(
             url = "/zone/$zoneId",
             formData = formData {
@@ -265,6 +285,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             val trackFile = zone.kmz
             zoneTrack = trackFile.toRelativeString(Storage.TracksDir)
             assertTrue(trackFile.exists())
+
+            assertNotEquals(oldTimestamp, zone.timestamp)
         }
 
         get("/file/$zoneTrack").apply {

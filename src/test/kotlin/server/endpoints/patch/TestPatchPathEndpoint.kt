@@ -45,6 +45,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
         assertNotNull(pathId)
 
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val oldTimestamp = ServerDatabase.instance.query { Path[sectorId].timestamp }
 
         client.submitFormWithBinaryData(
             url = "/path/$sectorId",
@@ -80,6 +81,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
                 else
                     assertEquals(newValue, path.let(propertyValue))
             }
+            assertNotEquals(oldTimestamp, path.timestamp)
         }
     }
 
