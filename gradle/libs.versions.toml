@@ -1,16 +1,16 @@
 [versions]
-crowdin = "1.15.2"
+crowdin = "1.15.4"
 exposed = "0.49.0"
 foojay-resolver = "0.8.0"
 imageio-webp = "0.1.6"
 json = "20240303"
 kotlin = "1.9.23"
 kotlinx-kover = "0.7.6"
-ktor = "2.3.9"
-postgresql = "42.6.0"
+ktor = "2.3.10"
+postgresql = "42.7.3"
 progressbar = "0.10.1"
 sentry = "4.4.0"
-sqlite = "3.44.0.0"
+sqlite = "3.45.2.0"
 
 [libraries]
 crowdin = { module = "com.github.crowdin:crowdin-api-client-java", version.ref = "crowdin" }
