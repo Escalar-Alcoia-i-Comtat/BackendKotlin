@@ -8,6 +8,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
 import database.EntityTypes
 import java.io.File
+import org.jetbrains.annotations.VisibleForTesting
 import system.EnvironmentVariables
 
 /**
@@ -44,16 +45,17 @@ object DeviceNotifier {
         Logger.info("Firebase initialized. Device notifications will be sent.")
     }
 
-    private fun notify(topic: String, type: EntityTypes, id: Int) {
-        // If app not initialized, return
-        if (!this::app.isInitialized) return
-
-        val message = Message.builder()
-            .setTopic(topic)
-            .putData(DATA_TYPE, type.name)
-            .putData(DATA_ID, id.toString())
-            .build()
-        fcm.send(message)
+    @VisibleForTesting
+    var notify: (topic: String, type: EntityTypes, id: Int) -> Unit = { topic, type, id ->
+        // Run only if the app is initialized
+        if (this::app.isInitialized) {
+            val message = Message.builder()
+                .setTopic(topic)
+                .putData(DATA_TYPE, type.name)
+                .putData(DATA_ID, id.toString())
+                .build()
+            fcm.send(message)
+        }
     }
 
     /**
