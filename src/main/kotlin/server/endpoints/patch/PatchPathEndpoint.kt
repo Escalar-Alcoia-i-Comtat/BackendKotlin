@@ -294,7 +294,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyDeleted(EntityTypes.PATH, pathId)
+        DeviceNotifier.notifyUpdated(EntityTypes.PATH, pathId)
 
         respondSuccess(
             data = jsonOf("element" to ServerDatabase.instance.query { path.toJson() })

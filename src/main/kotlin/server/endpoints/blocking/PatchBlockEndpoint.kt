@@ -53,7 +53,7 @@ object PatchBlockEndpoint: EndpointBase("/block/{blockId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyDeleted(EntityTypes.BLOCKING, blockId)
+        DeviceNotifier.notifyUpdated(EntityTypes.BLOCKING, blockId)
 
         respondSuccess(
             jsonOf("element" to updatedBlock)

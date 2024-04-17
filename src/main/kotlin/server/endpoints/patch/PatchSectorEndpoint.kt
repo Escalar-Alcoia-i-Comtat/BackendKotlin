@@ -115,7 +115,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyDeleted(EntityTypes.SECTOR, sectorId)
+        DeviceNotifier.notifyUpdated(EntityTypes.SECTOR, sectorId)
 
         respondSuccess(
             data = jsonOf("element" to json)

@@ -74,7 +74,7 @@ object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyDeleted(EntityTypes.AREA, areaId)
+        DeviceNotifier.notifyUpdated(EntityTypes.AREA, areaId)
 
         respondSuccess(
             data = jsonOf("element" to json)
