@@ -1,8 +1,10 @@
 package server.endpoints.patch
 
 import ServerDatabase
+import database.EntityTypes
 import database.entity.Area
 import database.entity.info.LastUpdate
+import distribution.DeviceNotifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -71,6 +73,8 @@ object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
+
+        DeviceNotifier.notifyDeleted(EntityTypes.AREA, areaId)
 
         respondSuccess(
             data = jsonOf("element" to json)

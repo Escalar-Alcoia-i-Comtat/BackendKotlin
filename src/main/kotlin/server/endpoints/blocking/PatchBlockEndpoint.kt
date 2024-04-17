@@ -3,8 +3,10 @@ package server.endpoints.blocking
 import ServerDatabase
 import data.BlockingRecurrenceYearly
 import data.BlockingTypes
+import database.EntityTypes
 import database.entity.Blocking
 import database.entity.info.LastUpdate
+import distribution.DeviceNotifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -50,6 +52,8 @@ object PatchBlockEndpoint: EndpointBase("/block/{blockId}") {
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
+
+        DeviceNotifier.notifyDeleted(EntityTypes.BLOCKING, blockId)
 
         respondSuccess(
             jsonOf("element" to updatedBlock)
