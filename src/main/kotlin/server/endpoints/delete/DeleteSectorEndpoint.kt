@@ -16,8 +16,12 @@ object DeleteSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val sectorId: Int by call.parameters
 
-        ServerDatabase.instance.query { Sector.findById(sectorId)?.delete() }
+        val sector = ServerDatabase.instance.query { Sector.findById(sectorId)?.also(Sector::delete) }
             ?: return respondFailure(Errors.ObjectNotFound)
+
+        // Delete the image file and GPX if exists
+        sector.image.delete()
+        sector.gpx?.delete()
 
         ServerDatabase.instance.query { LastUpdate.set() }
 

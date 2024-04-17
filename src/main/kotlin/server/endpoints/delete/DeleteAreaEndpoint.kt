@@ -16,8 +16,11 @@ object DeleteAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val areaId: Int by call.parameters
 
-        ServerDatabase.instance.query { Area.findById(areaId)?.delete() }
+        val area = ServerDatabase.instance.query { Area.findById(areaId)?.also(Area::delete) }
             ?: return respondFailure(Errors.ObjectNotFound)
+
+        // Delete the image file
+        area.image.delete()
 
         ServerDatabase.instance.query { LastUpdate.set() }
 

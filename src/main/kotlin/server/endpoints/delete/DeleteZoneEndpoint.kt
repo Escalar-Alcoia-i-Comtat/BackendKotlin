@@ -16,8 +16,12 @@ object DeleteZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         val zoneId: Int by call.parameters
 
-        ServerDatabase.instance.query { Zone.findById(zoneId)?.delete() }
+        val zone = ServerDatabase.instance.query { Zone.findById(zoneId)?.also(Zone::delete) }
             ?: return respondFailure(Errors.ObjectNotFound)
+
+        // Delete the image and KMX files
+        zone.image.delete()
+        zone.kmz.delete()
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
