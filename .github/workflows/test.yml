@@ -37,9 +37,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@460a3ca55fc5d559238a0efc7fa9f7465df8585d
+        uses: gradle/actions/wrapper-validation@v3
       - name: Run tests
-        uses: gradle/gradle-build-action@8baac4c8ef753599f92eeb509c246d09d6250fa6
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: check
       - name: Publish Test Results
@@ -61,9 +61,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@460a3ca55fc5d559238a0efc7fa9f7465df8585d
+        uses: gradle/actions/wrapper-validation@v3
       - name: Run Kover
-        uses: gradle/gradle-build-action@8baac4c8ef753599f92eeb509c246d09d6250fa6
+        uses: gradle/actions/setup-gradle@v3
         with:
           arguments: koverXmlReport
       - name: Add coverage report to PR
