@@ -33,6 +33,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             ?: return respondFailure(Errors.ObjectNotFound)
 
         // Nullable types: point, walkingTime
+        // Nullable files: gpxFile
 
         var displayName: String? = null
         var point: LatLng? = null
@@ -46,6 +47,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
         var removeWalkingTime = false
 
         var imageFile: File? = null
+        var gpxFile: File? = null
 
         receiveMultipart(
             forEachFormItem = { partData ->
@@ -78,11 +80,15 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                         val uuid = ServerDatabase.instance.query { sector.image.nameWithoutExtension }
                         imageFile = partData.save(Storage.ImagesDir, UUID.fromString(uuid))
                     }
+                    "gpx" -> {
+                        val uuid = ServerDatabase.instance.query { sector.gpx?.nameWithoutExtension }
+                        gpxFile = partData.save(Storage.TracksDir, uuid?.let(UUID::fromString) ?: UUID.randomUUID())
+                    }
                 }
             }
         )
 
-        if (areAllNull(displayName, imageFile, kidsApt, point, sunTime, walkingTime, weight, zone) &&
+        if (areAllNull(displayName, imageFile, gpxFile, kidsApt, point, sunTime, walkingTime, weight, zone) &&
             areAllFalse(removePoint, removeWalkingTime)
         ) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)

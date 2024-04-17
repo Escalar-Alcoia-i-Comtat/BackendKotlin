@@ -277,6 +277,64 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
     }
 
     @Test
+    fun `test patching Sector - update gpx`() = test {
+        val areaId = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId = DataProvider.provideSampleSector(zoneId)
+        assertNotNull(sectorId)
+
+        val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
+
+        val gpx = this::class.java.getResourceAsStream("/images/ulldelmoro.gpx")!!.use {
+            it.readBytes()
+        }
+
+        client.submitFormWithBinaryData(
+            url = "/sector/$sectorId",
+            formData = formData {
+                append("gpx", gpx, Headers.build {
+                    append(HttpHeaders.ContentType, "application/gpx+xml")
+                    append(HttpHeaders.ContentDisposition, "filename=sector.gpx")
+                })
+            }
+        ) {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
+            assertSuccess()
+        }
+
+        var sectorGpx: String? = null
+
+        ServerDatabase.instance.query {
+            val sector = Sector[sectorId]
+            assertNotNull(sector)
+
+            val gpxFile = sector.gpx
+            assertNotNull(gpxFile)
+            sectorGpx = gpxFile.toRelativeString(Storage.ImagesDir)
+            assertTrue(gpxFile.exists())
+
+            assertNotEquals(oldTimestamp, sector.timestamp)
+        }
+
+        get("/file/$sectorGpx").apply {
+            assertSuccess { data ->
+                assertNotNull(data)
+                val serverHash = data.getString("hash")
+                val localHash = HashUtils.getCheckSumFromStream(
+                    MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256),
+                    this::class.java.getResourceAsStream("/tracks/ulldelmoro.gpx")!!
+                )
+                assertEquals(localHash, serverHash)
+            }
+        }
+    }
+
+    @Test
     fun `test patching Sector - remove walking time`() = test {
         val areaId = DataProvider.provideSampleArea()
         assertNotNull(areaId)
@@ -304,6 +362,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
             val sector = Sector[sectorId]
             assertNotNull(sector)
             assertNull(sector.walkingTime)
+
+            assertNotEquals(oldTimestamp, sector.timestamp)
         }
     }
 

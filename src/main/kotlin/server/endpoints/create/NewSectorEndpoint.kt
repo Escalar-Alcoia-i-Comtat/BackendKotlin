@@ -31,6 +31,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
         var zone: Zone? = null
 
         var imageFile: File? = null
+        var gpxFile: File? = null
 
         receiveMultipart(
             forEachFormItem = { partData ->
@@ -50,6 +51,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
             forEachFileItem = { partData ->
                 when (partData.name) {
                     "image" -> imageFile = partData.save(Storage.ImagesDir)
+                    "gpx" -> gpxFile = partData.save(Storage.TracksDir)
                 }
             }
         )
@@ -60,7 +62,8 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                 MissingData,
                 jsonOf(
                     "multipart" to rawMultipartFormItems,
-                    "imageFile" to imageFile?.path
+                    "imageFile" to imageFile?.path,
+                    "gpxFile" to gpxFile?.path
                 ).toString()
             )
         }
@@ -73,6 +76,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                 this.sunTime = sunTime!!
                 this.walkingTime = walkingTime
                 this.image = imageFile!!
+                this.gpx = gpxFile
                 weight?.let { this.weight = it }
                 this.zone = zone!!
             }.toJson()

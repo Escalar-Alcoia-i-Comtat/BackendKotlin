@@ -161,6 +161,7 @@ object DataProvider {
         skipKidsApt: Boolean = false,
         skipSunTime: Boolean = false,
         skipImage: Boolean = false,
+        skipGpx: Boolean = false,
         assertion: suspend HttpResponse.() -> Int? = {
             var sectorId: Int? = null
             assertSuccess(HttpStatusCode.Created) { data ->
@@ -172,6 +173,9 @@ object DataProvider {
         }
     ): Int? {
         val image = this::class.java.getResourceAsStream("/images/desploms1.jpg")!!.use {
+            it.readBytes()
+        }
+        val gpx = this::class.java.getResourceAsStream("/tracks/ulldelmoro.gpx")!!.use {
             it.readBytes()
         }
 
@@ -194,6 +198,11 @@ object DataProvider {
                     append("image", image, Headers.build {
                         append(HttpHeaders.ContentType, "image/jpeg")
                         append(HttpHeaders.ContentDisposition, "filename=sector.jpg")
+                    })
+                if (!skipGpx)
+                    append("gpx", gpx, Headers.build {
+                        append(HttpHeaders.ContentType, "application/gpx+xml")
+                        append(HttpHeaders.ContentDisposition, "filename=sector.gpx")
                     })
             }
         ) {

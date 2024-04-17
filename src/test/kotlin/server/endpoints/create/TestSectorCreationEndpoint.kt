@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
@@ -38,6 +39,42 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
 
             val imageFile = sector.image
             assertTrue(imageFile.exists())
+
+            val gpxFile = sector.gpx
+            assertNotNull(gpxFile)
+            assertTrue(gpxFile.exists())
+
+            assertNotEquals(LastUpdate.get(), lastUpdate)
+        }
+    }
+
+    @Test
+    fun `test sector creation - without gpx`() = test {
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+
+        val areaId: Int? = DataProvider.provideSampleArea()
+        assertNotNull(areaId)
+
+        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
+        assertNotNull(zoneId)
+
+        val sectorId: Int? = DataProvider.provideSampleSector(zoneId, skipGpx = true)
+        assertNotNull(sectorId)
+
+        ServerDatabase.instance.query {
+            val sector = Sector[sectorId]
+            assertNotNull(sector)
+            assertEquals(DataProvider.SampleSector.displayName, sector.displayName)
+            assertEquals(DataProvider.SampleSector.point, sector.point)
+            assertEquals(DataProvider.SampleSector.kidsApt, sector.kidsApt)
+            assertEquals(DataProvider.SampleSector.walkingTime, sector.walkingTime)
+            assertEquals(DataProvider.SampleSector.sunTime, sector.sunTime)
+
+            val imageFile = sector.image
+            assertTrue(imageFile.exists())
+
+            val gpxFile = sector.gpx
+            assertNull(gpxFile)
 
             assertNotEquals(LastUpdate.get(), lastUpdate)
         }
