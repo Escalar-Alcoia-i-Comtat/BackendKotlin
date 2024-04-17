@@ -315,7 +315,7 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
 
             val gpxFile = sector.gpx
             assertNotNull(gpxFile)
-            sectorGpx = gpxFile.toRelativeString(Storage.ImagesDir)
+            sectorGpx = gpxFile.toRelativeString(Storage.TracksDir)
             assertTrue(gpxFile.exists())
 
             assertNotEquals(oldTimestamp, sector.timestamp)
