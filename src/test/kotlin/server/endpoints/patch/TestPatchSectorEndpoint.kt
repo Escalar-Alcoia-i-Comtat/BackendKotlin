@@ -289,7 +289,7 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
 
         val oldTimestamp = ServerDatabase.instance.query { Sector[sectorId].timestamp }
 
-        val gpx = this::class.java.getResourceAsStream("/images/ulldelmoro.gpx")!!.use {
+        val gpx = this::class.java.getResourceAsStream("/tracks/ulldelmoro.gpx")!!.use {
             it.readBytes()
         }
 
