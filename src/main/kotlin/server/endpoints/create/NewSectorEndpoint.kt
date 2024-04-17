@@ -43,8 +43,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                     "walkingTime" -> walkingTime = partData.value.toUIntOrNull()
                     "weight" -> weight = partData.value
                     "zone" -> ServerDatabase.instance.query {
-                        zone = Zone.findById(partData.value.toInt())
-                            ?: return@query respondFailure(ParentNotFound)
+                        zone = Zone.findById(partData.value.toInt()) ?: return@query respondFailure(ParentNotFound)
                     }
                 }
             },
@@ -58,6 +57,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
 
         if (isAnyNull(displayName, imageFile, kidsApt, sunTime, zone)) {
             imageFile?.delete()
+            gpxFile?.delete()
             return respondFailure(
                 MissingData,
                 jsonOf(
