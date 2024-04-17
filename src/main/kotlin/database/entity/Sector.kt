@@ -35,6 +35,10 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         get() = File(Storage.ImagesDir, _image)
         set(value) { _image = value.toRelativeString(Storage.ImagesDir) }
 
+    var gpx: File?
+        get() = _gpx?.let { File(Storage.TracksDir, it) }
+        set(value) { _gpx = value?.toRelativeString(Storage.TracksDir) }
+
     var point: LatLng?
         get() = _latitude?.let { lat -> _longitude?.let { lon -> LatLng(lat, lon) } }
         set(value) { _latitude = value?.latitude; _longitude = value?.longitude }
@@ -42,6 +46,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     var zone by Zone referencedOn Sectors.zone
 
     private var _image: String by Sectors.imagePath
+    private var _gpx: String? by Sectors.gpxPath
 
     private var _latitude: Double? by Sectors.latitude
     private var _longitude: Double? by Sectors.longitude
@@ -61,6 +66,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
      * - `sun_time`: [sunTime] ([SunTime])
      * - `walking_time`: [walkingTime] ([Int]|`null`)
      * - `image`: [image] ([String])
+     * - `gpx`: [gpx] ([String])
      * - `point`: [point] ([String])
      * - `zone_id`: [zone] ([Int])
      *
@@ -74,6 +80,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         "sun_time" to sunTime,
         "walking_time" to walkingTime,
         "image" to _image.substringBeforeLast('.'),
+        "gpx" to _gpx?.substringBeforeLast('.'),
         "point" to point,
         "weight" to weight,
         "zone_id" to zone.id.value
@@ -107,6 +114,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
         result = 31 * result + sunTime.hashCode()
         result = 31 * result + (walkingTime?.hashCode() ?: 0)
         result = 31 * result + image.hashCode()
+        result = 31 * result + (gpx?.hashCode() ?: 0)
         result = 31 * result + (point?.hashCode() ?: 0)
         result = 31 * result + (weight.hashCode())
         result = 31 * result + zone.hashCode()

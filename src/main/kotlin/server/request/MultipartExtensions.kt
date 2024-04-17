@@ -15,11 +15,11 @@ import java.util.UUID
  *
  * @throws IOException If there's a problem while writing to the file system.
  */
-fun PartData.FileItem.save(rootDir: File, uuid: UUID = UUID.randomUUID(), overwrite: Boolean = true): File {
+fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null, overwrite: Boolean = true): File {
     rootDir.mkdirs()
 
     val fileExtension = originalFileName?.takeLastWhile { it != '.' }
-    val fileName = "$uuid.$fileExtension"
+    val fileName = "${uuid ?: UUID.randomUUID()}.$fileExtension"
     val targetFile = File(rootDir, fileName)
 
     if (overwrite && targetFile.exists()) {
