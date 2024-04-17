@@ -14,11 +14,17 @@ import kotlinx.coroutines.runBlocking
 import localization.Localization
 import server.plugins.configureEndpoints
 import server.plugins.installPlugins
+import system.EnvironmentVariables
 
 const val HTTP_PORT = 8080
 const val HTTPS_PORT = 8443
 
 fun main() {
+    if (!EnvironmentVariables.Environment.ServerUUID.isSet) {
+        Logger.error("The server UUID is not set. Exiting...")
+        return
+    }
+
     ServerDatabase.configureFromEnvironment()
 
     Logger.info("Connecting to the database, and creating tables...")

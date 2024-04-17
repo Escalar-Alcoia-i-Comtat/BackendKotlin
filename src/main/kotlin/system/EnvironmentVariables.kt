@@ -48,6 +48,11 @@ object EnvironmentVariables {
          * States whether the system is running in production mode.
          */
         data object IsProduction : EnvironmentVariable("IS_PRODUCTION", "false")
+
+        /**
+         * The UUID of the server. Used for distinguishing between production and testing servers, for example.
+         */
+        data object ServerUUID : EnvironmentVariable("SERVER_UUID")
     }
 
     object Services {
