@@ -8,10 +8,13 @@ import database.entity.info.LastUpdate
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.utils.io.readFully
 import java.security.MessageDigest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
@@ -331,6 +334,16 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
                 )
                 assertEquals(localHash, serverHash)
             }
+        }
+
+        get("/download/$sectorGpx").apply {
+            val size = headers[HttpHeaders.ContentLength]!!.toInt()
+            val remoteBytes = ByteArray(size)
+            bodyAsChannel().readFully(remoteBytes)
+            val localBytes = this::class.java.getResourceAsStream("/tracks/ulldelmoro.gpx")!!.use {
+                it.readBytes()
+            }
+            assertContentEquals(localBytes, remoteBytes)
         }
     }
 

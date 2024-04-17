@@ -33,6 +33,7 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
         assertNotNull(sectorId)
 
         var image: String? = null
+        var gpx: String? = null
 
         get("/sector/$sectorId").apply {
             assertSuccess { data ->
@@ -56,13 +57,26 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
                 assertTrue(data.getLong("timestamp") < Instant.now().toEpochMilli())
 
                 image = data.getString("image")
+                gpx = data.getStringOrNull("gpx")
             }
         }
 
         assertNotNull(image)
         assertIsUUID(image!!)
 
+        assertNotNull(gpx)
+        assertIsUUID(gpx!!)
+
         get("/file/$image").apply {
+            assertSuccess { data ->
+                assertNotNull(data?.getStringOrNull("download"))
+                assertNotNull(data?.getStringOrNull("filename"))
+                assertNotNull(data?.getStringOrNull("hash"))
+                assertNotNull(data?.getLongOrNull("size"))
+            }
+        }
+
+        get("/file/$gpx").apply {
             assertSuccess { data ->
                 assertNotNull(data?.getStringOrNull("download"))
                 assertNotNull(data?.getStringOrNull("filename"))
