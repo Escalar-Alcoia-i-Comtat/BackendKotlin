@@ -72,6 +72,9 @@ dependencies {
     // WebP image support
     implementation(libs.imageio.webp)
 
+    // Firebase
+    implementation(libs.firebase.admin)
+
 
     testImplementation(libs.kotlin.test)
 

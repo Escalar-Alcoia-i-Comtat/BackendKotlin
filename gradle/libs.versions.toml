@@ -1,6 +1,7 @@
 [versions]
 crowdin = "1.15.6"
 exposed = "0.49.0"
+firebase-admin = "9.2.0"
 foojay-resolver = "0.8.0"
 imageio-webp = "0.1.6"
 json = "20240303"
@@ -14,6 +15,7 @@ sqlite = "3.45.2.0"
 
 [libraries]
 crowdin = { module = "com.github.crowdin:crowdin-api-client-java", version.ref = "crowdin" }
+firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
 imageio-webp = { module = "org.sejda.imageio:webp-imageio", version.ref = "imageio-webp" }
 json = { module = "org.json:json", version.ref = "json" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
