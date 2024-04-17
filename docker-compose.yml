@@ -21,8 +21,15 @@ services:
       # -- Configure Sentry
       # Optional: SENTRY_DSN
       # IS_PRODUCTION: false by default
+      # -- Configure Google Cloud
+      # Optional: GOOGLE_APPLICATION_CREDENTIALS
     env_file:
       - "secrets.env"
+    volumes:
+      - ./keystore:/var/lib/escalaralcoiaicomtat/keystore
+      - ./certificates:/var/lib/escalaralcoiaicomtat/certs
+      - ./files:/var/lib/escalaralcoiaicomtat/files
+      - ./google-services.json:/var/lib/escalaralcoiaicomtat/google-services.json
     networks:
       - escalaralcoiaicomtat_backend
     depends_on:
@@ -30,6 +37,12 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # See https://hub.docker.com/_/postgres for more information
   db:

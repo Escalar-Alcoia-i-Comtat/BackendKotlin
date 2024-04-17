@@ -1,4 +1,5 @@
 import diagnostics.Diagnostics
+import distribution.DeviceNotifier
 import io.ktor.server.application.Application
 import io.ktor.server.engine.ApplicationEngineEnvironmentBuilder
 import io.ktor.server.engine.applicationEngineEnvironment
@@ -25,6 +26,8 @@ fun main() {
 
     Logger.info("Initializing Crowdin connection...")
     Localization.init()
+
+    DeviceNotifier.initialize()
 
     runBlocking {
         Localization.synchronizePathDescriptions()

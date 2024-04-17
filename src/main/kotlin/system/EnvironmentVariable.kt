@@ -11,4 +11,6 @@ sealed class EnvironmentVariable(
     var value: String?
         get() = _value
         set(value) { _value = value }
+
+    val isSet: Boolean get() = _value != null
 }

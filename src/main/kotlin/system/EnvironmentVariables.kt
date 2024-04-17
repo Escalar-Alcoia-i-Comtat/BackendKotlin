@@ -50,6 +50,15 @@ object EnvironmentVariables {
         data object IsProduction : EnvironmentVariable("IS_PRODUCTION", "false")
     }
 
+    object Services {
+        object GoogleCredentials {
+            /**
+             * The path to the service account file for Google Cloud services.
+             */
+            data object ServiceAccountFile : EnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")
+        }
+    }
+
     object Localization {
         data object CrowdinToken : EnvironmentVariable("CROWDIN_TOKEN")
         data object CrowdinOrganization : EnvironmentVariable("CROWDIN_ORGANIZATION")
