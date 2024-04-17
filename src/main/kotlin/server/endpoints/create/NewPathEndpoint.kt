@@ -5,10 +5,12 @@ import data.Builder
 import data.Ending
 import data.GradeValue
 import data.PitchInfo
+import database.EntityTypes
 import database.entity.Path
 import database.entity.Sector
 import database.entity.info.LastUpdate
 import database.table.Paths
+import distribution.DeviceNotifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
@@ -168,6 +170,9 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
+
+        val pathJson = ServerDatabase.instance.query { path.toJson() }
+        DeviceNotifier.notifyCreated(EntityTypes.PATH, pathJson["id"] as Int)
 
         respondSuccess(
             jsonOf("element" to ServerDatabase.instance.query { path.toJson() }),

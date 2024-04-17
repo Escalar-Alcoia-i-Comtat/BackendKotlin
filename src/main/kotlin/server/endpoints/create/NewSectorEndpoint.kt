@@ -2,9 +2,11 @@ package server.endpoints.create
 
 import ServerDatabase
 import data.LatLng
+import database.EntityTypes
 import database.entity.Sector
 import database.entity.Zone
 import database.entity.info.LastUpdate
+import distribution.DeviceNotifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
@@ -83,6 +85,8 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
+
+        DeviceNotifier.notifyCreated(EntityTypes.SECTOR, sector["id"] as Int)
 
         respondSuccess(
             jsonOf("element" to sector),
