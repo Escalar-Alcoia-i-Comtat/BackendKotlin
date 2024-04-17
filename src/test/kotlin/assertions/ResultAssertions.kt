@@ -2,6 +2,7 @@ package assertions
 
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.request
 import io.ktor.http.HttpStatusCode
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -34,6 +35,7 @@ suspend inline fun HttpResponse.assertSuccess(
         status,
         StringBuilder().apply {
             appendLine("expected: $statusCode but was: $status")
+            appendLine("Url: ${request.url}")
             if (errorMessage != null) {
                 appendLine("Message: $errorMessage")
             }
