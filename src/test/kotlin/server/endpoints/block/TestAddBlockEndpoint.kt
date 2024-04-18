@@ -5,9 +5,11 @@ import assertions.assertFailure
 import assertions.assertSuccess
 import data.BlockingRecurrenceYearly
 import data.BlockingTypes
+import database.EntityTypes
 import database.entity.Blocking
 import database.entity.info.LastUpdate
 import database.table.BlockingTable
+import distribution.Notifier
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import java.time.LocalDateTime
@@ -46,10 +48,11 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
             }
         }
 
+        var blockId: Int? = null
         ServerDatabase.instance.query {
             val blocks = Blocking.find { BlockingTable.path eq pathId }
             assertEquals(1, blocks.count())
-            val block = blocks.firstOrNull()
+            val block = blocks.firstOrNull().also { blockId = it?.id?.value }
             assertNotNull(block)
             assertEquals(BlockingTypes.BUILD, block.type)
             assertNull(block.recurrence)
@@ -57,6 +60,9 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
             assertNotEquals(LastUpdate.get(), lastUpdate)
         }
+
+        assertNotNull(blockId)
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.BLOCKING, blockId!!)
     }
 
     @Test
@@ -73,6 +79,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
         }.apply {
             assertFailure(Errors.MissingData)
         }
+        assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.BLOCKING)
     }
 
     @Test
@@ -86,6 +93,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
         }.apply {
             assertFailure(Errors.ObjectNotFound)
         }
+        assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.BLOCKING)
     }
 
     @Test
@@ -106,6 +114,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
         }.apply {
             assertFailure(Errors.Conflict)
         }
+        assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.BLOCKING)
     }
 
     @Test
@@ -130,15 +139,19 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
             }
         }
 
+        var blockId: Int? = null
         ServerDatabase.instance.query {
             val blocks = Blocking.find { BlockingTable.path eq pathId }
             assertEquals(1, blocks.count())
-            val block = blocks.firstOrNull()
+            val block = blocks.firstOrNull().also { blockId = it?.id?.value }
             assertNotNull(block)
             assertEquals(BlockingTypes.BUILD, block.type)
             assertNull(block.recurrence)
             assertEquals(endDate?.truncatedTo(ChronoUnit.MILLIS), block.endDate)
         }
+
+        assertNotNull(blockId)
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.BLOCKING, blockId!!)
     }
 
     @Test
@@ -163,14 +176,18 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
             }
         }
 
+        var blockId: Int? = null
         ServerDatabase.instance.query {
             val blocks = Blocking.find { BlockingTable.path eq pathId }
             assertEquals(1, blocks.count())
-            val block = blocks.firstOrNull()
+            val block = blocks.firstOrNull().also { blockId = it?.id?.value }
             assertNotNull(block)
             assertEquals(BlockingTypes.BUILD, block.type)
             assertEquals(recurrence, block.recurrence)
             assertNull(block.endDate)
         }
+
+        assertNotNull(blockId)
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.BLOCKING, blockId!!)
     }
 }

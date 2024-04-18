@@ -1,6 +1,9 @@
 package server.base
 
+import Logger
 import ServerDatabase
+import database.EntityTypes
+import distribution.Notifier
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -11,6 +14,11 @@ import io.ktor.http.HttpHeaders
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import java.io.File
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import setupApplication
 import storage.Storage
@@ -22,6 +30,87 @@ import system.EnvironmentVariables
 abstract class ApplicationTestBase {
     companion object {
         const val AUTH_TOKEN = "password"
+    }
+
+    object DeviceNotifier : Notifier {
+        class Notification(
+            val topic: String,
+            val type: EntityTypes,
+            val id: Int
+        )
+
+        var notificationStack = emptyList<Notification>()
+
+        override fun initialize() { /* Nothing to do */ }
+
+        override fun notify(topic: String, type: EntityTypes, id: Int) {
+            Logger.info("Received notification on topic $topic for entity $type with id $id.")
+            notificationStack = notificationStack.toMutableList().plusElement(
+                Notification(topic, type, id)
+            )
+        }
+    }
+
+    /**
+     * Asserts that a notification was sent with the given parameters.
+     * The last notification is cleared after this method is called.
+     * @param topic The topic of the notification.
+     * @param type The type of the entity that was notified.
+     * @param id The id of the entity that was notified.
+     */
+    fun assertNotificationSent(topic: String, type: EntityTypes, id: Int) {
+        var noti: DeviceNotifier.Notification? = null
+        try {
+            DeviceNotifier.notificationStack.find { notification ->
+                notification.topic == topic && notification.type == type && notification.id == id
+            }.also {
+                noti = it
+                assertNotNull(it, "Notification was not sent")
+            }
+        } finally {
+            noti?.let {
+                val list = DeviceNotifier.notificationStack.toMutableList()
+                assertTrue { list.remove(it) }
+                DeviceNotifier.notificationStack = list
+            }
+        }
+    }
+
+    /**
+     * Asserts that no notification was sent.
+     */
+    fun assertNotificationNotSent(topic: String, type: EntityTypes) {
+        var noti: DeviceNotifier.Notification? = null
+        try {
+            DeviceNotifier.notificationStack.find { notification ->
+                notification.topic == topic && notification.type == type
+            }.also {
+                noti = it
+                assertNull(it, "Notification was sent")
+            }
+        } finally {
+            // If it was indeed sent, remove it from the stack
+            noti?.let {
+                val list = DeviceNotifier.notificationStack.toMutableList()
+                assertTrue { list.remove(it) }
+                DeviceNotifier.notificationStack = list
+            }
+        }
+    }
+
+    @BeforeTest
+    fun mockFCM() {
+        Notifier.setInstance(DeviceNotifier)
+    }
+
+    @AfterTest
+    fun clearNotificationStack() {
+        DeviceNotifier.notificationStack = emptyList()
+    }
+
+    @BeforeTest
+    fun setUUID() {
+        EnvironmentVariables.Environment.ServerUUID.value = "d0598a84-ec10-4666-b83e-611881c49546"
     }
 
     /**

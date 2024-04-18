@@ -2,8 +2,10 @@ package server.endpoints.create
 
 import ServerDatabase
 import assertions.assertFailure
+import database.EntityTypes
 import database.entity.Zone
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,6 +43,8 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
 
             assertNotEquals(LastUpdate.get(), lastUpdate)
         }
+
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE, zoneId)
     }
 
     @Test
@@ -48,18 +52,22 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
         val areaId = DataProvider.provideSampleArea()
         DataProvider.provideSampleZone(areaId, skipDisplayName = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
             null
         }
         DataProvider.provideSampleZone(areaId, skipImage = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
             null
         }
         DataProvider.provideSampleZone(areaId, skipWebUrl = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
             null
         }
         DataProvider.provideSampleZone(areaId, skipKmz = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
             null
         }
     }
@@ -77,12 +85,15 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
             assertNotNull(zone)
             assertTrue(zone.points.isEmpty())
         }
+
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE, zoneId)
     }
 
     @Test
     fun `test zone creation - invalid zone id`() = test {
         DataProvider.provideSampleZone(123) {
             assertFailure(Errors.ParentNotFound)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
             null
         }
     }

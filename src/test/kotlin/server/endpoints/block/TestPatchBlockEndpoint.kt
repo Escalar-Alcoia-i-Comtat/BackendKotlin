@@ -4,7 +4,9 @@ import ServerDatabase
 import assertions.assertSuccess
 import data.BlockingRecurrenceYearly
 import data.BlockingTypes
+import database.EntityTypes
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import java.time.LocalDateTime
@@ -58,6 +60,8 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
                 assert(element)
             }
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.BLOCKING, blockId!!)
     }
 
     @Test

@@ -2,8 +2,10 @@ package server.endpoints.patch
 
 import ServerDatabase
 import assertions.assertSuccess
+import database.EntityTypes
 import database.entity.Area
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
@@ -46,6 +48,8 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
             // Make sure the timestamp was updated
             assertNotEquals(oldAreaTimestamp, area.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.AREA, areaId)
     }
 
     @Test
@@ -73,6 +77,8 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
             // Make sure the timestamp was updated
             assertNotEquals(oldAreaTimestamp, area.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.AREA, areaId)
     }
 
     @Test
@@ -110,5 +116,7 @@ class TestPatchAreaEndpoint : ApplicationTestBase() {
             // Make sure the timestamp was updated
             assertNotEquals(oldAreaTimestamp, area.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.AREA, areaId)
     }
 }

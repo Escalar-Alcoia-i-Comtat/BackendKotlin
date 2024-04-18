@@ -3,9 +3,11 @@ package server.endpoints.patch
 import ServerDatabase
 import data.DataPoint
 import data.LatLng
+import database.EntityTypes
 import database.entity.Area
 import database.entity.Zone
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -103,6 +105,8 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
+
+        Notifier.getInstance().notifyUpdated(EntityTypes.ZONE, zoneId)
 
         respondSuccess(
             data = jsonOf("element" to json)

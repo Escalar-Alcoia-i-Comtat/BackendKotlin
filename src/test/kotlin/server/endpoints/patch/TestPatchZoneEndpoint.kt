@@ -4,8 +4,10 @@ import ServerDatabase
 import assertions.assertSuccess
 import data.DataPoint
 import data.LatLng
+import database.EntityTypes
 import database.entity.Zone
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
@@ -56,6 +58,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             assertEquals("New Display Name", zone.displayName)
             assertNotEquals(oldTimestamp, zone.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
     }
 
     @Test
@@ -85,6 +89,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             assertEquals("https://example.com/new", zone.webUrl.toString())
             assertNotEquals(oldTimestamp, zone.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
     }
 
     @Test
@@ -121,6 +127,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             assertEquals(LatLng(latitude = 0.98765, longitude = 0.43210), zone.point)
             assertNotEquals(oldTimestamp, zone.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
     }
 
     @Test
@@ -163,6 +171,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             )
             assertNotEquals(oldTimestamp, zone.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
     }
 
     @Test
@@ -192,6 +202,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
             assertNull(zone.point)
             assertNotEquals(oldTimestamp, zone.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
     }
 
     @Test
@@ -246,6 +258,8 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
                 assertEquals(localHash, serverHash)
             }
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
     }
 
     @Test
@@ -300,5 +314,7 @@ class TestPatchZoneEndpoint: ApplicationTestBase() {
                 assertEquals(localHash, serverHash)
             }
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
     }
 }

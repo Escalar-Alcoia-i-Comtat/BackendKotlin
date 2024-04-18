@@ -1,14 +1,17 @@
 package server.endpoints.delete
 
 import ServerDatabase
+import database.EntityTypes
 import database.entity.Blocking
 import database.entity.Path
 import database.entity.info.LastUpdate
 import database.table.BlockingTable
+import distribution.Notifier
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
+import java.io.File
 import localization.Localization
 import server.endpoints.SecureEndpointBase
 import server.error.Errors
@@ -25,16 +28,24 @@ object DeletePathEndpoint : SecureEndpointBase("/path/{pathId}") {
         // All blocks must be deleted before removing the path
         ServerDatabase.instance.query {
             val blocks = Blocking.find { BlockingTable.path eq path.id }
-            blocks.forEach { it.delete() }
+            blocks.forEach {
+                it.delete()
+                Notifier.getInstance().notifyDeleted(EntityTypes.BLOCKING, it.id.value)
+            }
         }
 
         // Delete the path's description from Crowdin if any
         Localization.deletePathDescription(path)
 
+        // Delete the path's images if any
+        path.images?.forEach(File::delete)
+
         // Now remove the path
         ServerDatabase.instance.query { path.delete() }
 
         ServerDatabase.instance.query { LastUpdate.set() }
+
+        Notifier.getInstance().notifyDeleted(EntityTypes.PATH, pathId)
 
         respondSuccess()
     }

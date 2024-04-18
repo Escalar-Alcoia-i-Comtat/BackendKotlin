@@ -1,8 +1,10 @@
 package server.endpoints.delete
 
 import ServerDatabase
+import database.EntityTypes
 import database.entity.Area
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
@@ -23,6 +25,8 @@ object DeleteAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
         area.image.delete()
 
         ServerDatabase.instance.query { LastUpdate.set() }
+
+        Notifier.getInstance().notifyDeleted(EntityTypes.AREA, areaId)
 
         respondSuccess()
     }

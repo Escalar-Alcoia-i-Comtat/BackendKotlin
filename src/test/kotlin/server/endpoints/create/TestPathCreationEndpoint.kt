@@ -2,9 +2,11 @@ package server.endpoints.create
 
 import ServerDatabase
 import assertions.assertFailure
+import database.EntityTypes
 import database.entity.Path
 import database.entity.info.LastUpdate
 import database.table.Paths
+import distribution.Notifier
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -67,6 +69,8 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
 
             assertNotEquals(LastUpdate.get(), lastUpdate)
         }
+
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.PATH, pathId)
     }
 
     @Test
@@ -93,6 +97,8 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
             assertEquals(1, images.size)
             assertTrue(images[0].exists())
         }
+
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.PATH, pathId)
     }
 
     @Test
@@ -123,6 +129,8 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
             assertTrue(images[0].exists())
             assertTrue(images[1].exists())
         }
+
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.PATH, pathId)
     }
 
     @Test
@@ -138,6 +146,8 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
             assertFailure(Errors.MissingData)
             null
         }
+
+        assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.PATH)
     }
 
     @Test
@@ -146,6 +156,8 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
             assertFailure(Errors.ParentNotFound)
             null
         }
+
+        assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.PATH)
     }
 
     @Test
@@ -162,5 +174,7 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
             assertFailure(Errors.TooManyImages)
             null
         }
+
+        assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.PATH)
     }
 }

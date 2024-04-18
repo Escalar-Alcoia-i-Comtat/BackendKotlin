@@ -1,8 +1,10 @@
 package server.endpoints.create
 
 import ServerDatabase
+import database.EntityTypes
 import database.entity.Area
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -63,6 +65,8 @@ object NewAreaEndpoint : SecureEndpointBase("/area") {
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
+
+        Notifier.getInstance().notifyCreated(EntityTypes.AREA, area["id"] as Int)
 
         respondSuccess(
             jsonOf("element" to area),

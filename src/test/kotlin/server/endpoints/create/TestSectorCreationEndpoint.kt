@@ -2,8 +2,10 @@ package server.endpoints.create
 
 import ServerDatabase
 import assertions.assertFailure
+import database.EntityTypes
 import database.entity.Sector
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -46,6 +48,8 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
 
             assertNotEquals(LastUpdate.get(), lastUpdate)
         }
+
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -78,6 +82,8 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
 
             assertNotEquals(LastUpdate.get(), lastUpdate)
         }
+
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -86,22 +92,27 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
         val zoneId = DataProvider.provideSampleZone(areaId)
         DataProvider.provideSampleSector(null) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
         }
         DataProvider.provideSampleSector(zoneId, skipDisplayName = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
         }
         DataProvider.provideSampleSector(zoneId, skipImage = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
         }
         DataProvider.provideSampleSector(zoneId, skipKidsApt = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
         }
         DataProvider.provideSampleSector(areaId, skipSunTime = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
         }
     }
@@ -110,6 +121,7 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
     fun `test sector creation - invalid zone id`() = test {
         DataProvider.provideSampleSector(123) {
             assertFailure(Errors.ParentNotFound)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
         }
     }
