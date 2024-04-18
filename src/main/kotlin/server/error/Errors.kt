@@ -16,6 +16,7 @@ object Errors {
     val MissingData = Error(10, "The request misses some required data.", HttpStatusCode.BadRequest)
     val InvalidData = Error(11, "The request has some data of the wrong type.", HttpStatusCode.BadRequest)
     val TooManyImages = Error(12, "Too many images added. Maximum: ${Paths.MAX_IMAGES}", HttpStatusCode.BadRequest)
+    val InvalidFileType = Error(13, "The request has a file of the wrong type.", HttpStatusCode.BadRequest)
 
     val Conflict = Error(20, "Multiple parameters in the request conflict.", HttpStatusCode.Conflict)
 
