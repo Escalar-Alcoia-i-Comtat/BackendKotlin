@@ -8,17 +8,12 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
 import database.EntityTypes
 import java.io.File
-import org.jetbrains.annotations.VisibleForTesting
 import system.EnvironmentVariables
 
 /**
  * Uses FCM to notify all devices of updates to the database.
  */
-object DeviceNotifier {
-    private const val TOPIC_CREATED = "created"
-    private const val TOPIC_UPDATED = "updated"
-    private const val TOPIC_DELETED = "deleted"
-
+internal object FCMNotifier : Notifier {
     private const val DATA_TYPE = "type"
     private const val DATA_ID = "id"
 
@@ -26,7 +21,7 @@ object DeviceNotifier {
 
     private val fcm: FirebaseMessaging by lazy { FirebaseMessaging.getInstance(app) }
 
-    fun initialize() {
+    override fun initialize() {
         val saf = EnvironmentVariables.Services.GoogleCredentials.ServiceAccountFile
         if (!saf.isSet) {
             Logger.info("Google service account file not set. Device notifications will not be sent.")
@@ -45,8 +40,11 @@ object DeviceNotifier {
         Logger.info("Firebase initialized. Device notifications will be sent.")
     }
 
-    @VisibleForTesting
-    var notify: (topic: String, type: EntityTypes, id: Int) -> Unit = { topic, type, id ->
+    /**
+     * Sends a notification through FCM to all devices subscribed to the given topic.
+     * This method is only visible for internal calls or testing purposes.
+     */
+    override fun notify(topic: String, type: EntityTypes, id: Int) {
         // Run only if the app is initialized
         if (this::app.isInitialized) {
             val message = Message.builder()
@@ -57,34 +55,4 @@ object DeviceNotifier {
             fcm.send(message)
         }
     }
-
-    /**
-     * Notifies all devices that a new entity has been created.
-     *
-     * If [initialize] has not been called, or if the service account file is not set, this method will do nothing.
-     *
-     * @param type The type of entity that was created.
-     * @param id The ID of the entity that was created.
-     */
-    fun notifyCreated(type: EntityTypes, id: Int) = notify(TOPIC_CREATED, type, id)
-
-    /**
-     * Notifies all devices that an entity has been updated.
-     *
-     * If [initialize] has not been called, or if the service account file is not set, this method will do nothing.
-     *
-     * @param type The type of entity that was created.
-     * @param id The ID of the entity that was created.
-     */
-    fun notifyUpdated(type: EntityTypes, id: Int) = notify(TOPIC_UPDATED, type, id)
-
-    /**
-     * Notifies all devices that an entity has been deleted.
-     *
-     * If [initialize] has not been called, or if the service account file is not set, this method will do nothing.
-     *
-     * @param type The type of entity that was created.
-     * @param id The ID of the entity that was created.
-     */
-    fun notifyDeleted(type: EntityTypes, id: Int) = notify(TOPIC_DELETED, type, id)
 }
