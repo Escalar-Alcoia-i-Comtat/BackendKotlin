@@ -60,7 +60,10 @@ object EnvironmentVariables {
             /**
              * The path to the service account file for Google Cloud services.
              */
-            data object ServiceAccountFile : EnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")
+            data object ServiceAccountFile : EnvironmentVariable(
+                "GOOGLE_APPLICATION_CREDENTIALS",
+                "/var/lib/escalaralcoiaicomtat/google-services.json"
+            )
         }
     }
 
