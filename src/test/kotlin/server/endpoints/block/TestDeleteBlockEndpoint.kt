@@ -3,9 +3,11 @@ package server.endpoints.block
 import ServerDatabase
 import assertions.assertSuccess
 import data.BlockingTypes
+import database.EntityTypes
 import database.entity.Blocking
 import database.entity.info.LastUpdate
 import database.table.BlockingTable
+import distribution.Notifier
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
@@ -36,8 +38,9 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
 
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
+        var blockId: Int? = null
         val block = ServerDatabase.instance.query {
-            Blocking.find { BlockingTable.path eq pathId }.firstOrNull()
+            Blocking.find { BlockingTable.path eq pathId }.firstOrNull()?.also { blockId = it.path.id.value }
         }
         assertNotNull(block)
 
@@ -52,5 +55,8 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
         }
 
         ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
+
+        assertNotNull(blockId)
+        assertNotificationSent(Notifier.TOPIC_DELETED, EntityTypes.BLOCKING, blockId!!)
     }
 }
