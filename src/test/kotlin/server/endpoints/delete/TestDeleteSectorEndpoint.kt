@@ -3,8 +3,10 @@ package server.endpoints.delete
 import ServerDatabase
 import assertions.assertFailure
 import assertions.assertSuccess
+import database.EntityTypes
 import database.entity.Sector
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -52,5 +54,17 @@ class TestDeleteSectorEndpoint: ApplicationTestBase() {
         }.apply {
             assertFailure(Errors.ObjectNotFound)
         }
+
+        assertNotificationSent(Notifier.TOPIC_DELETED, EntityTypes.SECTOR, sectorId)
+    }
+
+    @Test
+    fun `test deleting non existing Sector`() = test {
+        client.delete("/sector/123") {
+            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
+        }.apply {
+            assertFailure(Errors.ObjectNotFound)
+        }
+        assertNotificationNotSent(Notifier.TOPIC_DELETED, EntityTypes.SECTOR)
     }
 }
