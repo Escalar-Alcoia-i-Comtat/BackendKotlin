@@ -8,86 +8,21 @@ import data.PitchInfo
 import data.SportsGrade
 import database.EntityTypes
 import database.entity.Path
-import database.entity.info.LastUpdate
-import distribution.Notifier
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlin.test.Test
-import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import org.json.JSONArray
 import server.DataProvider
 import server.base.ApplicationTestBase
-import utils.serialization.JsonSerializable
-import utils.toJson
+import server.base.PropertyValuePair
+import server.base.testPatching
 
 class TestPatchPathEndpoint : ApplicationTestBase() {
-    data class PropertyValuePair<T>(val propertyName: String, val newValue: T, val propertyValue: (Path) -> T)
-
-    private fun <T> patchProperty(propertyName: String, newValue: T, propertyValue: (Path) -> T) =
-        patchProperty(PropertyValuePair(propertyName, newValue, propertyValue))
-
-    private fun <T> patchProperty(vararg pairs: PropertyValuePair<T>) = test {
-        val areaId = DataProvider.provideSampleArea()
-        assertNotNull(areaId)
-
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        assertNotNull(zoneId)
-
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        assertNotNull(sectorId)
-
-        val pathId = DataProvider.provideSamplePath(sectorId)
-        assertNotNull(pathId)
-
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
-        val oldTimestamp = ServerDatabase.instance.query { Path[sectorId].timestamp }
-
-        client.submitFormWithBinaryData(
-            url = "/path/$sectorId",
-            formData = formData {
-                for ((propertyName, newValue) in pairs) {
-                    when (newValue) {
-                        is JsonSerializable -> append(propertyName, newValue.toJson().toString())
-                        is Number -> append(propertyName, newValue)
-                        is Iterable<*> -> if (newValue.firstOrNull() is JsonSerializable)
-                            @Suppress("UNCHECKED_CAST")
-                            append(propertyName, (newValue as Iterable<JsonSerializable>).toJson().toString())
-                        else
-                            append(propertyName, JSONArray().toString())
-
-                        else -> append(propertyName, newValue.toString())
-                    }
-                }
-            }
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
-
-        ServerDatabase.instance.query {
-            val path = Path[pathId]
-            assertNotNull(path)
-            for ((_, newValue, propertyValue) in pairs) {
-                if (newValue is Iterable<*>)
-                    assertContentEquals(newValue, path.let(propertyValue) as Iterable<Any?>)
-                else
-                    assertEquals(newValue, path.let(propertyValue))
-            }
-            assertNotEquals(oldTimestamp, path.timestamp)
-        }
-
-        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.PATH, pathId)
-    }
 
     private fun <T> removeProperty(propertyName: String, propertyValue: (Path) -> T) = test {
         val areaId = DataProvider.provideSampleArea()
@@ -122,98 +57,101 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Path - update display name`() =
-        patchProperty("displayName", "New displayName") { it.displayName }
+        testPatching(EntityTypes.PATH, "displayName", "New displayName") { it.displayName }
 
     @Test
     fun `test patching Path - update sketchId`() =
-        patchProperty("sketchId", 10U) { it.sketchId }
+        testPatching(EntityTypes.PATH, "sketchId", 10U) { it.sketchId }
 
     @Test
     fun `test patching Path - update height`() =
-        patchProperty("height", 100U) { it.height }
+        testPatching(EntityTypes.PATH, "height", 100U) { it.height }
 
     @Test
     fun `test patching Path - update grade`() =
-        patchProperty("grade", SportsGrade.G7C) { it.grade }
+        testPatching(EntityTypes.PATH, "grade", SportsGrade.G7C) { it.grade }
 
     @Test
     fun `test patching Path - update ending`() =
-        patchProperty("ending", Ending.NONE) { it.ending }
+        testPatching(EntityTypes.PATH, "ending", Ending.NONE) { it.ending }
 
     @Test
     fun `test patching Path - update pitches`() =
-        patchProperty("pitches", listOf(PitchInfo(1U))) { it.pitches }
+        testPatching(EntityTypes.PATH, "pitches", listOf(PitchInfo(1U))) { it.pitches }
 
     @Test
     fun `test patching Path - update pitches and gradle`() =
-        patchProperty(
-            PropertyValuePair("pitches", listOf(PitchInfo(1U))) { it.pitches },
-            PropertyValuePair("grade", SportsGrade.G7C) { it.grade }
+        testPatching(
+            EntityTypes.PATH,
+            listOf(
+                PropertyValuePair("pitches", listOf(PitchInfo(1U))) { it.pitches },
+                PropertyValuePair("grade", SportsGrade.G7C) { it.grade }
+            )
         )
 
     @Test
     fun `test patching Path - update stringCount`() =
-        patchProperty("stringCount", 456U) { it.stringCount }
+        testPatching(EntityTypes.PATH, "stringCount", 456U) { it.stringCount }
 
     @Test
     fun `test patching Path - update paraboltCount`() =
-        patchProperty("paraboltCount", 456U) { it.paraboltCount }
+        testPatching(EntityTypes.PATH, "paraboltCount", 456U) { it.paraboltCount }
 
     @Test
     fun `test patching Path - update burilCount`() =
-        patchProperty("burilCount", 456U) { it.burilCount }
+        testPatching(EntityTypes.PATH, "burilCount", 456U) { it.burilCount }
 
     @Test
     fun `test patching Path - update pitonCount`() =
-        patchProperty("pitonCount", 456U) { it.pitonCount }
+        testPatching(EntityTypes.PATH, "pitonCount", 456U) { it.pitonCount }
 
     @Test
     fun `test patching Path - update spitCount`() =
-        patchProperty("spitCount", 456U) { it.spitCount }
+        testPatching(EntityTypes.PATH, "spitCount", 456U) { it.spitCount }
 
     @Test
     fun `test patching Path - update tensorCount`() =
-        patchProperty("tensorCount", 456U) { it.tensorCount }
+        testPatching(EntityTypes.PATH, "tensorCount", 456U) { it.tensorCount }
 
     @Test
     fun `test patching Path - update crackerRequired`() =
-        patchProperty("crackerRequired", false) { it.crackerRequired }
+        testPatching(EntityTypes.PATH, "crackerRequired", false) { it.crackerRequired }
 
     @Test
     fun `test patching Path - update friendRequired`() =
-        patchProperty("friendRequired", true) { it.friendRequired }
+        testPatching(EntityTypes.PATH, "friendRequired", true) { it.friendRequired }
 
     @Test
     fun `test patching Path - update lanyardRequired`() =
-        patchProperty("lanyardRequired", false) { it.lanyardRequired }
+        testPatching(EntityTypes.PATH, "lanyardRequired", false) { it.lanyardRequired }
 
     @Test
     fun `test patching Path - update nailRequired`() =
-        patchProperty("nailRequired", false) { it.nailRequired }
+        testPatching(EntityTypes.PATH, "nailRequired", false) { it.nailRequired }
 
     @Test
     fun `test patching Path - update pitonRequired`() =
-        patchProperty("pitonRequired", true) { it.pitonRequired }
+        testPatching(EntityTypes.PATH, "pitonRequired", true) { it.pitonRequired }
 
     @Test
     fun `test patching Path - update stapesRequired`() =
-        patchProperty("stapesRequired", false) { it.stapesRequired }
+        testPatching(EntityTypes.PATH, "stapesRequired", false) { it.stapesRequired }
 
     @Test
     fun `test patching Path - update showDescription`() =
-        patchProperty("showDescription", false) { it.showDescription }
+        testPatching(EntityTypes.PATH, "showDescription", false) { it.showDescription }
 
     @Test
     fun `test patching Path - update description`() =
-        patchProperty("description", "new description") { it.description }
+        testPatching(EntityTypes.PATH, "description", "new description") { it.description }
 
     @Test
     fun `test patching Path - update builder`() =
-        patchProperty("builder", Builder("new name", "new date")) { it.builder }
+        testPatching(EntityTypes.PATH, "builder", Builder("new name", "new date")) { it.builder }
 
     @Test
     fun `test patching Path - update reBuilder`() =
-        patchProperty("reBuilder", listOf(Builder("new name", "new date"))) { it.reBuilder }
+        testPatching(EntityTypes.PATH, "reBuilder", listOf(Builder("new name", "new date"))) { it.reBuilder }
 
     @Test
     fun `test patching Path - remove height`() = removeProperty("height") { it.height }

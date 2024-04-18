@@ -22,14 +22,15 @@ import java.security.MessageDigest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import org.json.JSONArray
 import server.DataProvider
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import storage.HashUtils
 import storage.MessageDigestAlgorithm
 import storage.Storage
 import utils.serialization.JsonSerializable
+import utils.toJson
 
 context(ApplicationTestBuilder)
 suspend fun EntityTypes<*>.provide(): Int? {
@@ -79,11 +80,22 @@ fun <Type: BaseEntity> EntityTypes<Type>.getter(id: Int): Type {
     }
 }
 
-fun <Type: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
-    type: EntityTypes<Type>,
+class PropertyValuePair<EntityType: BaseEntity, ValueType: Any>(
+    val propertyName: String,
+    val newValue: ValueType?,
+    val propertyValue: (EntityType) -> ValueType?
+)
+
+fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
+    type: EntityTypes<EntityType>,
     propertyName: String,
     propertyValue: PropertyType?,
-    propertyAccessor: (Type) -> PropertyType?
+    propertyAccessor: (EntityType) -> PropertyType?
+) = testPatching(type, listOf(PropertyValuePair(propertyName, propertyValue, propertyAccessor)))
+
+fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
+    type: EntityTypes<EntityType>,
+    properties: List<PropertyValuePair<EntityType, PropertyType>>
 ) = test {
     val elementId = type.provide()
     assertNotNull(elementId)
@@ -94,14 +106,23 @@ fun <Type: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
     client.submitFormWithBinaryData(
         url = "/${type.urlName}/$elementId",
         formData = formData {
-            val valueString = propertyValue?.let {
-                when (it) {
-                    is Enum<*> -> it.name
-                    is JsonSerializable -> it.toJson().toString()
-                    else -> it.toString()
+            for (property in properties) {
+                val newValue = property.newValue
+                val propertyName = property.propertyName
+
+                when (newValue) {
+                    null -> append(propertyName, "\u0000")
+                    is JsonSerializable -> append(propertyName, newValue.toJson().toString())
+                    is Number -> append(propertyName, newValue)
+                    is Iterable<*> -> if (newValue.firstOrNull() is JsonSerializable)
+                        @Suppress("UNCHECKED_CAST")
+                        append(propertyName, (newValue as Iterable<JsonSerializable>).toJson().toString())
+                    else
+                        append(propertyName, JSONArray().toString())
+
+                    else -> append(propertyName, newValue.toString())
                 }
-            } ?: "\u0000"
-            append(propertyName, valueString)
+            }
         }
     ) {
         header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
@@ -112,12 +133,11 @@ fun <Type: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
     ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
 
     ServerDatabase.instance.query {
-        val element: Type = type.getter(elementId)
+        val element: EntityType = type.getter(elementId)
         assertNotNull(element)
-        val value = propertyAccessor(element)
-        if (propertyValue == null) {
-            assertNull(value)
-        } else {
+        for (property in properties) {
+            val propertyValue = property.propertyValue(element)
+            val value = property.propertyValue(element)
             assertEquals(propertyValue, value)
         }
         assertNotEquals(oldTimestamp, element.timestamp)

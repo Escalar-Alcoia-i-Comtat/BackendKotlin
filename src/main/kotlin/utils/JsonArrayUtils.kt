@@ -13,7 +13,7 @@ import utils.serialization.JsonSerializer
  *
  * @return The parsed JSON array represented as a JSONArray object.
  */
-val String.jsonArray: JSONArray get() = JSONArray(this)
+val String.jsonArray: JSONArray get() = if (this == "\u0000") JSONArray() else JSONArray(this)
 
 /**
  * Converts an Iterable of JsonSerializable objects to a JSONArray.

@@ -1,320 +1,72 @@
 package server.endpoints.patch
 
-import ServerDatabase
-import assertions.assertSuccess
-import data.DataPoint
-import data.LatLng
 import database.EntityTypes
-import database.entity.Zone
-import database.entity.info.LastUpdate
-import distribution.Notifier
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.forms.submitFormWithBinaryData
-import io.ktor.client.request.header
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
-import java.security.MessageDigest
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
-import storage.HashUtils
-import storage.MessageDigestAlgorithm
+import server.base.testPatching
+import server.base.testPatchingFile
 import storage.Storage
-import utils.toJson
+import utils.FileExtensions
+import utils.MimeTypes
 
 class TestPatchZoneEndpoint: ApplicationTestBase() {
     @Test
-    fun `test patching Zone - update display name`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        assertNotNull(areaId)
-
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        assertNotNull(zoneId)
-
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
-        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
-
-        client.submitFormWithBinaryData(
-            url = "/zone/$zoneId",
-            formData = formData {
-                append("displayName", "New Display Name")
-            }
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
-
-        ServerDatabase.instance.query {
-            val zone = Zone[zoneId]
-            assertNotNull(zone)
-            assertEquals("New Display Name", zone.displayName)
-            assertNotEquals(oldTimestamp, zone.timestamp)
-        }
-
-        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
-    }
+    fun `test patching Zone - update display name`() = testPatching(
+        EntityTypes.ZONE,
+        "displayName",
+        "New Display Name"
+    ) { it.displayName }
 
     @Test
-    fun `test patching Zone - update web url`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        assertNotNull(areaId)
-
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        assertNotNull(zoneId)
-
-        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
-
-        client.submitFormWithBinaryData(
-            url = "/zone/$zoneId",
-            formData = formData {
-                append("webUrl", "https://example.com/new")
-            }
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        ServerDatabase.instance.query {
-            val zone = Zone[zoneId]
-            assertNotNull(zone)
-            assertEquals("https://example.com/new", zone.webUrl.toString())
-            assertNotEquals(oldTimestamp, zone.timestamp)
-        }
-
-        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
-    }
+    fun `test patching Zone - update web url`() = testPatching(
+        EntityTypes.ZONE,
+        "webUrl",
+        "https://example.com/new"
+    ) { it.webUrl.toString() }
 
     @Test
-    fun `test patching Zone - update point`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        assertNotNull(areaId)
-
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        assertNotNull(zoneId)
-
-        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
-
-        client.submitFormWithBinaryData(
-            url = "/zone/$zoneId",
-            formData = formData {
-                append(
-                    "point",
-                    DataProvider.SampleZone
-                        .point
-                        .copy(latitude = 0.98765, longitude = 0.43210)
-                        .toJson()
-                        .toString()
-                )
-            }
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        ServerDatabase.instance.query {
-            val zone = Zone[zoneId]
-            assertNotNull(zone)
-            assertEquals(LatLng(latitude = 0.98765, longitude = 0.43210), zone.point)
-            assertNotEquals(oldTimestamp, zone.timestamp)
-        }
-
-        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
-    }
+    fun `test patching Zone - update point`() = testPatching(
+        EntityTypes.ZONE,
+        "point",
+        DataProvider.SampleZone
+            .point
+            .copy(latitude = 0.98765, longitude = 0.43210)
+    ) { it.point }
 
     @Test
-    fun `test patching Zone - update points`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        assertNotNull(areaId)
-
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        assertNotNull(zoneId)
-
-        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
-
-        client.submitFormWithBinaryData(
-            url = "/zone/$zoneId",
-            formData = formData {
-                append(
-                    "points",
-                    DataProvider.SampleZone
-                        .points
-                        .toMutableSet()
-                        .apply { remove(first()) }
-                        .toJson()
-                        .also { println("New points: $it") }
-                        .toString()
-                )
-            }
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        ServerDatabase.instance.query {
-            val zone = Zone[zoneId]
-            assertNotNull(zone)
-            assertEquals(1, zone.points.size)
-            assertEquals(
-                DataPoint(LatLng(0.12345, 0.67890), "Label 2", "testing-icon"),
-                zone.points.first()
-            )
-            assertNotEquals(oldTimestamp, zone.timestamp)
-        }
-
-        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
-    }
+    fun `test patching Zone - update points`() = testPatching(
+        EntityTypes.ZONE,
+        "points",
+        null
+    ) { it.points }
 
     @Test
-    fun `test patching Zone - remove point`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        assertNotNull(areaId)
-
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        assertNotNull(zoneId)
-
-        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
-
-        client.submitFormWithBinaryData(
-            url = "/zone/$zoneId",
-            formData = formData {
-                append("point", "\u0000")
-            }
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        ServerDatabase.instance.query {
-            val zone = Zone[zoneId]
-            assertNotNull(zone)
-            assertNull(zone.point)
-            assertNotEquals(oldTimestamp, zone.timestamp)
-        }
-
-        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
-    }
+    fun `test patching Zone - remove point`() = testPatching(
+        EntityTypes.ZONE,
+        "point",
+        DataProvider.SampleZone
+            .point
+            .copy(latitude = 0.98765, longitude = 0.43210)
+    ) { it.point }
 
     @Test
-    fun `test patching Zone - update image`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        assertNotNull(areaId)
-
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        assertNotNull(zoneId)
-
-        val image = this::class.java.getResourceAsStream("/images/cocentaina.jpg")!!.use {
-            it.readBytes()
-        }
-
-        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
-
-        client.submitFormWithBinaryData(
-            url = "/zone/$zoneId",
-            formData = formData {
-                append("image", image, Headers.build {
-                    append(HttpHeaders.ContentType, "image/jpeg")
-                    append(HttpHeaders.ContentDisposition, "filename=zone.jpg")
-                })
-            }
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        var zoneImage: String? = null
-
-        ServerDatabase.instance.query {
-            val zone = Zone[zoneId]
-            assertNotNull(zone)
-
-            val imageFile = zone.image
-            zoneImage = imageFile.toRelativeString(Storage.ImagesDir)
-            assertTrue(imageFile.exists())
-
-            assertNotEquals(oldTimestamp, zone.timestamp)
-        }
-
-        get("/file/$zoneImage").apply {
-            assertSuccess { data ->
-                assertNotNull(data)
-                val serverHash = data.getString("hash")
-                val localHash = HashUtils.getCheckSumFromStream(
-                    MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256),
-                    this::class.java.getResourceAsStream("/images/cocentaina.jpg")!!
-                )
-                assertEquals(localHash, serverHash)
-            }
-        }
-
-        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
-    }
+    fun `test patching Zone - update image`() = testPatchingFile(
+        EntityTypes.ZONE,
+        "image",
+        MimeTypes.JPEG,
+        FileExtensions.JPEG,
+        "/images/cocentaina.jpg",
+        Storage.ImagesDir
+    ) { it.image }
 
     @Test
-    fun `test patching Zone - update track`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        assertNotNull(areaId)
-
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        assertNotNull(zoneId)
-
-        val track = this::class.java.getResourceAsStream("/tracks/balconet.kmz")!!.use {
-            it.readBytes()
-        }
-
-        val oldTimestamp = ServerDatabase.instance.query { Zone[zoneId].timestamp }
-
-        client.submitFormWithBinaryData(
-            url = "/zone/$zoneId",
-            formData = formData {
-                append("kmz", track, Headers.build {
-                    append(HttpHeaders.ContentType, "application/vnd")
-                    append(HttpHeaders.ContentDisposition, "filename=track.kmz")
-                })
-            }
-        ) {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        var zoneTrack: String? = null
-
-        ServerDatabase.instance.query {
-            val zone = Zone[zoneId]
-            assertNotNull(zone)
-
-            val trackFile = zone.kmz
-            zoneTrack = trackFile.toRelativeString(Storage.TracksDir)
-            assertTrue(trackFile.exists())
-
-            assertNotEquals(oldTimestamp, zone.timestamp)
-        }
-
-        get("/file/$zoneTrack").apply {
-            assertSuccess { data ->
-                assertNotNull(data)
-                val serverHash = data.getString("hash")
-                val localHash = HashUtils.getCheckSumFromStream(
-                    MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256),
-                    this::class.java.getResourceAsStream("/tracks/balconet.kmz")!!
-                )
-                assertEquals(localHash, serverHash)
-            }
-        }
-
-        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.ZONE, zoneId)
-    }
+    fun `test patching Zone - update track`() = testPatchingFile(
+        EntityTypes.ZONE,
+        "kmz",
+        MimeTypes.KMZ,
+        FileExtensions.KMZ,
+        "/tracks/balconet.kmz",
+        Storage.TracksDir
+    ) { it.kmz }
 }
