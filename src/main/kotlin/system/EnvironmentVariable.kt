@@ -13,10 +13,4 @@ sealed class EnvironmentVariable(
         set(value) { _value = value }
 
     val isSet: Boolean get() = _value != null
-
-    /**
-     * Gets the value of the environment variable.
-     * @throws NullPointerException if the value is not set.
-     */
-    fun getValue(): String = value!!
 }

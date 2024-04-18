@@ -10,7 +10,7 @@ import utils.jsonOf
 
 object ServerInfoEndpoint: EndpointBase("/info") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
-        val uuid = EnvironmentVariables.Environment.ServerUUID.getValue()
+        val uuid = EnvironmentVariables.Environment.ServerUUID.value!!
         val version = Package.getVersion()
 
         respondSuccess(
