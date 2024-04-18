@@ -2,8 +2,10 @@ package server.endpoints.create
 
 import ServerDatabase
 import assertions.assertFailure
+import database.EntityTypes
 import database.entity.Area
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import java.net.URL
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -33,20 +35,25 @@ class TestAreaCreationEndpoint: ApplicationTestBase() {
 
             assertNotEquals(LastUpdate.get(), lastUpdate)
         }
+
+        assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.AREA, areaId)
     }
 
     @Test
     fun `test area creation - missing arguments`() = test {
         DataProvider.provideSampleArea(skipDisplayName = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
             null
         }
         DataProvider.provideSampleArea(skipWebUrl = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
             null
         }
         DataProvider.provideSampleArea(skipImage = true) {
             assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
             null
         }
     }
