@@ -3,8 +3,10 @@ package server.endpoints.patch
 import ServerDatabase
 import assertions.assertSuccess
 import data.LatLng
+import database.EntityTypes
 import database.entity.Sector
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
@@ -60,6 +62,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
             assertEquals("New Display Name", sector.displayName)
             assertNotEquals(oldTimestamp, sector.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -92,6 +96,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
             assertEquals(LatLng(0.456, 0.789), sector.point)
             assertNotEquals(oldTimestamp, sector.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -124,6 +130,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
             assertEquals(false, sector.kidsApt)
             assertNotEquals(oldTimestamp, sector.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -156,6 +164,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
             assertEquals(Sector.SunTime.Morning, sector.sunTime)
             assertNotEquals(oldTimestamp, sector.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -188,6 +198,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
             assertEquals(9510U, sector.walkingTime)
             assertNotEquals(oldTimestamp, sector.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -220,6 +232,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
             assertEquals("0123", sector.weight)
             assertNotEquals(oldTimestamp, sector.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -277,6 +291,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
                 assertEquals(localHash, serverHash)
             }
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -345,6 +361,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
             }
             assertContentEquals(localBytes, remoteBytes)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -378,6 +396,8 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
 
             assertNotEquals(oldTimestamp, sector.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 
     @Test
@@ -411,5 +431,7 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
 
             assertNotEquals(oldTimestamp, sector.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.SECTOR, sectorId)
     }
 }

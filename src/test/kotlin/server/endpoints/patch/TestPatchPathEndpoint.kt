@@ -6,8 +6,10 @@ import data.Builder
 import data.Ending
 import data.PitchInfo
 import data.SportsGrade
+import database.EntityTypes
 import database.entity.Path
 import database.entity.info.LastUpdate
+import distribution.Notifier
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
@@ -83,6 +85,8 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
             }
             assertNotEquals(oldTimestamp, path.timestamp)
         }
+
+        assertNotificationSent(Notifier.TOPIC_UPDATED, EntityTypes.PATH, pathId)
     }
 
     private fun <T> removeProperty(propertyName: String, propertyValue: (Path) -> T) = test {
