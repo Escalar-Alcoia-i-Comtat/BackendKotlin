@@ -44,7 +44,7 @@ internal object FCMNotifier : Notifier {
      * Sends a notification through FCM to all devices subscribed to the given topic.
      * This method is only visible for internal calls or testing purposes.
      */
-    override fun notify(topic: String, type: EntityTypes, id: Int) {
+    override fun notify(topic: String, type: EntityTypes<*>, id: Int) {
         // Run only if the app is initialized
         if (this::app.isInitialized) {
             val message = Message.builder()

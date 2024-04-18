@@ -26,7 +26,7 @@ interface Notifier {
      * @param type The type of entity that was created, updated, or deleted.
      * @param id The ID of the entity that was created, updated, or deleted.
      */
-    fun notify(topic: String, type: EntityTypes, id: Int)
+    fun notify(topic: String, type: EntityTypes<*>, id: Int)
 
     /**
      * Notifies all devices that a new entity has been created.
@@ -36,7 +36,7 @@ interface Notifier {
      * @param type The type of entity that was created.
      * @param id The ID of the entity that was created.
      */
-    fun notifyCreated(type: EntityTypes, id: Int) = notify(TOPIC_CREATED, type, id)
+    fun notifyCreated(type: EntityTypes<*>, id: Int) = notify(TOPIC_CREATED, type, id)
 
     /**
      * Notifies all devices that an entity has been updated.
@@ -46,7 +46,7 @@ interface Notifier {
      * @param type The type of entity that was created.
      * @param id The ID of the entity that was created.
      */
-    fun notifyUpdated(type: EntityTypes, id: Int) = notify(TOPIC_UPDATED, type, id)
+    fun notifyUpdated(type: EntityTypes<*>, id: Int) = notify(TOPIC_UPDATED, type, id)
 
     /**
      * Notifies all devices that an entity has been deleted.
@@ -56,5 +56,5 @@ interface Notifier {
      * @param type The type of entity that was created.
      * @param id The ID of the entity that was created.
      */
-    fun notifyDeleted(type: EntityTypes, id: Int) = notify(TOPIC_DELETED, type, id)
+    fun notifyDeleted(type: EntityTypes<*>, id: Int) = notify(TOPIC_DELETED, type, id)
 }

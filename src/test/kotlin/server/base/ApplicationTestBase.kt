@@ -35,7 +35,7 @@ abstract class ApplicationTestBase {
     object DeviceNotifier : Notifier {
         class Notification(
             val topic: String,
-            val type: EntityTypes,
+            val type: EntityTypes<*>,
             val id: Int
         )
 
@@ -43,7 +43,7 @@ abstract class ApplicationTestBase {
 
         override fun initialize() { /* Nothing to do */ }
 
-        override fun notify(topic: String, type: EntityTypes, id: Int) {
+        override fun notify(topic: String, type: EntityTypes<*>, id: Int) {
             Logger.info("Received notification on topic $topic for entity $type with id $id.")
             notificationStack = notificationStack.toMutableList().plusElement(
                 Notification(topic, type, id)
@@ -58,7 +58,7 @@ abstract class ApplicationTestBase {
      * @param type The type of the entity that was notified.
      * @param id The id of the entity that was notified.
      */
-    fun assertNotificationSent(topic: String, type: EntityTypes, id: Int) {
+    fun assertNotificationSent(topic: String, type: EntityTypes<*>, id: Int) {
         var noti: DeviceNotifier.Notification? = null
         try {
             DeviceNotifier.notificationStack.find { notification ->
@@ -79,7 +79,7 @@ abstract class ApplicationTestBase {
     /**
      * Asserts that no notification was sent.
      */
-    fun assertNotificationNotSent(topic: String, type: EntityTypes) {
+    fun assertNotificationNotSent(topic: String, type: EntityTypes<*>) {
         var noti: DeviceNotifier.Notification? = null
         try {
             DeviceNotifier.notificationStack.find { notification ->
