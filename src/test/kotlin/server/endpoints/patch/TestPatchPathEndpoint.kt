@@ -19,7 +19,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import server.DataProvider
 import server.base.ApplicationTestBase
-import server.base.PropertyValuePair
+import server.base.patch.PropertyValuePair
 import server.base.testPatching
 
 class TestPatchPathEndpoint : ApplicationTestBase() {
