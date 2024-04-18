@@ -7,6 +7,7 @@ import database.entity.Sector
 import database.entity.Zone
 import database.entity.info.LastUpdate
 import distribution.Notifier
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -51,6 +52,10 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
         var imageFile: File? = null
         var gpxFile: File? = null
 
+        var deleteGpx = false
+
+        var invalidFile = false
+
         receiveMultipart(
             forEachFormItem = { partData ->
                 when (partData.name) {
@@ -83,18 +88,38 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                         imageFile = partData.save(Storage.ImagesDir, UUID.fromString(uuid))
                     }
                     "gpx" -> {
-                        val uuid = ServerDatabase.instance.query { sector.gpx?.nameWithoutExtension }
-                        gpxFile = partData.save(Storage.TracksDir, uuid?.let(UUID::fromString) ?: UUID.randomUUID())
+                        val contentType = partData.headers[HttpHeaders.ContentType]
+                        val contentSize = partData.headers[HttpHeaders.ContentLength]?.toIntOrNull()
+
+                        // Accept only content type application/gpx (includes application/gpx+xml)
+                        if (contentType?.startsWith("application/gpx") != true) {
+                            invalidFile = true
+                        } else {
+                            if (contentSize?.let { it <= 0 } == true) {
+                                // If the size is 0, delete the gpx file
+                                deleteGpx = true
+                            } else {
+                                val uuid = ServerDatabase.instance.query { sector.gpx?.nameWithoutExtension }
+                                gpxFile = partData.save(
+                                    rootDir = Storage.TracksDir,
+                                    uuid = uuid?.let(UUID::fromString) ?: UUID.randomUUID()
+                                )
+                            }
+                        }
                     }
                 }
             }
         )
 
+        if (invalidFile) return respondFailure(Errors.InvalidFileType)
+
         if (areAllNull(displayName, imageFile, gpxFile, kidsApt, point, sunTime, walkingTime, weight, zone) &&
-            areAllFalse(removePoint, removeWalkingTime)
+            areAllFalse(removePoint, removeWalkingTime, deleteGpx)
         ) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
+
+        if (deleteGpx) sector.gpx?.delete()
 
         val json = ServerDatabase.instance.query {
             displayName?.let { sector.displayName = it }
@@ -107,6 +132,8 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
             if (removePoint) sector.point = null
             if (removeWalkingTime) sector.walkingTime = null
+
+            if (deleteGpx) sector.gpx = null
 
             sector.timestamp = Instant.now()
 
