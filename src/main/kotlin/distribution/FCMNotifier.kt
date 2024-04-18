@@ -23,11 +23,12 @@ internal object FCMNotifier : Notifier {
 
     override fun initialize() {
         val saf = EnvironmentVariables.Services.GoogleCredentials.ServiceAccountFile
-        if (!saf.isSet) {
-            Logger.info("Google service account file not set. Device notifications will not be sent.")
+        val serviceAccountFile = File(saf.value!!)
+
+        if (!serviceAccountFile.exists()) {
+            Logger.info("Google service account file not found. Device notifications will not be sent.")
             return
         }
-        val serviceAccountFile = File(saf.value!!)
 
         Logger.debug("Initializing Firebase with service account file: $serviceAccountFile")
         val options = FirebaseOptions.builder()
