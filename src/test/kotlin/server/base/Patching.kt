@@ -3,12 +3,7 @@ package server.base
 import ServerDatabase
 import assertions.assertSuccess
 import database.EntityTypes
-import database.entity.Area
 import database.entity.BaseEntity
-import database.entity.Blocking
-import database.entity.Path
-import database.entity.Sector
-import database.entity.Zone
 import database.entity.info.LastUpdate
 import distribution.Notifier
 import io.ktor.client.request.forms.formData
@@ -16,7 +11,6 @@ import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
-import io.ktor.server.testing.ApplicationTestBuilder
 import java.io.File
 import java.security.MessageDigest
 import kotlin.test.assertEquals
@@ -24,67 +18,13 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.json.JSONArray
-import server.DataProvider
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
+import server.base.patch.PropertyValuePair
 import storage.HashUtils
 import storage.MessageDigestAlgorithm
 import storage.Storage
 import utils.serialization.JsonSerializable
 import utils.toJson
-
-context(ApplicationTestBuilder)
-suspend fun EntityTypes<*>.provide(): Int? {
-    when (this) {
-        EntityTypes.AREA -> {
-            return DataProvider.provideSampleArea()
-        }
-        EntityTypes.ZONE -> {
-            val areaId = DataProvider.provideSampleArea()
-            assertNotNull(areaId)
-            return DataProvider.provideSampleZone(areaId)
-        }
-        EntityTypes.SECTOR -> {
-            val areaId = DataProvider.provideSampleArea()
-            assertNotNull(areaId)
-
-            val zoneId = DataProvider.provideSampleZone(areaId)
-            assertNotNull(zoneId)
-
-            return DataProvider.provideSampleSector(zoneId)
-        }
-        EntityTypes.PATH -> {
-            val areaId = DataProvider.provideSampleArea()
-            assertNotNull(areaId)
-
-            val zoneId = DataProvider.provideSampleZone(areaId)
-            assertNotNull(zoneId)
-
-            val sectorId = DataProvider.provideSampleSector(zoneId)
-            assertNotNull(sectorId)
-
-            return DataProvider.provideSamplePath(sectorId)
-        }
-        else -> error("Not implemented")
-    }
-}
-
-@Suppress("UNCHECKED_CAST")
-fun <Type: BaseEntity> EntityTypes<Type>.getter(id: Int): Type {
-    return when (this) {
-        EntityTypes.AREA -> Area[id] as Type
-        EntityTypes.ZONE -> Zone[id] as Type
-        EntityTypes.SECTOR -> Sector[id] as Type
-        EntityTypes.PATH -> Path[id] as Type
-        EntityTypes.BLOCKING -> Blocking[id] as Type
-        else -> error("Not implemented")
-    }
-}
-
-class PropertyValuePair<EntityType: BaseEntity, ValueType: Any>(
-    val propertyName: String,
-    val newValue: ValueType?,
-    val propertyValue: (EntityType) -> ValueType?
-)
 
 fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
     type: EntityTypes<EntityType>,
