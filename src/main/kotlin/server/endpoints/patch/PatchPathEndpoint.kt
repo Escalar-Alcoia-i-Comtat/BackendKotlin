@@ -10,7 +10,7 @@ import database.entity.Path
 import database.entity.Sector
 import database.entity.info.LastUpdate
 import database.table.Paths
-import distribution.DeviceNotifier
+import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -294,7 +294,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyUpdated(EntityTypes.PATH, pathId)
+        Notifier.getInstance().notifyUpdated(EntityTypes.PATH, pathId)
 
         respondSuccess(
             data = jsonOf("element" to ServerDatabase.instance.query { path.toJson() })

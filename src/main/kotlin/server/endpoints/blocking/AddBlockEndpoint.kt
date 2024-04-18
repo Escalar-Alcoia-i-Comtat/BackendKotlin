@@ -7,7 +7,7 @@ import database.EntityTypes
 import database.entity.Blocking
 import database.entity.Path
 import database.entity.info.LastUpdate
-import distribution.DeviceNotifier
+import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -57,7 +57,7 @@ object AddBlockEndpoint: SecureEndpointBase("/block/{pathId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyCreated(EntityTypes.BLOCKING, blocking["id"] as Int)
+        Notifier.getInstance().notifyCreated(EntityTypes.BLOCKING, blocking["id"] as Int)
 
         respondSuccess(
             data = jsonOf("element" to blocking),

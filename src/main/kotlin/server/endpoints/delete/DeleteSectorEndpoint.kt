@@ -4,7 +4,7 @@ import ServerDatabase
 import database.EntityTypes
 import database.entity.Sector
 import database.entity.info.LastUpdate
-import distribution.DeviceNotifier
+import distribution.Notifier
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
@@ -27,7 +27,7 @@ object DeleteSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyDeleted(EntityTypes.SECTOR, sectorId)
+        Notifier.getInstance().notifyDeleted(EntityTypes.SECTOR, sectorId)
 
         respondSuccess()
     }

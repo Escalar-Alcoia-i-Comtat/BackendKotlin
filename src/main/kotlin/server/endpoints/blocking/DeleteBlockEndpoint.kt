@@ -4,7 +4,7 @@ import ServerDatabase
 import database.EntityTypes
 import database.entity.Blocking
 import database.entity.info.LastUpdate
-import distribution.DeviceNotifier
+import distribution.Notifier
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
@@ -28,7 +28,7 @@ object DeleteBlockEndpoint: SecureEndpointBase("/block/{blockId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyDeleted(EntityTypes.BLOCKING, blockId)
+        Notifier.getInstance().notifyDeleted(EntityTypes.BLOCKING, blockId)
 
         respondSuccess()
     }

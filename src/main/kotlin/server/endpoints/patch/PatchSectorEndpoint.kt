@@ -6,7 +6,7 @@ import database.EntityTypes
 import database.entity.Sector
 import database.entity.Zone
 import database.entity.info.LastUpdate
-import distribution.DeviceNotifier
+import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -115,7 +115,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyUpdated(EntityTypes.SECTOR, sectorId)
+        Notifier.getInstance().notifyUpdated(EntityTypes.SECTOR, sectorId)
 
         respondSuccess(
             data = jsonOf("element" to json)

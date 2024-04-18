@@ -6,7 +6,7 @@ import database.entity.Blocking
 import database.entity.Path
 import database.entity.info.LastUpdate
 import database.table.BlockingTable
-import distribution.DeviceNotifier
+import distribution.Notifier
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
@@ -38,7 +38,7 @@ object DeletePathEndpoint : SecureEndpointBase("/path/{pathId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyDeleted(EntityTypes.PATH, pathId)
+        Notifier.getInstance().notifyDeleted(EntityTypes.PATH, pathId)
 
         respondSuccess()
     }

@@ -7,7 +7,7 @@ import database.EntityTypes
 import database.entity.Area
 import database.entity.Zone
 import database.entity.info.LastUpdate
-import distribution.DeviceNotifier
+import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
@@ -84,7 +84,7 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        DeviceNotifier.notifyCreated(EntityTypes.ZONE, zone["id"] as Int)
+        Notifier.getInstance().notifyCreated(EntityTypes.ZONE, zone["id"] as Int)
 
         respondSuccess(
             jsonOf("element" to zone),
