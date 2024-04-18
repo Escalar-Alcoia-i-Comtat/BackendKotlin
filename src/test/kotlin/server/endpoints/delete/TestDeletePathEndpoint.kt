@@ -22,35 +22,13 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
+import server.base.testDeleting
+import server.base.testDeletingNotFound
 import server.error.Errors
 
 class TestDeletePathEndpoint: ApplicationTestBase() {
     @Test
-    fun `test deleting Path`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
-
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
-
-        client.delete("/path/$pathId") {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertSuccess()
-        }
-
-        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
-
-        client.get("/path/$pathId") {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertFailure(Errors.ObjectNotFound)
-        }
-
-        assertNotNull(pathId)
-        assertNotificationSent(Notifier.TOPIC_DELETED, EntityTypes.PATH, pathId)
-    }
+    fun `test deleting Path`() = testDeleting(EntityTypes.PATH)
 
     @Test
     fun `test deleting Path with blocks`() = test {
@@ -130,12 +108,5 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
     }
 
     @Test
-    fun `test deleting non existing Path`() = test {
-        client.delete("/path/123") {
-            header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        }.apply {
-            assertFailure(Errors.ObjectNotFound)
-        }
-        assertNotificationNotSent(Notifier.TOPIC_DELETED, EntityTypes.PATH)
-    }
+    fun `test deleting non existing Path`() = testDeletingNotFound(EntityTypes.PATH)
 }
