@@ -21,8 +21,6 @@ services:
       # -- Configure Sentry
       # Optional: SENTRY_DSN
       # IS_PRODUCTION: false by default
-      # -- Configure Google Cloud
-      # Optional: GOOGLE_APPLICATION_CREDENTIALS
     env_file:
       - "secrets.env"
     volumes:
