@@ -10,7 +10,7 @@ kotlinx-kover = "0.7.6"
 ktor = "2.3.10"
 postgresql = "42.7.3"
 progressbar = "0.10.1"
-sentry = "4.4.1"
+sentry = "4.5.0"
 sqlite = "3.45.2.0"
 
 [libraries]
