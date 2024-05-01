@@ -1,6 +1,6 @@
 [versions]
 crowdin = "1.16.0"
-exposed = "0.49.0"
+exposed = "0.50.0"
 firebase-admin = "9.2.0"
 foojay-resolver = "0.8.0"
 imageio-webp = "0.1.6"
