@@ -1,5 +1,5 @@
 [versions]
-crowdin = "1.16.0"
+crowdin = "1.17.0"
 exposed = "0.50.1"
 firebase-admin = "9.2.0"
 foojay-resolver = "0.8.0"
