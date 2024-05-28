@@ -45,4 +45,5 @@ bin/
 testing.db
 
 ### Ignore secrets file ###
+local.properties
 secrets.env
