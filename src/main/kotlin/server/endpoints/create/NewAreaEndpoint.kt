@@ -29,6 +29,8 @@ object NewAreaEndpoint : SecureEndpointBase("/area") {
         var displayName: String? = null
         var webUrl: String? = null
 
+        // TODO: Validate webUrl
+
         var imageFile: File? = null
 
         multipart.forEachPart { partData ->

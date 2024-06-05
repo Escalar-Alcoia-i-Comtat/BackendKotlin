@@ -35,6 +35,8 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
         var points: Set<DataPoint>? = null
         var area: Area? = null
 
+        // TODO: Validate webUrl
+
         var imageFile: File? = null
         var kmzFile: File? = null
 

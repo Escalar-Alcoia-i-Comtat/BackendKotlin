@@ -1,19 +1,16 @@
 package server.database
 
 import ServerDatabase
-import data.BlockingRecurrenceYearly
-import data.BlockingTypes
 import database.entity.Area
 import database.entity.Blocking
 import database.entity.DatabaseHelper.createTestArea
+import database.entity.DatabaseHelper.createTestBlocking
 import database.entity.DatabaseHelper.createTestPath
 import database.entity.DatabaseHelper.createTestSector
 import database.entity.DatabaseHelper.createTestZone
 import database.entity.Path
 import database.entity.Sector
 import database.entity.Zone
-import java.time.Instant
-import java.time.Month
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -100,22 +97,36 @@ class TestDatabase: ApplicationTestBase() {
         val sector = createTestSector(zone)
         val path = createTestPath(sector)
 
-        val blocking = ServerDatabase.instance.query {
-            Blocking.new {
-                this.timestamp = Instant.ofEpochMilli(1710086772)
-                this.type = BlockingTypes.BIRD
-                this.recurrence = BlockingRecurrenceYearly(1U, Month.JANUARY, 2U, Month.FEBRUARY)
-                this.path = path
-            }
-        }
+        val blocking = createTestBlocking(path)
         ServerDatabase.instance.query {
             Blocking.findById(blocking.id).let {
                 assertNotNull(it)
 
-                assertEquals(it.timestamp, Instant.ofEpochMilli(1710086772))
-                assertEquals(it.type, BlockingTypes.BIRD)
-                assertEquals(it.recurrence, BlockingRecurrenceYearly(1U, Month.JANUARY, 2U, Month.FEBRUARY))
+                assertEquals(it.timestamp, DataProvider.SampleBlocking.timestamp)
+                assertEquals(it.type, DataProvider.SampleBlocking.type)
+                assertEquals(it.recurrence, DataProvider.SampleBlocking.recurrence)
                 assertNull(it.endDate)
+                assertEquals(it.path.id.value, path.id.value)
+            }
+        }
+    }
+
+    @Test
+    fun `test Blocking with endDate`() = test {
+        val area = createTestArea()
+        val zone = createTestZone(area)
+        val sector = createTestSector(zone)
+        val path = createTestPath(sector)
+
+        val blocking = createTestBlocking(path, recurrence = null, endDate = DataProvider.SampleBlocking.endDate)
+        ServerDatabase.instance.query {
+            Blocking.findById(blocking.id).let {
+                assertNotNull(it)
+
+                assertEquals(it.timestamp, DataProvider.SampleBlocking.timestamp)
+                assertEquals(it.type, DataProvider.SampleBlocking.type)
+                assertNull(it.recurrence)
+                assertEquals(it.endDate, DataProvider.SampleBlocking.endDate)
                 assertEquals(it.path.id.value, path.id.value)
             }
         }
