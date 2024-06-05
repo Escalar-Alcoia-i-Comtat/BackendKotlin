@@ -76,11 +76,9 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
     - name: Validate Gradle wrapper
       uses: gradle/actions/wrapper-validation@v3
-    - name: Build and publish image
+    - name: Build with Gradle
       env:
-        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        IS_PRODUCTION: ${{ github.event_name == 'release' }}
+        SENTRY_DISABLE: true
       run: ./gradlew build
 
     - name: Perform CodeQL Analysis
