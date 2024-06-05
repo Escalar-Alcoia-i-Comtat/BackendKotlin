@@ -36,12 +36,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
       - name: Run tests
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: check
+        run: ./gradlew check
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
@@ -60,12 +60,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
       - name: Run Kover
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: koverXmlReport
+        run: ./gradlew koverXmlReport
       - name: Add coverage report to PR
         id: kover
         uses: mi-kas/kover-report@v1

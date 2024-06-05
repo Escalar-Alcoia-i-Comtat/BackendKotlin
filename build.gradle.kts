@@ -120,15 +120,19 @@ ktor {
     }
 }
 
-sentry {
-    // Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
-    // This enables source context, allowing you to see your source
-    // code as part of your stack traces in Sentry.
-    includeSourceContext = true
+if (System.getenv("SENTRY_DISABLE") != "true") {
+    sentry {
+        // Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
+        // This enables source context, allowing you to see your source
+        // code as part of your stack traces in Sentry.
+        includeSourceContext = true
 
-    org = "escalar-alcoia-i-comtat"
-    projectName = "server"
-    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+        org = "escalar-alcoia-i-comtat"
+        projectName = "server"
+        authToken = System.getenv("SENTRY_AUTH_TOKEN")
+    }
+} else {
+    println("Warning: Sentry is disabled.")
 }
 
 application {
