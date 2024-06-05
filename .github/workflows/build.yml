@@ -31,4 +31,5 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
           IS_PRODUCTION: ${{ github.event_name == 'release' }}
+          SENTRY_DSN_TESTS: ${{ secrets.SENTRY_DSN_TESTS }}
         run: ./gradlew publishImage

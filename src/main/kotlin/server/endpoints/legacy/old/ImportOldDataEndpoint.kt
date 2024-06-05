@@ -1,5 +1,6 @@
 package server.endpoints.legacy.old
 
+import KoverIgnore
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.util.getValue
@@ -13,6 +14,7 @@ import server.response.respondSuccess
 /**
  * Starts an asynchronous task to import some data into the database. Progress can then be supervised.
  */
+@KoverIgnore
 object ImportOldDataEndpoint : EndpointBase("/import") {
 
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
