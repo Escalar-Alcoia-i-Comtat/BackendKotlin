@@ -11,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ImageUtilsTest {
@@ -35,6 +36,8 @@ class ImageUtilsTest {
         resource: String,
         width: Int? = null,
         height: Int? = null,
+        expectedWidth: Int? = width,
+        expectedHeight: Int? = height,
         format: String = "webp"
     ) = testSuspend {
         val name = resource.substringAfterLast('/')
@@ -63,16 +66,51 @@ class ImageUtilsTest {
             val img: BufferedImage? = ImageIO.read(fileScaled)
             assertNotNull(img)
             val (scaledWidth, scaledHeight) = img.width to img.height
-            if (width != null) {
-                assertEquals(width, scaledWidth)
-                assertEquals((width / originalRatio).toInt(), scaledHeight)
+            if (expectedWidth != null) {
+                assertEquals(expectedWidth, scaledWidth)
+                assertEquals(expectedHeight ?: (expectedWidth / originalRatio).toInt(), scaledHeight)
             } else {
-                assertEquals((height!! * originalRatio).toInt(), scaledWidth)
-                assertEquals(height, scaledHeight)
+                assertEquals((expectedHeight!! * originalRatio).toInt(), scaledWidth)
+                assertEquals(expectedHeight, scaledHeight)
             }
         } finally {
             if (file.exists()) file.delete()
             if (fileScaled.exists()) fileScaled.delete()
+        }
+    }
+
+    private fun testIntegrity(
+        resource: String,
+        isCorrupted: Boolean,
+        isTruncated: Boolean = false
+    ) = testSuspend {
+        val name = resource.substringAfterLast('/')
+
+        val file = File.createTempFile("test_integrity_original-", "-$name")
+        try {
+            // Create the resource as File
+            this::class.java.getResourceAsStream(resource)!!.use { input ->
+                file.outputStream().use { output -> input.copyTo(output) }
+            }
+
+            val integrity = ImageUtils.verifyImageIntegrity(file)
+            assertNotNull(integrity)
+
+            val image = integrity.image
+            val truncated = integrity.truncated
+
+            if (isCorrupted) {
+                assertTrue { image == false || image == null }
+                assertNull(truncated)
+            } else {
+                assertNotNull(image)
+                assertTrue(image)
+
+                assertNotNull(truncated)
+                assertEquals(isTruncated, truncated)
+            }
+        } finally {
+            if (file.exists()) file.delete()
         }
     }
 
@@ -81,8 +119,23 @@ class ImageUtilsTest {
     fun `test image scaling - change width`() = testResize("/images/alcoi.jpg", width = 100)
 
     @Test
+    fun `test image scaling - width oversize`() =
+        testResize("/images/alcoi.jpg", width = 2000, expectedWidth = 1578, expectedHeight = 720)
+
+    @Test
     fun `test image scaling - change height`() = testResize("/images/alcoi.jpg", height = 100)
 
     @Test
+    fun `test image scaling - height oversize`() =
+        testResize("/images/alcoi.jpg", height = 1000, expectedWidth = 1578, expectedHeight = 720)
+
+    @Test
     fun `test image scaling (webp)`() = testResize("/images/alcoi.webp", width = 100)
+
+
+    @Test
+    fun `test image integrity - compliant`() = testIntegrity("/images/alcoi.jpg", false)
+
+    @Test
+    fun `test image integrity - corrupt`() = testIntegrity("/images/alcoi-corrupt.jpg", true)
 }

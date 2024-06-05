@@ -19,6 +19,7 @@ object Diagnostics {
                 options.tracesSampleRate = 1.0
                 options.isDebug = EnvironmentVariables.Environment.IsProduction.value != "true"
             }
+            isInitialized = true
             true
         } ?: false
     }

@@ -1,5 +1,6 @@
 package migration
 
+import KoverIgnore
 import Logger
 import ServerDatabase
 import data.Builder
@@ -39,6 +40,7 @@ import utils.getUIntOrNull
 import utils.json
 import utils.urlEncoded
 
+@KoverIgnore
 class OldDataMigrationSingleton private constructor(private val hostname: String): Thread() {
     companion object {
         private const val BUILDER_PIECES_COUNT = 4

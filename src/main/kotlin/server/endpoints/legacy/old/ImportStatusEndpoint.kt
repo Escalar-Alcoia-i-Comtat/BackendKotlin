@@ -1,5 +1,6 @@
 package server.endpoints.legacy.old
 
+import KoverIgnore
 import Logger
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
@@ -11,6 +12,7 @@ import server.response.respondFailure
 import server.response.respondSuccess
 import utils.jsonOf
 
+@KoverIgnore
 object ImportStatusEndpoint : EndpointBase("/import/status") {
 
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {

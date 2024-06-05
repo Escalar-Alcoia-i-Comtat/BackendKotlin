@@ -1,6 +1,8 @@
 package server
 
 import assertions.assertSuccess
+import data.BlockingRecurrenceYearly
+import data.BlockingTypes
 import data.Builder
 import data.DataPoint
 import data.Ending
@@ -18,6 +20,9 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.ApplicationTestBuilder
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.Month
 import kotlin.test.assertNotNull
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import utils.getIntOrNull
@@ -327,5 +332,12 @@ object DataProvider {
         }
 
         return pathId
+    }
+
+    object SampleBlocking {
+        val timestamp: Instant = Instant.ofEpochMilli(1710086772)
+        val type: BlockingTypes = BlockingTypes.BIRD
+        val recurrence: BlockingRecurrenceYearly = BlockingRecurrenceYearly(1U, Month.JANUARY, 2U, Month.FEBRUARY)
+        val endDate: LocalDateTime = LocalDateTime.of(2024, 6, 5, 23, 59)
     }
 }

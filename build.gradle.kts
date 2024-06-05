@@ -82,8 +82,18 @@ dependencies {
     testImplementation(libs.ktor.test.server)
 }
 
+fun getSecret(key: String): String? {
+    val file = file("secrets.env")
+    if (!file.exists()) error("Secrets file not found")
+    val secrets = file.readLines()
+    return secrets.find { it.startsWith(key) }?.split("=")?.get(1)
+}
+
 tasks.test {
     useJUnitPlatform()
+
+    val sentryDsn: String? = System.getenv("SENTRY_DSN_TESTS") ?: getSecret("SENTRY_DSN_TESTS")
+    environment("SENTRY_DSN_TESTS", sentryDsn ?: error("Sentry DSN not configured for tests"))
 }
 
 kotlin {

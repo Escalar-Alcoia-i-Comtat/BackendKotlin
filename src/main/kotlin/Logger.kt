@@ -1,15 +1,21 @@
+import java.io.PrintStream
 import java.time.LocalDateTime
+import org.jetbrains.annotations.VisibleForTesting
 import utils.AnsiColors
 
 object Logger {
     @LogLevel
     var level = LogLevel.INFO
 
-    private var collectTrace = false
+    @VisibleForTesting
+    var collectTrace = false
 
     @Volatile
     var trace = emptyList<String>()
         private set
+
+    @VisibleForTesting
+    var out: PrintStream = System.out
 
     fun clear() {
         trace = emptyList()
@@ -25,7 +31,7 @@ object Logger {
     }
 
     private fun print(@LogLevel level: Int, color: String, message: String) {
-        if (level >= Logger.level) println(color + message + AnsiColors.RESET)
+        if (level >= Logger.level) out.println(color + message + AnsiColors.RESET)
 
         if (collectTrace) {
             synchronized(trace) {
@@ -59,6 +65,7 @@ object Logger {
     }
 }
 
+@KoverIgnore
 annotation class LogLevel {
     companion object {
         const val DEBUG = 0

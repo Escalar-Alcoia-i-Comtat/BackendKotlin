@@ -1,17 +1,16 @@
 package server.database
 
 import ServerDatabase
-import data.BlockingRecurrenceYearly
-import data.BlockingTypes
 import database.entity.Area
 import database.entity.Blocking
+import database.entity.DatabaseHelper.createTestArea
+import database.entity.DatabaseHelper.createTestBlocking
+import database.entity.DatabaseHelper.createTestPath
+import database.entity.DatabaseHelper.createTestSector
+import database.entity.DatabaseHelper.createTestZone
 import database.entity.Path
 import database.entity.Sector
 import database.entity.Zone
-import java.io.File
-import java.net.URL
-import java.time.Instant
-import java.time.Month
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -19,85 +18,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import server.DataProvider
 import server.base.ApplicationTestBase
-import storage.Storage
 
 class TestDatabase: ApplicationTestBase() {
-    private suspend fun createTestArea(): Area = ServerDatabase.instance.query {
-        Area.new {
-            displayName = DataProvider.SampleArea.displayName
-            webUrl = URL(DataProvider.SampleArea.webUrl)
-
-            // Required, but not used
-            image = File(Storage.ImagesDir, "abc")
-        }
-    }
-
-    private suspend fun createTestZone(area: Area): Zone = ServerDatabase.instance.query {
-        Zone.new {
-            displayName = DataProvider.SampleZone.displayName
-            webUrl = URL(DataProvider.SampleZone.webUrl)
-            point = DataProvider.SampleZone.point
-            pointsSet = DataProvider.SampleZone.points.map { it.toJson().toString() }
-
-            // Required, but not used
-            image = File(Storage.ImagesDir, "abc")
-            kmz = File(Storage.TracksDir, "abc")
-
-            // Must specify a parent
-            this.area = area
-        }
-    }
-
-    private suspend fun createTestSector(zone: Zone): Sector = ServerDatabase.instance.query {
-        Sector.new {
-            displayName = DataProvider.SampleSector.displayName
-            point = DataProvider.SampleSector.point
-            kidsApt = DataProvider.SampleSector.kidsApt
-            sunTime = DataProvider.SampleSector.sunTime
-            walkingTime = DataProvider.SampleSector.walkingTime
-
-            // Required, but not used
-            image = File(Storage.ImagesDir, "abc")
-
-            // Must specify a parent
-            this.zone = zone
-        }
-    }
-
-    private suspend fun createTestPath(sector: Sector): Path = ServerDatabase.instance.query {
-        Path.new {
-            displayName = DataProvider.SamplePath.displayName
-            sketchId = DataProvider.SamplePath.sketchId
-
-            height = DataProvider.SamplePath.height
-            grade = DataProvider.SamplePath.grade
-            ending = DataProvider.SamplePath.ending
-
-            pitches = DataProvider.SamplePath.pitches
-
-            stringCount = DataProvider.SamplePath.stringCount
-
-            paraboltCount = DataProvider.SamplePath.paraboltCount
-            burilCount = DataProvider.SamplePath.burilCount
-            pitonCount = DataProvider.SamplePath.pitonCount
-            spitCount = DataProvider.SamplePath.spitCount
-            tensorCount = DataProvider.SamplePath.tensorCount
-
-            crackerRequired = DataProvider.SamplePath.crackerRequired
-            friendRequired = DataProvider.SamplePath.friendRequired
-            lanyardRequired = DataProvider.SamplePath.lanyardRequired
-            nailRequired = DataProvider.SamplePath.nailRequired
-            pitonRequired = DataProvider.SamplePath.pitonRequired
-            stapesRequired = DataProvider.SamplePath.stapesRequired
-
-            builder = DataProvider.SamplePath.builder
-            reBuilder = DataProvider.SamplePath.reBuilder
-
-            // Must specify a parent
-            this.sector = sector
-        }
-    }
-
     @Test
     @Suppress("LongMethod")
     fun `test creating data classes`() = test {
@@ -175,22 +97,36 @@ class TestDatabase: ApplicationTestBase() {
         val sector = createTestSector(zone)
         val path = createTestPath(sector)
 
-        val blocking = ServerDatabase.instance.query {
-            Blocking.new {
-                this.timestamp = Instant.ofEpochMilli(1710086772)
-                this.type = BlockingTypes.BIRD
-                this.recurrence = BlockingRecurrenceYearly(1U, Month.JANUARY, 2U, Month.FEBRUARY)
-                this.path = path
-            }
-        }
+        val blocking = createTestBlocking(path)
         ServerDatabase.instance.query {
             Blocking.findById(blocking.id).let {
                 assertNotNull(it)
 
-                assertEquals(it.timestamp, Instant.ofEpochMilli(1710086772))
-                assertEquals(it.type, BlockingTypes.BIRD)
-                assertEquals(it.recurrence, BlockingRecurrenceYearly(1U, Month.JANUARY, 2U, Month.FEBRUARY))
+                assertEquals(it.timestamp, DataProvider.SampleBlocking.timestamp)
+                assertEquals(it.type, DataProvider.SampleBlocking.type)
+                assertEquals(it.recurrence, DataProvider.SampleBlocking.recurrence)
                 assertNull(it.endDate)
+                assertEquals(it.path.id.value, path.id.value)
+            }
+        }
+    }
+
+    @Test
+    fun `test Blocking with endDate`() = test {
+        val area = createTestArea()
+        val zone = createTestZone(area)
+        val sector = createTestSector(zone)
+        val path = createTestPath(sector)
+
+        val blocking = createTestBlocking(path, recurrence = null, endDate = DataProvider.SampleBlocking.endDate)
+        ServerDatabase.instance.query {
+            Blocking.findById(blocking.id).let {
+                assertNotNull(it)
+
+                assertEquals(it.timestamp, DataProvider.SampleBlocking.timestamp)
+                assertEquals(it.type, DataProvider.SampleBlocking.type)
+                assertNull(it.recurrence)
+                assertEquals(it.endDate, DataProvider.SampleBlocking.endDate)
                 assertEquals(it.path.id.value, path.id.value)
             }
         }

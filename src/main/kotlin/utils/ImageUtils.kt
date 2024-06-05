@@ -1,5 +1,6 @@
 package utils
 
+import KoverIgnore
 import java.awt.Color
 import java.awt.Image
 import java.awt.image.BufferedImage
@@ -70,6 +71,7 @@ object ImageUtils {
         result
     }
 
+    @KoverIgnore
     class ImageAnalysisResult {
         var image: Boolean? = null
         var truncated: Boolean? = null
