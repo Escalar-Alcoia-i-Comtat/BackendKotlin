@@ -22,13 +22,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
       - name: Build and publish image
-        uses: gradle/actions/setup-gradle@v3
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
           IS_PRODUCTION: ${{ github.event_name == 'release' }}
-        with:
-          arguments: publishImage
+        run: ./gradlew publishImage
