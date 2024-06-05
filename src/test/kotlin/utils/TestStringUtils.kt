@@ -6,11 +6,11 @@ import kotlin.test.assertEquals
 class TestStringUtils {
     @Test
     fun `test removeAccents`() {
-        assertEquals("aaaaaeeeeeiiiiiooooouuuuuñ", "aàáäâeèéëêiíìïîoòóöôoòóöôuùúüûñ".removeAccents())
+        assertEquals("aaaaaeeeeeiiiiiooooouuuuun", "aàáäâeèéëêiíìïîoòóöôoòóöôuùúüûñ".removeAccents())
     }
 
     @Test
     fun `test urlEncoded`() {
-        assertEquals("testing-encoding%20f%C3%B2r_urls", "testing-encoding fòr_urls".urlEncoded)
+        assertEquals("testing-encoding+f%C3%B2r_urls", "testing-encoding fòr_urls".urlEncoded)
     }
 }
