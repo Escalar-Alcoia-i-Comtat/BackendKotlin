@@ -79,6 +79,7 @@ jobs:
     - name: Build with Gradle
       env:
         SENTRY_DISABLE: true
+        SENTRY_DSN_TESTS: ${{ secrets.SENTRY_DSN_TESTS }}
       run: ./gradlew build
 
     - name: Perform CodeQL Analysis
