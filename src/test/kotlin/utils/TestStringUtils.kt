@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 class TestStringUtils {
     @Test
     fun `test removeAccents`() {
-        assertEquals("aaaaaeeeeeiiiiiooooouuuuun", "aàáäâeèéëêiíìïîoòóöôoòóöôuùúüûñ".removeAccents())
+        assertEquals("aaaaaeeeeeiiiiioooooooooouuuuun", "aàáäâeèéëêiíìïîoòóöôoòóöôuùúüûñ".removeAccents())
     }
 
     @Test
