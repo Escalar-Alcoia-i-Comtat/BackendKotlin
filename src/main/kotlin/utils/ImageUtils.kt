@@ -17,7 +17,14 @@ object ImageUtils {
     private const val TRUNCATED_BYTE_A: Byte = (0xff).toByte()
     private const val TRUNCATED_BYTE_B: Byte = (0xd9).toByte()
 
-    val supportedExtensions = listOf("png", "jpeg", "jpg", "webp")
+    private val supportedExtensions = listOf("png", "jpeg", "jpg", "webp")
+
+    /**
+     * Checks if the provided extension is supported by the image utilities.
+     */
+    fun isExtensionSupported(extension: String): Boolean {
+        return supportedExtensions.any { extension.equals(it, true) }
+    }
 
     /**
      * Verifies the integrity of an image file.

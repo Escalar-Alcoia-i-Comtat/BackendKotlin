@@ -9,6 +9,7 @@ import javax.imageio.ImageIO
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -18,6 +19,16 @@ class ImageUtilsTest {
         assertFailsWith(IllegalStateException::class) {
             ImageUtils.scale(File(""), null, null, ByteArrayOutputStream())
         }
+    }
+
+    @Test
+    fun `test isExtensionSupported`() {
+        assertTrue(ImageUtils.isExtensionSupported("png"))
+        assertTrue(ImageUtils.isExtensionSupported("JPEG"))
+        assertTrue(ImageUtils.isExtensionSupported("jpg"))
+        assertTrue(ImageUtils.isExtensionSupported("WEBP"))
+        assertFalse(ImageUtils.isExtensionSupported("gif"))
+        assertFalse(ImageUtils.isExtensionSupported("exe"))
     }
 
     private fun testResize(
