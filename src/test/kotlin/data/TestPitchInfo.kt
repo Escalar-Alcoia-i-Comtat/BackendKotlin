@@ -9,7 +9,7 @@ class TestPitchInfo {
     fun `test JSON`() {
         val pitchInfo = PitchInfo(
             1U,
-            SportsGrade.G7C,
+            Grade.G7C,
             100U,
             Ending.CHAIN_CARABINER,
             EndingInfo.EQUIPPED,
@@ -22,7 +22,7 @@ class TestPitchInfo {
     fun `test equals`() {
         val pitchInfo1 = PitchInfo(1U)
         val pitchInfo2 = PitchInfo(1U)
-        val pitchInfo3 = PitchInfo(1U, gradeValue = SportsGrade.G7C)
+        val pitchInfo3 = PitchInfo(1U, grade = Grade.G7C)
 
         assertEquals(pitchInfo1, pitchInfo1)
         assertEquals(pitchInfo1, pitchInfo2)

@@ -3,7 +3,7 @@ package server.endpoints.patch
 import ServerDatabase
 import data.Builder
 import data.Ending
-import data.GradeValue
+import data.Grade
 import data.PitchInfo
 import database.EntityTypes
 import database.entity.Path
@@ -46,7 +46,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
         var displayName: String? = null
         var sketchId: UInt? = null
         var height: UInt? = null
-        var grade: GradeValue? = null
+        var grade: Grade? = null
         var ending: Ending? = null
         var pitches: List<PitchInfo>? = null
         var stringCount: UInt? = null
@@ -101,7 +101,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
                         if (value == "\u0000")
                             removeGrade = true
                         else
-                            grade = value.let(GradeValue::fromString)
+                            grade = value.let(Grade::fromString)
                     }
 
                     "ending" -> partData.value.let { value ->

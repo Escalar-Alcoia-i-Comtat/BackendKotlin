@@ -3,12 +3,12 @@ package database.entity
 import ServerDatabase
 import database.entity.DatabaseHelper.createTestArea
 import database.entity.DatabaseHelper.createTestZone
+import database.serialization.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import server.base.ApplicationTestBase

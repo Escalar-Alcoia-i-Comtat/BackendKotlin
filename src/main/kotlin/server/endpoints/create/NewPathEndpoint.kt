@@ -3,7 +3,7 @@ package server.endpoints.create
 import ServerDatabase
 import data.Builder
 import data.Ending
-import data.GradeValue
+import data.Grade
 import data.PitchInfo
 import database.EntityTypes
 import database.entity.Path
@@ -55,7 +55,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
         var displayName: String? = null
         var sketchId: UInt? = null
         var height: UInt? = null
-        var grade: GradeValue? = null
+        var grade: Grade? = null
         var ending: Ending? = null
         var pitches: List<PitchInfo>? = null
         var stringCount: UInt? = null
@@ -76,7 +76,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
                     "sketchId" -> sketchId = partData.value.toUIntOrNull()
 
                     "height" -> height = partData.value.toUIntOrNull()
-                    "grade" -> grade = partData.value.let { GradeValue.fromString(it) }
+                    "grade" -> grade = partData.value.let { Grade.fromString(it) }
                     "ending" -> ending = partData.value.let { Ending.valueOf(it) }
 
                     "pitches" -> pitches = partData.value.jsonArray.serialize(PitchInfo)

@@ -1,11 +1,13 @@
 package data
 
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 import utils.getStringOrNull
 import utils.jsonOf
 import utils.serialization.JsonSerializable
 import utils.serialization.JsonSerializer
 
+@Serializable
 data class Builder(
     val name: String?,
     val date: String?

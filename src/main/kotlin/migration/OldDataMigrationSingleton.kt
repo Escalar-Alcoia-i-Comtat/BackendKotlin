@@ -8,7 +8,7 @@ import data.DataPoint
 import data.Ending
 import data.EndingInclination
 import data.EndingInfo
-import data.GradeValue
+import data.Grade
 import data.LatLng
 import data.PitchInfo
 import database.entity.Area
@@ -472,7 +472,7 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
 
             PitchInfo(
                 pitch = index.toUInt(),
-                gradeValue = grade?.let { GradeValue.fromString(it) },
+                grade = grade?.let { Grade.fromString(it) },
                 height = height,
                 ending = ending?.let { Ending.valueOf(it) },
                 info = pitchesInfo?.first,
@@ -486,7 +486,7 @@ class OldDataMigrationSingleton private constructor(private val hostname: String
                 sketchId = path.getUInt("sketchId")
 
                 this.height = generalHeight
-                this.grade = generalGrade?.let { GradeValue.fromString(it) }
+                this.grade = generalGrade?.let { Grade.fromString(it) }
                 this.ending = generalEnding?.let { Ending.valueOf(it.uppercase()) }
 
                 this.pitches = pitches.toList().takeIf { it.isNotEmpty() }

@@ -1,8 +1,10 @@
 package data
 
 import KoverIgnore
+import kotlinx.serialization.Serializable
 
 @KoverIgnore
+@Serializable
 enum class Ending {
     NONE,
     PLATE,

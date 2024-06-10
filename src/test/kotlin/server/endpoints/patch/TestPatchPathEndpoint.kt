@@ -4,8 +4,8 @@ import ServerDatabase
 import assertions.assertSuccess
 import data.Builder
 import data.Ending
+import data.Grade
 import data.PitchInfo
-import data.SportsGrade
 import database.EntityTypes
 import database.entity.Path
 import io.ktor.client.request.forms.formData
@@ -69,7 +69,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Path - update grade`() =
-        testPatching(EntityTypes.PATH, "grade", SportsGrade.G7C) { it.grade }
+        testPatching(EntityTypes.PATH, "grade", Grade.G7C) { it.grade }
 
     @Test
     fun `test patching Path - update ending`() =
@@ -85,7 +85,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
             EntityTypes.PATH,
             listOf(
                 PropertyValuePair("pitches", listOf(PitchInfo(1U))) { it.pitches },
-                PropertyValuePair("grade", SportsGrade.G7C) { it.grade }
+                PropertyValuePair("grade", Grade.G7C) { it.grade }
             )
         )
 

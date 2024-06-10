@@ -2,11 +2,13 @@ package database.entity
 
 import data.Builder
 import data.Ending
-import data.GradeValue
+import data.Grade
 import data.PitchInfo
+import database.serialization.PathSerializer
 import database.table.Paths
 import java.io.File
 import java.time.Instant
+import kotlinx.serialization.Serializable
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -21,6 +23,7 @@ import utils.serialization.JsonSerializable
 import utils.serialize
 import utils.toJson
 
+@Serializable(with = PathSerializer::class)
 class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     companion object: IntEntityClass<Path>(Paths)
 
@@ -29,8 +32,8 @@ class Path(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     var sketchId: UInt by Paths.sketchId
 
     var height: UInt? by Paths.height
-    var grade: GradeValue?
-        get() = _grade?.let { GradeValue.fromString(it) }
+    var grade: Grade?
+        get() = _grade?.let { Grade.fromString(it) }
         set(value) { _grade = value?.name }
     var ending: Ending?
         get() = _ending?.let { Ending.valueOf(it) }

@@ -8,9 +8,9 @@ import data.DataPoint
 import data.Ending
 import data.EndingInclination
 import data.EndingInfo
+import data.Grade
 import data.LatLng
 import data.PitchInfo
-import data.SportsGrade
 import database.entity.Sector
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -224,13 +224,13 @@ object DataProvider {
         val sketchId = 3U
 
         val height = 123U
-        val grade = SportsGrade.G6A
+        val grade = Grade.G6A
         val ending = Ending.CHAIN_CARABINER
 
         val pitches = listOf(
             PitchInfo(
                 1U,
-                SportsGrade.G7A_PLUS,
+                Grade.G7A_PLUS,
                 12U,
                 Ending.CHAIN_CARABINER,
                 EndingInfo.EQUIPPED,

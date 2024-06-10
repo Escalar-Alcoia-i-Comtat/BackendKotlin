@@ -5,7 +5,7 @@ import assertions.assertFailure
 import assertions.assertSuccess
 import data.Builder
 import data.Ending
-import data.GradeValue
+import data.Grade
 import data.PitchInfo
 import database.entity.Path
 import io.ktor.http.HttpStatusCode
@@ -52,7 +52,7 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
                 assertEquals(DataProvider.SamplePath.sketchId, data.getUInt("sketch_id"))
 
                 assertEquals(DataProvider.SamplePath.height, data.getUInt("height"))
-                assertEquals(DataProvider.SamplePath.grade, data.getString("grade").let { GradeValue.fromString(it) })
+                assertEquals(DataProvider.SamplePath.grade, data.getString("grade").let { Grade.fromString(it) })
                 assertEquals(DataProvider.SamplePath.ending, data.getString("ending").let { Ending.valueOf(it) })
 
                 assertContentEquals(DataProvider.SamplePath.pitches, data.getJSONArray("pitches").serialize(PitchInfo))
