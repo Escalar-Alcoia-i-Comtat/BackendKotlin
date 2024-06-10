@@ -82,7 +82,20 @@ class ServerDatabase private constructor() {
         SchemaUtils.createMissingTablesAndColumns(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
     }
 
+    suspend operator fun <T> invoke(block: suspend Transaction.() -> T): T = query(block)
+
     suspend fun <T> query(block: suspend Transaction.() -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
+        logger?.let { addLogger(it) }
+
+        block()
+    }
+
+    /**
+     * Begins a transaction and runs the given block of code in it.
+     *
+     * @param block The block of code to run in the transaction.
+     */
+    fun querySync(block: Transaction.() -> Unit) = transaction(database) {
         logger?.let { addLogger(it) }
 
         block()
