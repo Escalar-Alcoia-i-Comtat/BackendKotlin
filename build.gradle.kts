@@ -30,10 +30,8 @@ val tcnativeClassifier = when {
 }
 
 dependencies {
-    // Kotlin Serialization
-    implementation(libs.kotlin.serializationJson)
-
     // Ktor dependencies
+    implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.locations)
@@ -42,8 +40,13 @@ dependencies {
     implementation(libs.ktor.utils)
 
     // Ktor client for making requests
+    implementation(libs.ktor.client.contentNegotiation)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
+
+    // Kotlin Serialization & Ktor Serialization
+    implementation(libs.kotlin.serializationJson)
+    implementation(libs.ktor.serializationJson)
 
     // Exposed dependencies
     implementation(libs.exposed.core)

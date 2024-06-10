@@ -36,7 +36,14 @@ suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
     block: (data: Type?) -> Unit = {}
 ) {
-    val response = Json.decodeFromString<Response>(bodyAsText())
+    val body = bodyAsText()
+    println("Body: \"$body\"")
+    /*if (body.isBlank()) {
+        block(null)
+        return
+    }*/
+
+    val response = Json.decodeFromString<Response>(body)
 
     var errorMessage: String? = null
     var errorType: String? = null
@@ -78,7 +85,10 @@ suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
 suspend fun HttpResponse.assertFailure(
     error: Error
 ) {
-    val response = Json.decodeFromString<Response>(bodyAsText())
+    val body = bodyAsText()
+    // if (body.isBlank()) return
+
+    val response = Json.decodeFromString<Response>(body)
 
     var errorMessage: String? = null
     var errorType: String? = null

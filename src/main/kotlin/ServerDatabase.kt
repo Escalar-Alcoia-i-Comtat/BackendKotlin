@@ -1,3 +1,5 @@
+import database.entity.info.Version
+import database.migration.Migration
 import database.table.Areas
 import database.table.BlockingTable
 import database.table.InfoTable
@@ -80,8 +82,18 @@ class ServerDatabase private constructor() {
      * Creates all the missing tables and columns for the database.
      * Should be run as soon as possible in the program's lifecycle.
      */
-    fun initialize() = transaction(database) {
+    suspend fun initialize() = invoke {
         SchemaUtils.createMissingTablesAndColumns(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
+
+        var loops = 0
+        while (Version.updateRequired()) {
+            check(loops++ <= VERSION) { "Version update loop detected" }
+            val version = Version.get()
+            val migration = Migration.all.find { it.from == version }
+                ?: error("No migration found for version $version")
+            Logger.info("Migrating database from version $version to ${migration.to}")
+            with(migration) { this@invoke() }
+        }
     }
 
     suspend operator fun <T> invoke(block: suspend Transaction.() -> T): T = query(block)

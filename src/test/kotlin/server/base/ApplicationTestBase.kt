@@ -3,7 +3,9 @@ package server.base
 import Logger
 import ServerDatabase
 import database.EntityTypes
+import database.serialization.Json
 import distribution.Notifier
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -11,7 +13,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.http.HttpHeaders
-import io.ktor.server.testing.ApplicationTestBuilder
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import java.io.File
 import kotlin.test.AfterTest
@@ -19,6 +21,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import setupApplication
 import storage.Storage
@@ -117,14 +120,14 @@ abstract class ApplicationTestBase {
      * Prepares the testing database, and configures the applications to start making requests and testing application
      * endpoints. Perform all the desired steps in [block].
      */
-    fun test(block: suspend ApplicationTestBuilder.() -> Unit) {
+    fun test(block: suspend StubApplicationTestBuilder.() -> Unit) {
         // Configure database
         ServerDatabase.url = "jdbc:sqlite:testing.db"
         ServerDatabase.logger = StdOutSqlLogger
         File("testing.db").takeIf { it.exists() }?.delete()
 
         // Access the database once to initialize
-        ServerDatabase.instance.initialize()
+        runBlocking { ServerDatabase.instance.initialize() }
 
         // Configure storage
         Storage.BaseDir = File(System.getProperty("user.home"), ".EAIC-Testing")
@@ -136,14 +139,20 @@ abstract class ApplicationTestBase {
             application {
                 setupApplication()
             }
-            block()
+            block(
+                object : StubApplicationTestBuilder() {
+                    override val client = createClient {
+                        install(ContentNegotiation) { json(Json) }
+                    }
+                }
+            )
         }
 
         // Delete all files created
         Storage.BaseDir.deleteRecursively()
     }
 
-    suspend fun ApplicationTestBuilder.get(
+    suspend fun StubApplicationTestBuilder.get(
         urlString: String,
         block: HttpRequestBuilder.() -> Unit = {}
     ) = client.get(urlString) {
@@ -151,7 +160,7 @@ abstract class ApplicationTestBase {
         block()
     }
 
-    suspend fun ApplicationTestBuilder.post(
+    suspend fun StubApplicationTestBuilder.post(
         urlString: String,
         block: HttpRequestBuilder.() -> Unit = {}
     ) = client.post(urlString) {
@@ -159,7 +168,7 @@ abstract class ApplicationTestBase {
         block()
     }
 
-    suspend fun ApplicationTestBuilder.patch(
+    suspend fun StubApplicationTestBuilder.patch(
         urlString: String,
         block: HttpRequestBuilder.() -> Unit = {}
     ) = client.patch(urlString) {
@@ -167,7 +176,7 @@ abstract class ApplicationTestBase {
         block()
     }
 
-    suspend fun ApplicationTestBuilder.delete(
+    suspend fun StubApplicationTestBuilder.delete(
         urlString: String,
         block: HttpRequestBuilder.() -> Unit = {}
     ) = client.delete(urlString) {

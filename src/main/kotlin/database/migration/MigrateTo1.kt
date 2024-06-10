@@ -19,8 +19,9 @@ object MigrateTo1 : Migration(null, 1) {
             val lon = zone.longitude
             if (lat != null && lon != null) zone.point = LatLng(lat, lon)
 
-            val points = zone.pointsString
-            zone.points = Json.decodeFromString<List<DataPoint>>(points)
+            zone.pointsString?.let { points ->
+                zone.points = Json.decodeFromString<List<DataPoint>>(points)
+            }
         }
     }
 }

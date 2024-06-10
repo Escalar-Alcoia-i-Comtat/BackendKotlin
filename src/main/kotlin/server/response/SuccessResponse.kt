@@ -19,7 +19,7 @@ data class SuccessResponse<DataType: ResponseData>(
  *
  * @param httpStatusCode The HTTP status code to be sent in the response. The default value is [HttpStatusCode.OK].
  */
-suspend fun PipelineContext<Unit, ApplicationCall>.respondSuccess(
+suspend inline fun PipelineContext<Unit, ApplicationCall>.respondSuccess(
     httpStatusCode: HttpStatusCode = HttpStatusCode.OK
 ) {
     call.respond(
@@ -34,7 +34,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.respondSuccess(
  * @param data The optional JSON object containing the data to be sent in the response.
  * @param httpStatusCode The HTTP status code to be sent in the response. The default value is [HttpStatusCode.OK].
  */
-suspend fun <DataType: ResponseData> PipelineContext<Unit, ApplicationCall>.respondSuccess(
+suspend inline fun <reified DataType: ResponseData> PipelineContext<Unit, ApplicationCall>.respondSuccess(
     data: DataType? = null,
     httpStatusCode: HttpStatusCode = HttpStatusCode.OK
 ) {

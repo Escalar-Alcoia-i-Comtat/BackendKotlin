@@ -23,13 +23,13 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.ApplicationTestBuilder
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.Month
 import kotlin.test.assertNotNull
 import kotlinx.serialization.encodeToString
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
+import server.base.StubApplicationTestBuilder
 import server.response.update.UpdateResponseData
 
 @Suppress("LongParameterList", "MayBeConst", "MayBeConstant")
@@ -39,7 +39,7 @@ object DataProvider {
         val webUrl = "https://example.com"
     }
 
-    context(ApplicationTestBuilder)
+    context(StubApplicationTestBuilder)
     suspend fun provideSampleArea(
         skipDisplayName: Boolean = false,
         skipWebUrl: Boolean = false,
@@ -93,7 +93,7 @@ object DataProvider {
         )
     }
 
-    context(ApplicationTestBuilder)
+    context(StubApplicationTestBuilder)
     suspend fun provideSampleZone(
         areaId: Int?,
         skipDisplayName: Boolean = false,
@@ -162,7 +162,7 @@ object DataProvider {
         val walkingTime = 12U
     }
 
-    context(ApplicationTestBuilder)
+    context(StubApplicationTestBuilder)
     suspend fun provideSampleSector(
         zoneId: Int?,
         skipDisplayName: Boolean = false,
@@ -266,7 +266,7 @@ object DataProvider {
         )
     }
 
-    context(ApplicationTestBuilder)
+    context(StubApplicationTestBuilder)
     suspend fun provideSamplePath(
         sectorId: Int?,
         skipDisplayName: Boolean = false,

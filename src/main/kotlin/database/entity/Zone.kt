@@ -65,7 +65,7 @@ class Zone(id: EntityID<Int>): DataEntity(id), ResponseData {
     @set:VisibleForTesting
     @Suppress("Deprecation")
     @Deprecated("Do not use. Only for migration")
-    var pointsString: String by Zones.pointsString
+    var pointsString: String? by Zones.pointsString
     // End of migration
 
 

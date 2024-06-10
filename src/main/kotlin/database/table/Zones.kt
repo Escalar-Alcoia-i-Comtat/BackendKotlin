@@ -19,7 +19,7 @@ object Zones : DataTable() {
     @Deprecated("Use point instead. Kept for migration purposes.")
     val longitude = double("longitude").nullable()
     @Deprecated("Use point instead. Kept for migration purposes.")
-    val pointsString = varchar("points", SqlConsts.POINTS_LENGTH)
+    val pointsString = varchar("points", SqlConsts.POINTS_LENGTH).nullable()
 
     val area = reference("area", Areas)
 }

@@ -1,5 +1,6 @@
 package database.migration
 
+import database.entity.info.Version
 import org.jetbrains.exposed.sql.Transaction
 
 /**
@@ -13,8 +14,15 @@ abstract class Migration(
     val to: Int
 ) {
     companion object {
-        val all = listOf(MigrateTo1)
+        val all: List<Migration> = listOf(MigrateTo1)
     }
 
-    abstract suspend fun Transaction.migrate()
+    protected abstract suspend fun Transaction.migrate()
+
+    suspend operator fun Transaction.invoke() {
+        migrate()
+
+        // Update the version of the database
+        Version.set(to)
+    }
 }

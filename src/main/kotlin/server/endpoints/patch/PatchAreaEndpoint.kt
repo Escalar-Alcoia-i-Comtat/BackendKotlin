@@ -60,7 +60,7 @@ object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
         }
 
         if (displayName == null && webUrl == null && imageFile == null) {
-            return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
+            return respondSuccess(HttpStatusCode.NoContent)
         }
 
         ServerDatabase.instance.query {
