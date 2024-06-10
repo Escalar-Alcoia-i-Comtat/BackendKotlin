@@ -2,9 +2,11 @@ package database.entity
 
 import ServerDatabase
 import data.LatLng
+import database.serialization.SectorSerializer
 import database.table.Sectors
 import java.io.File
 import java.time.Instant
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.json.JSONObject
@@ -19,6 +21,7 @@ import utils.toJson
  *
  * @param id The ID of the sector.
  */
+@Serializable(with = SectorSerializer::class)
 class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     companion object: IntEntityClass<Sector>(Sectors)
 
@@ -125,6 +128,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), JsonSerializable {
     /**
      * Represents different times of the day.
      */
+    @Serializable
     enum class SunTime {
         None, Morning, Afternoon, Day
     }
