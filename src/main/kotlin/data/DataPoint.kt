@@ -1,5 +1,6 @@
 package data
 
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 import utils.jsonOf
 import utils.serialization.JsonSerializable
@@ -12,6 +13,7 @@ import utils.serialization.JsonSerializer
  * @property label The label associated with the data point.
  * @property icon The icon associated with the data point.
  */
+@Serializable
 data class DataPoint(
     val location: LatLng,
     val label: String,

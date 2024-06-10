@@ -1,5 +1,6 @@
 package data
 
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 import utils.jsonOf
 import utils.serialization.JsonSerializable
@@ -20,6 +21,7 @@ import utils.serialization.JsonSerializer
  * @param latitude The latitude value of the geographic coordinates.
  * @param longitude The longitude value of the geographic coordinates.
  */
+@Serializable
 data class LatLng(
     val latitude: Double,
     val longitude: Double
