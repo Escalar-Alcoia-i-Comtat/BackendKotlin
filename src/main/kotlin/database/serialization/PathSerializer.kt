@@ -7,8 +7,6 @@ import data.Grade
 import data.PitchInfo
 import database.entity.Path
 import database.entity.Sector
-import database.table.Paths
-import database.table.Sectors
 import java.io.File
 import java.time.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -23,7 +21,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
-import org.jetbrains.exposed.dao.id.EntityID
 import storage.Storage
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -174,32 +171,37 @@ object PathSerializer : KSerializer<Path> {
             }
         }
 
-        return Path(EntityID(id, Paths)).apply {
-            this.timestamp = Instant.ofEpochMilli(timestamp)
-            this.displayName = displayName
-            this.sketchId = sketchId
-            this.height = height
-            this.grade = grade
-            this.ending = ending
-            this.pitches = pitches
-            this.stringCount = stringCount
-            this.paraboltCount = paraboltCount
-            this.burilCount = burilCount
-            this.pitonCount = pitonCount
-            this.spitCount = spitCount
-            this.tensorCount = tensorCount
-            this.crackerRequired = crackerRequired
-            this.friendRequired = friendRequired
-            this.lanyardRequired = lanyardRequired
-            this.nailRequired = nailRequired
-            this.pitonRequired = pitonRequired
-            this.stapesRequired = stapesRequired
-            this.showDescription = showDescription
-            this.description = description
-            this.builder = builder
-            this.reBuilder = reBuilder
-            this.images = images
-            this.sector = Sector(EntityID(sectorId, Sectors))
+        return ServerDatabase.instance.querySync {
+            fun Path.modifier(): Path {
+                this.timestamp = Instant.ofEpochMilli(timestamp)
+                this.displayName = displayName
+                this.sketchId = sketchId
+                this.height = height
+                this.grade = grade
+                this.ending = ending
+                this.pitches = pitches
+                this.stringCount = stringCount
+                this.paraboltCount = paraboltCount
+                this.burilCount = burilCount
+                this.pitonCount = pitonCount
+                this.spitCount = spitCount
+                this.tensorCount = tensorCount
+                this.crackerRequired = crackerRequired
+                this.friendRequired = friendRequired
+                this.lanyardRequired = lanyardRequired
+                this.nailRequired = nailRequired
+                this.pitonRequired = pitonRequired
+                this.stapesRequired = stapesRequired
+                this.showDescription = showDescription
+                this.description = description
+                this.builder = builder
+                this.reBuilder = reBuilder
+                this.images = images
+                this.sector = Sector[sectorId]
+                return this
+            }
+
+            Path.findById(id)?.apply { modifier() } ?: Path.new(id) { modifier() }
         }
     }
 }

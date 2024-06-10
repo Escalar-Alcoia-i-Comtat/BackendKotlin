@@ -1,6 +1,7 @@
 package assertions
 
 import database.serialization.Json
+import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
@@ -23,7 +24,10 @@ import server.response.SuccessResponse
 suspend fun HttpResponse.assertSuccess(
     statusCode: HttpStatusCode = HttpStatusCode.OK
 ) {
-    assertSuccess<ResponseData>(statusCode) {}
+    val response = body<Response>()
+
+    assertEquals(statusCode, status)
+    assertTrue(response.success)
 }
 
 /**
@@ -36,22 +40,15 @@ suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
     block: (data: Type?) -> Unit = {}
 ) {
-    val body = bodyAsText()
-    println("Body: \"$body\"")
-    /*if (body.isBlank()) {
-        block(null)
-        return
-    }*/
-
-    val response = Json.decodeFromString<Response>(body)
+    val response = body<Response>()
 
     var errorMessage: String? = null
     var errorType: String? = null
     var stackTrace: String? = null
     if (response is FailureResponse) {
-        errorMessage = response.error.message
-        errorType = response.error.type
-        stackTrace = response.error.stackTrace?.joinToString("\n    ")
+        errorMessage = response.error?.message
+        errorType = response.error?.type
+        stackTrace = response.error?.stackTrace?.joinToString("\n    ")
     }
 
     assertEquals(
@@ -73,8 +70,8 @@ suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
     )
 
     assertTrue(response.success)
-    assertIs<SuccessResponse<Type>>(response)
-    block(response.data)
+    assertIs<SuccessResponse>(response)
+    block(response.data<Type>())
 }
 
 /**
@@ -86,7 +83,6 @@ suspend fun HttpResponse.assertFailure(
     error: Error
 ) {
     val body = bodyAsText()
-    // if (body.isBlank()) return
 
     val response = Json.decodeFromString<Response>(body)
 
@@ -94,9 +90,9 @@ suspend fun HttpResponse.assertFailure(
     var errorType: String? = null
     var stackTrace: String? = null
     if (response is FailureResponse) {
-        errorMessage = response.error.message
-        errorType = response.error.type
-        stackTrace = response.error.stackTrace?.joinToString("\n    ")
+        errorMessage = response.error?.message
+        errorType = response.error?.type
+        stackTrace = response.error?.stackTrace?.joinToString("\n    ")
     }
 
     assertEquals(
@@ -119,6 +115,6 @@ suspend fun HttpResponse.assertFailure(
     assertFalse(response.success)
 
     assertIs<FailureResponse>(response)
-    assertEquals(error.code, response.error.code)
-    assertEquals(error.message, response.error.message)
+    assertEquals(error.code, response.error?.code)
+    assertEquals(error.message, response.error?.message)
 }

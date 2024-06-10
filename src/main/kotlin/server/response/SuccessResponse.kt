@@ -1,17 +1,23 @@
 package server.response
 
+import database.serialization.Json
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.util.pipeline.PipelineContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.encodeToJsonElement
 
 @Serializable
-data class SuccessResponse<DataType: ResponseData>(
-    val data: DataType? = null
+data class SuccessResponse(
+    val data: JsonElement? = null
 ): Response {
     override val success: Boolean = true
+
+    inline fun <reified DataType: ResponseData> data(): DataType? = data?.let(Json::decodeFromJsonElement)
 }
 
 /**
@@ -24,7 +30,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.respondSuccess(
 ) {
     call.respond(
         status = httpStatusCode,
-        message = SuccessResponse<ResponseData>()
+        message = SuccessResponse()
     )
 }
 
@@ -40,6 +46,6 @@ suspend inline fun <reified DataType: ResponseData> PipelineContext<Unit, Applic
 ) {
     call.respond(
         status = httpStatusCode,
-        message = SuccessResponse(data)
+        message = SuccessResponse(Json.encodeToJsonElement(data))
     )
 }

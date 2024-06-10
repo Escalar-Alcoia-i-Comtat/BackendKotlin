@@ -11,7 +11,7 @@ import server.error.Error
 
 @Serializable
 data class FailureResponse(
-    val error: Error
+    val error: Error? = null
 ): Response {
     override val success: Boolean = false
 }

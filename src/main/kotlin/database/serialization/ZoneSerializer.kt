@@ -6,8 +6,6 @@ import data.LatLng
 import database.entity.Area
 import database.entity.Sector
 import database.entity.Zone
-import database.table.Areas
-import database.table.Zones
 import java.net.URL
 import java.time.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -21,7 +19,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
-import org.jetbrains.exposed.dao.id.EntityID
 import storage.Storage
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -55,7 +52,7 @@ object ZoneSerializer : KSerializer<Zone> {
         }
     }
 
-    @Suppress("MagicNumber")
+    @Suppress("MagicNumber", "LoopWithTooManyJumpStatements")
     override fun deserialize(decoder: Decoder): Zone {
         var id = 0
         var timestamp = 0L
@@ -79,22 +76,28 @@ object ZoneSerializer : KSerializer<Zone> {
                     6 -> point = decodeNullableSerializableElement(descriptor, index, LatLng.serializer())
                     7 -> points = decodeSerializableElement(descriptor, index, ListSerializer(DataPoint.serializer()))
                     8 -> areaId = decodeIntElement(descriptor, index)
+                    9 -> break // Ignore sectors
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
                 }
             }
         }
 
-        return Zone(EntityID(id, Zones)).apply {
-            this.timestamp = Instant.ofEpochMilli(timestamp)
-            this.displayName = displayName
-            this.image = Storage.ImagesDir.resolve(image)
-            this.kmz = Storage.TracksDir.resolve(kmz)
-            this.webUrl = URL(webUrl)
-            this.point = point
-            this.points = points
-            this.area = Area(EntityID(areaId, Areas))
-            // Note: "sectors" is never initialized here, it's not intended to ever decode the list of sectors
+        return ServerDatabase.instance.querySync {
+            fun Zone.modifier(): Zone {
+                this.timestamp = Instant.ofEpochMilli(timestamp)
+                this.displayName = displayName
+                this.image = Storage.ImagesDir.resolve(image)
+                this.kmz = Storage.TracksDir.resolve(kmz)
+                this.webUrl = URL(webUrl)
+                this.point = point
+                this.points = points
+                this.area = Area[areaId]
+                // Note: "sectors" is never initialized here, it's not intended to ever decode the list of sectors
+                return this
+            }
+
+            Zone.findById(id)?.apply { modifier() } ?: Zone.new(id) { modifier() }
         }
     }
 }

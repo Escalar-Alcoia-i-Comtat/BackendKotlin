@@ -1,8 +1,8 @@
 package database.serialization
 
+import ServerDatabase
 import database.entity.Area
 import database.entity.Zone
-import database.table.Areas
 import java.net.URL
 import java.time.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -16,7 +16,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
-import org.jetbrains.exposed.dao.id.EntityID
 import storage.Storage
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -42,7 +41,7 @@ object AreaSerializer : KSerializer<Area> {
         }
     }
 
-    @Suppress("MagicNumber")
+    @Suppress("MagicNumber", "LoopWithTooManyJumpStatements")
     override fun deserialize(decoder: Decoder): Area {
         var id = 0
         var timestamp = 0L
@@ -58,17 +57,23 @@ object AreaSerializer : KSerializer<Area> {
                     2 -> displayName = decodeStringElement(descriptor, index)
                     3 -> image = decodeStringElement(descriptor, index)
                     4 -> webUrl = decodeStringElement(descriptor, index)
+                    5 -> break // Ignore zones
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
                 }
             }
         }
 
-        return Area(EntityID(id, Areas)).apply {
-            this.timestamp = Instant.ofEpochMilli(timestamp)
-            this.displayName = displayName
-            this.image = Storage.ImagesDir.resolve(image)
-            this.webUrl = URL(webUrl)
+        return ServerDatabase.instance.querySync {
+            fun Area.modifier(): Area {
+                this.timestamp = Instant.ofEpochMilli(timestamp)
+                this.displayName = displayName
+                this.image = Storage.ImagesDir.resolve(image)
+                this.webUrl = URL(webUrl)
+                return this
+            }
+
+            Area.findById(id)?.apply { modifier() } ?: Area.new(id) { modifier() }
         }
     }
 }

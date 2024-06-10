@@ -47,8 +47,8 @@ class TestResponseFunctions {
             assertEquals(HttpStatusCode.BadGateway, status)
             val body = body<FailureResponse>()
             assertFalse(body.success)
-            assertEquals(0, body.error.code)
-            assertEquals("This is a testing error", body.error.message)
+            assertEquals(0, body.error?.code)
+            assertEquals("This is a testing error", body.error?.message)
         }
     }
 
@@ -68,20 +68,21 @@ class TestResponseFunctions {
 
         client.get("/").apply {
             assertEquals(HttpStatusCode.OK, status)
-            val body = body<SuccessResponse<ResponseData>>()
+            val body = body<SuccessResponse>()
             assertTrue(body.success)
         }
         client.get("/accepted").apply {
             assertEquals(HttpStatusCode.Accepted, status)
-            val body = body<SuccessResponse<ResponseData>>()
+            val body = body<SuccessResponse>()
             assertTrue(body.success)
         }
         client.get("/data").apply {
             assertEquals(HttpStatusCode.OK, status, "Status code is not OK. Body: ${bodyAsText()}")
-            val body = body<SuccessResponse<TestPairData>>()
+            val body = body<SuccessResponse>()
             assertTrue(body.success)
-            assertEquals("key", body.data?.key)
-            assertEquals("value", body.data?.value)
+            val data = body.data<TestPairData>()
+            assertEquals("key", data?.key)
+            assertEquals("value", data?.value)
         }
     }
 }

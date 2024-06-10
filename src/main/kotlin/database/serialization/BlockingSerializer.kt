@@ -24,10 +24,10 @@ import kotlinx.serialization.encoding.encodeStructure
 object BlockingSerializer : KSerializer<Blocking> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Blocking") {
         element<Int>("id")
-        element<Instant>("timestamp")
+        element("timestamp", InstantSerializer.descriptor)
         element<BlockingTypes>("type")
         element<BlockingRecurrenceYearly?>("recurrence")
-        element<LocalDateTime?>("end_date")
+        element("end_date", LocalDateTimeSerializer.descriptor, isOptional = true)
         element<Int>("path_id")
     }
 

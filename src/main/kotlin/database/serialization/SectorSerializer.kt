@@ -5,8 +5,6 @@ import data.LatLng
 import database.entity.Path
 import database.entity.Sector
 import database.entity.Zone
-import database.table.Sectors
-import database.table.Zones
 import java.time.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -20,7 +18,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.encoding.encodeStructure
-import org.jetbrains.exposed.dao.id.EntityID
 import storage.Storage
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -57,7 +54,7 @@ object SectorSerializer : KSerializer<Sector> {
         }
     }
 
-    @Suppress("MagicNumber")
+    @Suppress("MagicNumber", "LoopWithTooManyJumpStatements", "CyclomaticComplexMethod")
     override fun deserialize(decoder: Decoder): Sector {
         var id = 0
         var timestamp = 0L
@@ -83,23 +80,29 @@ object SectorSerializer : KSerializer<Sector> {
                     7 -> gpx = decodeNullableSerializableElement(descriptor, index, String.serializer())
                     8 -> point = decodeNullableSerializableElement(descriptor, index, LatLng.serializer())
                     9 -> zoneId = decodeIntElement(descriptor, index)
+                    10 -> break // Ignore paths
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
                 }
             }
         }
 
-        return Sector(EntityID(id, Sectors)).apply {
-            this.timestamp = Instant.ofEpochMilli(timestamp)
-            this.displayName = displayName
-            this.kidsApt = kidsApt
-            this.sunTime = sunTime
-            this.walkingTime = walkingTime
-            this.image = Storage.ImagesDir.resolve(image)
-            this.gpx = gpx?.let { Storage.TracksDir.resolve(it) }
-            this.point = point
-            this.zone = Zone(EntityID(zoneId, Zones))
-            // Note: "paths" is never initialized here, it's not intended to ever decode the list of paths
+        return ServerDatabase.instance.querySync {
+            fun Sector.modifier(): Sector {
+                this.timestamp = Instant.ofEpochMilli(timestamp)
+                this.displayName = displayName
+                this.kidsApt = kidsApt
+                this.sunTime = sunTime
+                this.walkingTime = walkingTime
+                this.image = Storage.ImagesDir.resolve(image)
+                this.gpx = gpx?.let { Storage.TracksDir.resolve(it) }
+                this.point = point
+                this.zone = Zone[zoneId]
+                // Note: "paths" is never initialized here, it's not intended to ever decode the list of paths
+                return this
+            }
+
+            Sector.findById(id)?.apply { modifier() } ?: Sector.new(id) { modifier() }
         }
     }
 }

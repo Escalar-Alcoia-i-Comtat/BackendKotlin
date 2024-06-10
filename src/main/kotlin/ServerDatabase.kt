@@ -109,7 +109,7 @@ class ServerDatabase private constructor() {
      *
      * @param block The block of code to run in the transaction.
      */
-    fun querySync(block: Transaction.() -> Unit) = transaction(database) {
+    fun <T> querySync(block: Transaction.() -> T) = transaction(database) {
         logger?.let { addLogger(it) }
 
         block()
