@@ -8,6 +8,7 @@ import org.json.JSONObject
  * This interface defines a single method `toJson()` that returns a JSONObject representing the serialized form of the
  * implementing class.
  */
+@Deprecated("Use kotlinx.serialization instead.")
 interface JsonSerializable {
     /**
      * Converts the current object to its JSON representation.

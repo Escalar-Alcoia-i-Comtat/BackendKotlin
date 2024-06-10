@@ -10,6 +10,7 @@ import org.json.JSONObject
  *
  * @param Result the result type that the JSON object will be deserialized to
  */
+@Deprecated("Use kotlinx.serialization instead.")
 interface JsonSerializer <Result> {
     /**
      * Converts a JSON object to a Result object.
