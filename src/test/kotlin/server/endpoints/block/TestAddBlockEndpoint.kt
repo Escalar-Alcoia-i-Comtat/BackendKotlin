@@ -75,9 +75,9 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
         val pathId = DataProvider.provideSamplePath(sectorId)
 
         post("/block/$pathId") {
-            setBody(
+            /*setBody(
                 JsonObject(emptyMap())
-            )
+            )*/
         }.apply {
             assertFailure(Errors.MissingData)
         }

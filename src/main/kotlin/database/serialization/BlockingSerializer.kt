@@ -67,13 +67,20 @@ object BlockingSerializer : KSerializer<Blocking> {
                 }
             }
         }
+
+        id ?: error("Blocking id not found")
         
-        return Blocking.new(id) {
-            this.timestamp = timestamp!!
-            this.type = type!!
-            this.recurrence = recurrence
-            this.endDate = endDate
-            this.path = Path.findById(pathId!!) ?: error("Path with id $pathId not found")
+        return ServerDatabase.instance.querySync {
+            fun Blocking.modify(): Blocking {
+                this.timestamp = timestamp!!
+                this.type = type!!
+                this.recurrence = recurrence
+                this.endDate = endDate
+                this.path = Path.findById(pathId!!) ?: error("Path with id $pathId not found")
+                return this
+            }
+
+            Blocking.findById(id!!) ?: Blocking.new(id!!) { modify() }
         }
     }
 }

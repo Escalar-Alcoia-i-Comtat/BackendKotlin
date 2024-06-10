@@ -33,10 +33,9 @@ suspend fun PipelineContext<Unit, ApplicationCall>.respondFailure(
  * @param error The error object containing the error code and message.
  */
 suspend fun ApplicationCall.respondFailure(error: Error, extra: String? = null) {
-    respond(
-        message = FailureResponse(error.copy(extra = extra)),
-        status = error.statusCode
-    )
+    println("Responding with status: ${error.status}")
+    response.status(error.statusCode)
+    respond(FailureResponse(error.copy(extra = extra)))
 }
 
 /**

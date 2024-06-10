@@ -11,10 +11,10 @@ import server.response.respondSuccess
 object GetAllBlocksEndpoint: EndpointBase("/blocks") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         // Check that the path exists
-        val blocks = ServerDatabase.instance.query { Blocking.all() }
+        val blocks = ServerDatabase.instance.query { Blocking.all().toList() }
 
         respondSuccess(
-            data = BlocksResponseData(blocks.toList())
+            data = BlocksResponseData(blocks)
         )
     }
 }

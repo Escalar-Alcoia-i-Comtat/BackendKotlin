@@ -69,41 +69,41 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
 
         receiveMultipart(
             forEachFormItem = { partData ->
+                val value = partData.value
                 when (partData.name) {
-                    "displayName" -> displayName = partData.value
-                    "sketchId" -> sketchId = partData.value.toUIntOrNull()
+                    "displayName" -> displayName = value
+                    "sketchId" -> sketchId = value.toUIntOrNull()
 
-                    "height" -> height = partData.value.toUIntOrNull()
-                    "grade" -> grade = partData.value.let { Grade.fromString(it) }
-                    "ending" -> ending = partData.value.let { Ending.valueOf(it) }
+                    "height" -> height = value.toUIntOrNull()
+                    "grade" -> grade = value.let { Grade.fromString(it) }
+                    "ending" -> ending = value.let { Ending.valueOf(it) }
 
-                    "pitches" -> pitches = Json.decodeFromString(partData.value)
+                    "pitches" -> pitches = Json.decodeFromString(value)
 
-                    "stringCount" -> stringCount = partData.value.toUIntOrNull()
+                    "stringCount" -> stringCount = value.toUIntOrNull()
 
-                    "paraboltCount" -> counts[INDEX_COUNT_PARABOLT] = partData.value.toUIntOrNull()
-                    "burilCount" -> counts[INDEX_COUNT_BURIL] = partData.value.toUIntOrNull()
-                    "pitonCount" -> counts[INDEX_COUNT_PITON] = partData.value.toUIntOrNull()
-                    "spitCount" -> counts[INDEX_COUNT_SPIT] = partData.value.toUIntOrNull()
-                    "tensorCount" -> counts[INDEX_COUNT_TENSOR] = partData.value.toUIntOrNull()
+                    "paraboltCount" -> counts[INDEX_COUNT_PARABOLT] = value.toUIntOrNull()
+                    "burilCount" -> counts[INDEX_COUNT_BURIL] = value.toUIntOrNull()
+                    "pitonCount" -> counts[INDEX_COUNT_PITON] = value.toUIntOrNull()
+                    "spitCount" -> counts[INDEX_COUNT_SPIT] = value.toUIntOrNull()
+                    "tensorCount" -> counts[INDEX_COUNT_TENSOR] = value.toUIntOrNull()
 
-                    "crackerRequired" -> requirements[INDEX_REQUIRE_CRACKER] = partData.value.toBoolean()
-                    "friendRequired" -> requirements[INDEX_REQUIRE_FRIEND] = partData.value.toBoolean()
-                    "lanyardRequired" -> requirements[INDEX_REQUIRE_LANYARD] = partData.value.toBoolean()
-                    "nailRequired" -> requirements[INDEX_REQUIRE_NAIL] = partData.value.toBoolean()
-                    "pitonRequired" -> requirements[INDEX_REQUIRE_PITON] = partData.value.toBoolean()
-                    "stapesRequired" -> requirements[INDEX_REQUIRE_STAPES] = partData.value.toBoolean()
+                    "crackerRequired" -> requirements[INDEX_REQUIRE_CRACKER] = value.toBoolean()
+                    "friendRequired" -> requirements[INDEX_REQUIRE_FRIEND] = value.toBoolean()
+                    "lanyardRequired" -> requirements[INDEX_REQUIRE_LANYARD] = value.toBoolean()
+                    "nailRequired" -> requirements[INDEX_REQUIRE_NAIL] = value.toBoolean()
+                    "pitonRequired" -> requirements[INDEX_REQUIRE_PITON] = value.toBoolean()
+                    "stapesRequired" -> requirements[INDEX_REQUIRE_STAPES] = value.toBoolean()
 
-                    "showDescription" -> showDescription = partData.value.toBoolean()
-                    "description" -> description = partData.value
+                    "showDescription" -> showDescription = value.toBoolean()
+                    "description" -> description = value
 
-                    "builder" -> builder = Json.decodeFromString(partData.value)
-                    "reBuilder" -> reBuilder = Json.decodeFromString(partData.value)
+                    "builder" -> builder = Json.decodeFromString(value)
+                    "reBuilder" -> reBuilder = Json.decodeFromString(value)
 
-                    "sector" -> ServerDatabase.instance.query {
-                        sector = Sector.findById(partData.value.toInt())
-                            ?: return@query respondFailure(Errors.ParentNotFound)
-                    }
+                    "sector" -> ServerDatabase.instance {
+                        Sector.findById(value.toInt()).also { sector = it }
+                    } ?: return respondFailure(Errors.ParentNotFound)
                 }
             },
             forEachFileItem = { partData ->

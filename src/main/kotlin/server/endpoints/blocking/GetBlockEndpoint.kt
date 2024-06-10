@@ -24,10 +24,11 @@ object GetBlockEndpoint: EndpointBase("/block/{pathId}") {
 
         val blocks = ServerDatabase.instance.query {
             Blocking.find { BlockingTable.path eq pathId }
+                .toList()
         }
 
         respondSuccess(
-            BlocksResponseData(blocks.toList())
+            BlocksResponseData(blocks)
         )
     }
 }
