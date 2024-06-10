@@ -4,8 +4,9 @@ import io.ktor.plugin.features.DockerPortMappingProtocol
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlinx.kover)
+    alias(libs.plugins.ktor)
     alias(libs.plugins.sentry)
 }
 
@@ -31,6 +32,9 @@ val tcnativeClassifier = when {
 dependencies {
     // JSON support
     implementation(libs.json)
+
+    // Kotlin Serialization
+    implementation(libs.kotlin.serializationJson)
 
     // Ktor dependencies
     implementation(libs.ktor.server.core)
