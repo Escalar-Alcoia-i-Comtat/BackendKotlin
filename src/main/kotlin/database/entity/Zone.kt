@@ -3,10 +3,12 @@ package database.entity
 import ServerDatabase
 import data.DataPoint
 import data.LatLng
+import database.serialization.ZoneSerializer
 import database.table.Zones
 import java.io.File
 import java.net.URL
 import java.time.Instant
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.json.JSONObject
@@ -23,6 +25,7 @@ import utils.toJson
  *
  * @param id The ID of the zone.
  */
+@Serializable(with = ZoneSerializer::class)
 class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
     companion object: IntEntityClass<Zone>(Zones)
 
