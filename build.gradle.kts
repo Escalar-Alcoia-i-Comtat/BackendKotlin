@@ -4,8 +4,9 @@ import io.ktor.plugin.features.DockerPortMappingProtocol
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlinx.kover)
+    alias(libs.plugins.ktor)
     alias(libs.plugins.sentry)
 }
 
@@ -29,10 +30,8 @@ val tcnativeClassifier = when {
 }
 
 dependencies {
-    // JSON support
-    implementation(libs.json)
-
     // Ktor dependencies
+    implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.locations)
@@ -41,14 +40,20 @@ dependencies {
     implementation(libs.ktor.utils)
 
     // Ktor client for making requests
+    implementation(libs.ktor.client.contentNegotiation)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
+
+    // Kotlin Serialization & Ktor Serialization
+    implementation(libs.kotlin.serializationJson)
+    implementation(libs.ktor.serializationJson)
 
     // Exposed dependencies
     implementation(libs.exposed.core)
     implementation(libs.exposed.dao)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.javaTime)
+    implementation(libs.exposed.json)
 
     // Database engines
     implementation(libs.postgresql)

@@ -44,6 +44,7 @@ bin/
 
 ### Ignore testing database ###
 testing.db
+testing.db-journal
 
 ### Ignore secrets file ###
 local.properties

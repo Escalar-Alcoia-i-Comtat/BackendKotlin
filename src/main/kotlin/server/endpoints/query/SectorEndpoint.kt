@@ -23,8 +23,7 @@ object SectorEndpoint : EndpointBase("/sector/{sectorId}") {
 
         val sector = ServerDatabase.instance.query { Sector.findById(sectorId) }
             ?: return respondFailure(Errors.ObjectNotFound)
-        val sectorJson = ServerDatabase.instance.query { sector.toJson() }
 
-        respondSuccess(sectorJson)
+        respondSuccess(sector)
     }
 }

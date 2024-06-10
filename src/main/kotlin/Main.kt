@@ -28,7 +28,7 @@ fun main() {
     ServerDatabase.configureFromEnvironment()
 
     Logger.info("Connecting to the database, and creating tables...")
-    ServerDatabase.instance.initialize()
+    runBlocking { ServerDatabase.instance.initialize() }
 
     Logger.info("Initializing Crowdin connection...")
     Localization.init()

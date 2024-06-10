@@ -5,6 +5,7 @@ import assertions.assertSuccess
 import data.BlockingRecurrenceYearly
 import data.BlockingTypes
 import database.EntityTypes
+import database.entity.Blocking
 import database.entity.info.LastUpdate
 import distribution.Notifier
 import io.ktor.client.request.setBody
@@ -15,14 +16,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
-import org.json.JSONObject
 import server.DataProvider
 import server.base.ApplicationTestBase
-import utils.getJSONObjectOrNull
-import utils.jsonOf
+import server.request.AddBlockRequest
+import server.response.update.UpdateResponseData
 
 class TestPatchBlockEndpoint: ApplicationTestBase() {
-    private fun patch(parameterName: String, parameterValue: Any, assert: (element: JSONObject) -> Unit) = test {
+    private fun patch(
+        request: AddBlockRequest,
+        assert: (element: Blocking) -> Unit
+    ) = test {
         val areaId = DataProvider.provideSampleArea()
         val zoneId = DataProvider.provideSampleZone(areaId)
         val sectorId = DataProvider.provideSampleSector(zoneId)
@@ -34,15 +37,13 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
 
         post("/block/$pathId") {
             setBody(
-                jsonOf(
-                    "type" to BlockingTypes.BUILD
-                ).toString()
+                AddBlockRequest(BlockingTypes.BUILD)
             )
         }.apply {
-            assertSuccess(HttpStatusCode.Created) {
-                val element = it?.getJSONObjectOrNull("element")
+            assertSuccess<UpdateResponseData<Blocking>>(HttpStatusCode.Created) {
+                val element = it?.element
                 assertNotNull(element)
-                blockId = element.getInt("id")
+                blockId = element.id.value
             }
 
             ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
@@ -50,12 +51,10 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
         assertNotNull(blockId)
 
         patch("/block/$blockId") {
-            setBody(
-                jsonOf(parameterName to parameterValue).toString()
-            )
+            setBody(request)
         }.apply {
-            assertSuccess {
-                val element = it?.getJSONObjectOrNull("element")
+            assertSuccess<UpdateResponseData<Blocking>>(HttpStatusCode.OK) {
+                val element = it?.element
                 assertNotNull(element)
                 assert(element)
             }
@@ -65,18 +64,20 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
     }
 
     @Test
-    fun `test block patching - type`() = patch("type", BlockingTypes.BIRD) {
-        assertEquals(BlockingTypes.BIRD, it.getEnum(BlockingTypes::class.java, "type"))
+    fun `test block patching - type`() = patch(
+        AddBlockRequest(type = BlockingTypes.BIRD)
+    ) {
+        assertEquals(BlockingTypes.BIRD, it.type)
     }
 
     @Test
     fun `test block patching - recurrence`() {
         val recurrence = BlockingRecurrenceYearly(1U, Month.MARCH, 1U, Month.JULY)
 
-        patch("recurrence", recurrence) {
-            val actual = BlockingRecurrenceYearly.fromJson(it.getJSONObject("recurrence"))
-
-            assertEquals(recurrence, actual)
+        patch(
+            AddBlockRequest(recurrence = recurrence)
+        ) {
+            assertEquals(recurrence, it.recurrence)
         }
     }
 
@@ -84,8 +85,10 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
     fun `test block patching - endDate`() {
         val endDate = LocalDateTime.of(2023, 1, 1, 0, 0, 0, 0)
 
-        patch("end_date", endDate.toString()) {
-            assertEquals(endDate.toString(), it.getString("end_date"))
+        patch(
+            AddBlockRequest(endDate = endDate)
+        ) {
+            assertEquals(endDate, it.endDate)
         }
     }
 }

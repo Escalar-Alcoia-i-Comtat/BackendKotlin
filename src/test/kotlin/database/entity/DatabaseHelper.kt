@@ -6,9 +6,9 @@ import data.BlockingTypes
 import data.Builder
 import data.DataPoint
 import data.Ending
+import data.Grade
 import data.LatLng
 import data.PitchInfo
-import data.SportsGrade
 import java.io.File
 import java.net.URL
 import java.time.Instant
@@ -35,13 +35,13 @@ object DatabaseHelper {
         displayName: String = DataProvider.SampleZone.displayName,
         webUrl: String = DataProvider.SampleZone.webUrl,
         point: LatLng = DataProvider.SampleZone.point,
-        pointsSet: Set<DataPoint> = DataProvider.SampleZone.points
+        points: List<DataPoint> = DataProvider.SampleZone.points
     ): Zone = ServerDatabase.instance.query {
         Zone.new {
             this.displayName = displayName
             this.webUrl = URL(webUrl)
             this.point = point
-            this.pointsSet = pointsSet.map { it.toJson().toString() }
+            this.points = points
 
             // Required, but not used
             image = File(Storage.ImagesDir, "abc")
@@ -69,6 +69,7 @@ object DatabaseHelper {
 
             // Required, but not used
             image = File(Storage.ImagesDir, "abc")
+            gpx = File(Storage.TracksDir, "abc")
 
             // Must specify a parent
             this.zone = zone
@@ -80,7 +81,7 @@ object DatabaseHelper {
         displayName: String = DataProvider.SamplePath.displayName,
         sketchId: UInt = DataProvider.SamplePath.sketchId,
         height: UInt = DataProvider.SamplePath.height,
-        grade: SportsGrade = DataProvider.SamplePath.grade,
+        grade: Grade = DataProvider.SamplePath.grade,
         ending: Ending = DataProvider.SamplePath.ending,
         pitches: List<PitchInfo> = DataProvider.SamplePath.pitches,
         stringCount: UInt = DataProvider.SamplePath.stringCount,
@@ -96,7 +97,9 @@ object DatabaseHelper {
         pitonRequired: Boolean = DataProvider.SamplePath.pitonRequired,
         stapesRequired: Boolean = DataProvider.SamplePath.stapesRequired,
         builder: Builder = DataProvider.SamplePath.builder,
-        reBuilder: List<Builder> = DataProvider.SamplePath.reBuilder
+        reBuilder: List<Builder> = DataProvider.SamplePath.reBuilder,
+        showDescription: Boolean = DataProvider.SamplePath.showDescription,
+        description: String = DataProvider.SamplePath.description,
     ): Path = ServerDatabase.instance.query {
         Path.new {
             this.displayName = displayName
@@ -125,6 +128,14 @@ object DatabaseHelper {
 
             this.builder = builder
             this.reBuilder = reBuilder
+
+            this.showDescription = showDescription
+            this.description = description
+
+            this.images = listOf(
+                File(Storage.ImagesDir, "abc"),
+                File(Storage.ImagesDir, "def")
+            )
 
             // Must specify a parent
             this.sector = sector

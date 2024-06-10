@@ -11,16 +11,16 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
+import kotlinx.serialization.json.Json
 import server.endpoints.SecureEndpointBase
 import server.error.Errors.MissingData
 import server.error.Errors.ParentNotFound
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import storage.Storage
 import utils.isAnyNull
-import utils.json
-import utils.jsonOf
 
 object NewSectorEndpoint : SecureEndpointBase("/sector") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -39,7 +39,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
             forEachFormItem = { partData ->
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
-                    "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
+                    "point" -> point = Json.decodeFromString(partData.value)
                     "kidsApt" -> kidsApt = partData.value.toBoolean()
                     "sunTime" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
                     "walkingTime" -> walkingTime = partData.value.toUIntOrNull()
@@ -60,14 +60,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
         if (isAnyNull(displayName, imageFile, kidsApt, sunTime, zone)) {
             imageFile?.delete()
             gpxFile?.delete()
-            return respondFailure(
-                MissingData,
-                jsonOf(
-                    "multipart" to rawMultipartFormItems,
-                    "imageFile" to imageFile?.path,
-                    "gpxFile" to gpxFile?.path
-                ).toString()
-            )
+            return respondFailure(MissingData)
         }
 
         val sector = ServerDatabase.instance.query {
@@ -81,15 +74,15 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                 this.gpx = gpxFile
                 weight?.let { this.weight = it }
                 this.zone = zone!!
-            }.toJson()
+            }
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        Notifier.getInstance().notifyCreated(EntityTypes.SECTOR, sector["id"] as Int)
+        Notifier.getInstance().notifyCreated(EntityTypes.SECTOR, sector.id.value)
 
         respondSuccess(
-            jsonOf("element" to sector),
+            data = UpdateResponseData(sector),
             httpStatusCode = HttpStatusCode.Created
         )
     }

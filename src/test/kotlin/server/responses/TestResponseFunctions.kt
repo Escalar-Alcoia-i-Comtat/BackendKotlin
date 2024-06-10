@@ -1,9 +1,12 @@
 package server.responses
 
-import assertions.assertContentEquals
+import database.serialization.Json
+import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
@@ -11,16 +14,23 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.serialization.Serializable
 import server.error.Error
+import server.plugins.installPlugins
+import server.response.FailureResponse
+import server.response.ResponseData
+import server.response.SuccessResponse
 import server.response.respondFailure
 import server.response.respondSuccess
-import utils.json
-import utils.jsonOf
 
 class TestResponseFunctions {
+    @Serializable
+    data class TestPairData(val key: String, val value: String): ResponseData
+
     @Test
     fun `test respondFailure`() = testApplication {
         application {
+            installPlugins()
             routing {
                 get("/") {
                     respondFailure(
@@ -29,47 +39,50 @@ class TestResponseFunctions {
                 }
             }
         }
+        val client = createClient {
+            install(ContentNegotiation) { json(Json) }
+        }
+
         client.get("/").apply {
             assertEquals(HttpStatusCode.BadGateway, status)
-            val body = bodyAsText().json
-            assertFalse(body.getBoolean("success"))
-            assertContentEquals(
-                jsonOf("code" to 0, "message" to "This is a testing error"),
-                body.getJSONObject("error")
-            )
+            val body = body<FailureResponse>()
+            assertFalse(body.success)
+            assertEquals(0, body.error?.code)
+            assertEquals("This is a testing error", body.error?.message)
         }
     }
 
     @Test
     fun `test respondSuccess`() = testApplication {
         application {
+            installPlugins()
             routing {
-                get("/") {
-                    respondSuccess()
-                }
-                get("/accepted") {
-                    respondSuccess(httpStatusCode = HttpStatusCode.Accepted)
-                }
-                get("/data") {
-                    respondSuccess(data = jsonOf("test" to "value"))
-                }
+                get("/") { respondSuccess() }
+                get("/accepted") { respondSuccess(httpStatusCode = HttpStatusCode.Accepted) }
+                get("/data") { respondSuccess(data = TestPairData("key", "value")) }
             }
         }
+        val client = createClient {
+            install(ContentNegotiation) { json(Json) }
+        }
+
         client.get("/").apply {
             assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText().json
-            assertTrue(body.getBoolean("success"))
+            val body = body<SuccessResponse>()
+            assertTrue(body.success)
         }
         client.get("/accepted").apply {
             assertEquals(HttpStatusCode.Accepted, status)
-            val body = bodyAsText().json
-            assertTrue(body.getBoolean("success"))
+            val body = body<SuccessResponse>()
+            assertTrue(body.success)
         }
         client.get("/data").apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText().json
-            assertTrue(body.getBoolean("success"))
-            assertContentEquals(jsonOf("test" to "value"), body.getJSONObject("data"))
+            assertEquals(HttpStatusCode.OK, status, "Status code is not OK. Body: ${bodyAsText()}")
+            val body = body<SuccessResponse>()
+            assertTrue(body.success)
+            val data = body.data<TestPairData>()
+            assertEquals("key", data?.key)
+            assertEquals("value", data?.value)
         }
     }
 }

@@ -3,12 +3,13 @@ package server.endpoints.patch
 import ServerDatabase
 import data.Builder
 import data.Ending
-import data.GradeValue
+import data.Grade
 import data.PitchInfo
 import database.EntityTypes
 import database.entity.Path
 import database.entity.Sector
 import database.entity.info.LastUpdate
+import database.serialization.Json
 import database.table.Paths
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
@@ -24,13 +25,10 @@ import server.error.Errors
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import storage.Storage
 import utils.areAllFalse
 import utils.areAllNull
-import utils.json
-import utils.jsonArray
-import utils.jsonOf
-import utils.serialize
 
 object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
@@ -46,7 +44,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
         var displayName: String? = null
         var sketchId: UInt? = null
         var height: UInt? = null
-        var grade: GradeValue? = null
+        var grade: Grade? = null
         var ending: Ending? = null
         var pitches: List<PitchInfo>? = null
         var stringCount: UInt? = null
@@ -101,7 +99,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
                         if (value == "\u0000")
                             removeGrade = true
                         else
-                            grade = value.let(GradeValue::fromString)
+                            grade = value.let(Grade::fromString)
                     }
 
                     "ending" -> partData.value.let { value ->
@@ -115,7 +113,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
                         if (value == "\u0000")
                             removePitches = true
                         else
-                            pitches = value.jsonArray.serialize(PitchInfo)
+                            pitches = Json.decodeFromString(value)
                     }
 
                     "stringCount" -> partData.value.let { value ->
@@ -179,14 +177,14 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
                         if (value == "\u0000")
                             removeBuilder = true
                         else
-                            builder = value.json.let(Builder::fromJson)
+                            builder = Json.decodeFromString(value)
                     }
 
                     "reBuilder" -> partData.value.let { value ->
                         if (value == "\u0000")
                             removeReBuilder = true
                         else
-                            reBuilder = value.jsonArray.serialize(Builder)
+                            reBuilder = Json.decodeFromString(value)
                     }
 
                     "removeImages" -> partData.value.let { value ->
@@ -297,7 +295,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
         Notifier.getInstance().notifyUpdated(EntityTypes.PATH, pathId)
 
         respondSuccess(
-            data = jsonOf("element" to ServerDatabase.instance.query { path.toJson() })
+            data = UpdateResponseData(path)
         )
     }
 }

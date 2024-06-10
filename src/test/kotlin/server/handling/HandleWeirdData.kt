@@ -8,7 +8,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import server.DataProvider
 import server.base.ApplicationTestBase
-import utils.getJSONArrayOrNull
 
 /**
  * This class handles states where the data stored in the database for a given item may be old or not well formatted.
@@ -31,9 +30,9 @@ class HandleWeirdData: ApplicationTestBase() {
         }
 
         get("/path/$pathId").apply {
-            assertSuccess { data ->
+            assertSuccess<Path> { data ->
                 assertNotNull(data)
-                assertNull(data.getJSONArrayOrNull("pitches"))
+                assertNull(data.pitches)
             }
         }
     }

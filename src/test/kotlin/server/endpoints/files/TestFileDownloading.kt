@@ -1,10 +1,10 @@
 package server.endpoints.files
 
 import assertions.assertSuccess
+import database.entity.Area
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.readBytes
 import io.ktor.http.isSuccess
-import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.copyAndClose
 import java.awt.image.BufferedImage
@@ -16,9 +16,11 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
+import server.base.StubApplicationTestBuilder
+import storage.Storage
 
 class TestFileDownloading : ApplicationTestBase() {
-    private suspend inline fun ApplicationTestBuilder.provideImageFile(
+    private suspend inline fun StubApplicationTestBuilder.provideImageFile(
         imageFile: String = "/images/alcoi.jpg",
         block: (imageUUID: String) -> Unit
     ) {
@@ -27,9 +29,9 @@ class TestFileDownloading : ApplicationTestBase() {
         var image: String? = null
 
         get("/area/$areaId").apply {
-            assertSuccess { data ->
+            assertSuccess<Area> { data ->
                 assertNotNull(data)
-                image = data.getString("image")
+                image = data.image.toRelativeString(Storage.ImagesDir)
             }
         }
 

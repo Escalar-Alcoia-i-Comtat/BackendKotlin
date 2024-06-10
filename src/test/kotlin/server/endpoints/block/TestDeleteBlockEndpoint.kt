@@ -16,7 +16,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import server.DataProvider
 import server.base.ApplicationTestBase
-import utils.jsonOf
+import server.request.AddBlockRequest
 
 class TestDeleteBlockEndpoint: ApplicationTestBase() {
     @Test
@@ -28,9 +28,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
 
         post("/block/$pathId") {
             setBody(
-                jsonOf(
-                    "type" to BlockingTypes.BUILD
-                ).toString()
+                AddBlockRequest(BlockingTypes.BUILD)
             )
         }.apply {
             assertSuccess(HttpStatusCode.Created)

@@ -7,6 +7,7 @@ import database.EntityTypes
 import database.entity.Area
 import database.entity.Zone
 import database.entity.info.LastUpdate
+import database.serialization.Json
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -19,12 +20,9 @@ import server.error.Errors.MissingData
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import storage.Storage
 import utils.isAnyNull
-import utils.json
-import utils.jsonArray
-import utils.jsonOf
-import utils.serialize
 
 object NewZoneEndpoint : SecureEndpointBase("/zone") {
     @Suppress("DuplicatedCode")
@@ -32,7 +30,7 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
         var displayName: String? = null
         var webUrl: String? = null
         var point: LatLng? = null
-        var points: Set<DataPoint>? = null
+        var points: List<DataPoint>? = null
         var area: Area? = null
 
         // TODO: Validate webUrl
@@ -45,8 +43,8 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
                     "webUrl" -> webUrl = partData.value
-                    "point" -> point = partData.value.json.let { LatLng.fromJson(it) }
-                    "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
+                    "point" -> point = Json.decodeFromString(partData.value)
+                    "points" -> points = Json.decodeFromString(partData.value)
                     "area" -> ServerDatabase.instance.query {
                         area = Area.findById(partData.value.toInt())
                             ?: return@query respondFailure(Errors.ParentNotFound)
@@ -70,7 +68,7 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
             )
         }
 
-        if (points == null) points = emptySet()
+        if (points == null) points = emptyList()
 
         val zone = ServerDatabase.instance.query {
             Zone.new {
@@ -79,17 +77,17 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
                 this.image = imageFile!!
                 this.kmz = kmzFile!!
                 this.point = point
-                this.pointsSet = points!!.map { it.toJson().toString() }
+                this.points = points!!
                 this.area = area!!
-            }.toJson()
+            }
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        Notifier.getInstance().notifyCreated(EntityTypes.ZONE, zone["id"] as Int)
+        Notifier.getInstance().notifyCreated(EntityTypes.ZONE, zone.id.value)
 
         respondSuccess(
-            jsonOf("element" to zone),
+            UpdateResponseData(zone),
             httpStatusCode = HttpStatusCode.Created
         )
     }

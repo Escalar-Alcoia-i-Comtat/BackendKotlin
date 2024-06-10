@@ -6,14 +6,14 @@ import kotlin.test.assertEquals
 class TestGrades {
     @Test
     fun `Test grade conversions`() {
-        assertEquals(SportsGrade.G4A, GradeValue.fromString("4º"))
-        assertEquals(SportsGrade.G5A, GradeValue.fromString("5º"))
-        assertEquals(SportsGrade.G5_PLUS, GradeValue.fromString("5+"))
-        assertEquals(SportsGrade.G6A, GradeValue.fromString("6a"))
-        assertEquals(SportsGrade.G6B_PLUS, GradeValue.fromString("6b+"))
-        assertEquals(SportsGrade.G7C, GradeValue.fromString("7c"))
-        assertEquals(SportsGrade.G9C_PLUS, GradeValue.fromString("9c+"))
-        assertEquals(ArtificialGrade.A2, GradeValue.fromString("A2"))
-        assertEquals(SportsGrade.UNKNOWN, GradeValue.fromString("¿?"))
+        assertEquals(Grade.G4A, Grade.fromString("4º"))
+        assertEquals(Grade.G5A, Grade.fromString("5º"))
+        assertEquals(Grade.G5_PLUS, Grade.fromString("5+"))
+        assertEquals(Grade.G6A, Grade.fromString("6a"))
+        assertEquals(Grade.G6B_PLUS, Grade.fromString("6b+"))
+        assertEquals(Grade.G7C, Grade.fromString("7c"))
+        assertEquals(Grade.G9C_PLUS, Grade.fromString("9c+"))
+        assertEquals(Grade.A2, Grade.fromString("A2"))
+        assertEquals(Grade.UNKNOWN, Grade.fromString("¿?"))
     }
 }

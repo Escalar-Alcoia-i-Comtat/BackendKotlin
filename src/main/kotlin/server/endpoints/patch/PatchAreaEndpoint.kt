@@ -22,8 +22,8 @@ import server.error.Errors
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import storage.Storage
-import utils.jsonOf
 
 object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -60,16 +60,14 @@ object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
         }
 
         if (displayName == null && webUrl == null && imageFile == null) {
-            return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
+            return respondSuccess(HttpStatusCode.NoContent)
         }
 
-        val json = ServerDatabase.instance.query {
+        ServerDatabase.instance.query {
             displayName?.let { area.displayName = it }
             webUrl?.let { area.webUrl = URL(it) }
 
             area.timestamp = Instant.now()
-
-            area.toJson()
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
@@ -77,7 +75,7 @@ object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
         Notifier.getInstance().notifyUpdated(EntityTypes.AREA, areaId)
 
         respondSuccess(
-            data = jsonOf("element" to json)
+            data = UpdateResponseData(area)
         )
     }
 }

@@ -8,9 +8,8 @@ import database.entity.Zone
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import server.endpoints.EndpointBase
+import server.response.query.TreeResponseData
 import server.response.respondSuccess
-import utils.jsonOf
-import utils.mapJson
 
 object TreeEndpoint : EndpointBase("/tree") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -19,10 +18,10 @@ object TreeEndpoint : EndpointBase("/tree") {
             val sectors = Sector.all()
             val paths = Path.all()
 
-            Area.all().mapJson { it.toJsonWithZones(zones, sectors, paths) }
+            Area.all().onEach { it.populateZones(zones, sectors, paths) }
         }
         respondSuccess(
-            jsonOf("areas" to array)
+            data = TreeResponseData(array.toList())
         )
     }
 }

@@ -7,7 +7,6 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.plugins.ParameterConversionException
 import io.ktor.server.request.header
-import io.ktor.server.response.header
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 import localization.Localization
@@ -29,18 +28,17 @@ object PathEndpoint : EndpointBase("/path/{pathId}") {
 
         val path = ServerDatabase.instance.query { Path.findById(pathId) }
             ?: return respondFailure(Errors.ObjectNotFound)
-        val pathJson = ServerDatabase.instance.query { path.toJson() }
 
         // If language requested, try loading translation from Crowdin
         if (language != null) {
             val otherDescription = Localization.getPathDescription(path, language)
             if (otherDescription != null) {
                 // There's a translation for description
-                pathJson.put("description", otherDescription)
-                call.response.header(HttpHeaders.ContentLanguage, language)
+                // call.response.header(HttpHeaders.ContentLanguage, language)
+                // TODO: Set localized description
             }
         }
 
-        respondSuccess(pathJson)
+        respondSuccess(path)
     }
 }

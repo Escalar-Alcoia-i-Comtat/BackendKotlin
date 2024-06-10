@@ -19,7 +19,6 @@ import com.crowdin.client.sourcestrings.model.AddSourceStringRequest
 import com.crowdin.client.sourcestrings.model.SourceString
 import com.crowdin.client.stringtranslations.model.StringTranslation
 import database.entity.Path
-import org.json.JSONObject
 import system.EnvironmentVariables
 
 @Suppress("TooManyFunctions")
@@ -316,7 +315,7 @@ object Localization {
         return if (descriptionsFiles.isEmpty()) {
             Logger.info("Crowdin descriptions file not initialized. Creating storage...")
 
-            val storage = storageApi.addStorage("$name.json", JSONObject().toString()).data
+            val storage = storageApi.addStorage("$name.json", "{}").data
 
             Logger.info("  Storage ready. Creating file...")
             sourceFilesApi.addFile(

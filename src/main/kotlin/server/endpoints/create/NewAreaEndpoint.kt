@@ -19,8 +19,8 @@ import server.error.Errors.MissingData
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import storage.Storage
-import utils.jsonOf
 
 object NewAreaEndpoint : SecureEndpointBase("/area") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -63,15 +63,15 @@ object NewAreaEndpoint : SecureEndpointBase("/area") {
                 this.displayName = displayName!!
                 this.image = imageFile!!
                 this.webUrl = URL(webUrl!!)
-            }.toJson()
+            }
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        Notifier.getInstance().notifyCreated(EntityTypes.AREA, area["id"] as Int)
+        Notifier.getInstance().notifyCreated(EntityTypes.AREA, area.id.value)
 
         respondSuccess(
-            jsonOf("element" to area),
+            data = UpdateResponseData(area),
             httpStatusCode = HttpStatusCode.Created
         )
     }

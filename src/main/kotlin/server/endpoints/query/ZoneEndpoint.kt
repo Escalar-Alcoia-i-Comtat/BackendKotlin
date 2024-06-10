@@ -23,8 +23,7 @@ object ZoneEndpoint : EndpointBase("/zone/{zoneId}") {
 
         val zone = ServerDatabase.instance.query { Zone.findById(zoneId) }
             ?: return respondFailure(Errors.ObjectNotFound)
-        val zoneJson = ServerDatabase.instance.query { zone.toJson() }
 
-        respondSuccess(zoneJson)
+        respondSuccess(zone)
     }
 }

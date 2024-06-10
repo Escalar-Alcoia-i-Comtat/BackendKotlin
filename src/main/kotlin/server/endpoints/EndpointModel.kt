@@ -3,6 +3,7 @@ package server.endpoints
 import Logger
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
+import io.ktor.http.content.readAllParts
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveMultipart
@@ -37,13 +38,13 @@ abstract class EndpointModel(val endpoint: String) {
      * @param forEachFormItem Callback function to handle each form item part.
      * @param forEachFileItem Callback function to handle each file item part.
      */
-    protected suspend fun PipelineContext<Unit, ApplicationCall>.receiveMultipart(
-        forEachFormItem: (suspend (partData: PartData.FormItem) -> Unit)? = null,
-        forEachFileItem: (suspend (partData: PartData.FileItem) -> Unit)? = null
+    protected suspend inline fun PipelineContext<Unit, ApplicationCall>.receiveMultipart(
+        forEachFormItem: (partData: PartData.FormItem) -> Unit,
+        forEachFileItem: (partData: PartData.FileItem) -> Unit
     ) {
         val multipart = call.receiveMultipart()
 
-        multipart.forEachPart { partData ->
+        for (partData in multipart.readAllParts()) {
             when (partData) {
                 is PartData.FormItem -> {
                     val name = partData.name
@@ -53,10 +54,10 @@ abstract class EndpointModel(val endpoint: String) {
                         rawMultipartFormItems[name] = partData.value
                     }
 
-                    forEachFormItem?.invoke(partData)
+                    forEachFormItem(partData)
                 }
 
-                is PartData.FileItem -> forEachFileItem?.invoke(partData)
+                is PartData.FileItem -> forEachFileItem(partData)
                 else -> Unit
             }
         }

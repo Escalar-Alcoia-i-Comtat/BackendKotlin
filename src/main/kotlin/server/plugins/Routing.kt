@@ -24,8 +24,6 @@ import server.endpoints.delete.DeleteZoneEndpoint
 import server.endpoints.files.DownloadFileEndpoint
 import server.endpoints.files.RequestFileEndpoint
 import server.endpoints.info.ServerInfoEndpoint
-import server.endpoints.legacy.old.ImportOldDataEndpoint
-import server.endpoints.legacy.old.ImportStatusEndpoint
 import server.endpoints.patch.PatchAreaEndpoint
 import server.endpoints.patch.PatchPathEndpoint
 import server.endpoints.patch.PatchSectorEndpoint
@@ -85,14 +83,5 @@ fun Application.configureEndpoints() {
 
         get(RequestFileEndpoint)
         get(DownloadFileEndpoint)
-
-        val enableImporter = EnvironmentVariables.Legacy.Importer.value
-        if (enableImporter == "true") {
-            Logger.warn(
-                "Importer has been enabled through an environment variable. Make sure to disconnect it for production"
-            )
-            get(ImportOldDataEndpoint)
-            get(ImportStatusEndpoint)
-        }
     }
 }

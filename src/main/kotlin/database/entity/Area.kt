@@ -1,63 +1,61 @@
 package database.entity
 
+import database.serialization.AreaSerializer
 import database.table.Areas
 import java.io.File
 import java.net.URL
 import java.time.Instant
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.json.JSONObject
+import server.response.ResponseData
 import storage.Storage
-import utils.jsonOf
-import utils.mapJson
-import utils.serialization.JsonSerializable
-import utils.toJson
 
 /**
  * Represents the data structure of an Area, which contains Zones.
  */
-class Area(id: EntityID<Int>) : DataEntity(id), JsonSerializable {
+@Serializable(with = AreaSerializer::class)
+class Area(id: EntityID<Int>) : DataEntity(id), ResponseData {
     companion object : IntEntityClass<Area>(Areas)
 
     override var timestamp: Instant by Areas.timestamp
+    @SerialName("display_name")
     override var displayName: String by Areas.displayName
 
+    @Transient
     var image: File
         get() = File(Storage.ImagesDir, _image)
         set(value) {
             _image = value.toRelativeString(Storage.ImagesDir)
         }
 
+    @Transient
     override var webUrl: URL
         get() = URL(_webUrl)
         set(value) {
             _webUrl = value.toString()
         }
 
+    @SerialName("image")
     private var _image: String by Areas.imagePath
 
+    @SerialName("web_url")
     private var _webUrl: String by Areas.webUrl
 
-
-    override fun toJson(): JSONObject = jsonOf(
-        "id" to id.value,
-        "timestamp" to timestamp.toEpochMilli(),
-        "display_name" to displayName,
-        "image" to _image.substringBeforeLast('.'),
-        "web_url" to webUrl
-    )
+    var zones: List<Zone>? = null
+        private set
 
     /**
-     * Uses [toJson] to convert the data into a [JSONObject], but adds a new key called `zones` with the data of the
-     * zones.
-     * This method requires a list of [zones], [sectors] and [paths] which will be used for knowing the whole dataset.
+     * Updates the value of [zones] with the given list of [zones], filtering the ones that belong to this sector.
+     * Calls [Zone.populateSectors] on each child.
      *
      * **Must be in a transaction to use**
      */
-    fun toJsonWithZones(zones: Iterable<Zone>, sectors: Iterable<Sector>, paths: Iterable<Path>): JSONObject =
-        toJson().apply {
-            put("zones", zones.filter { it.area.id == id }.mapJson { it.toJsonWithSectors(sectors, paths) })
-        }
+    fun populateZones(zones: Iterable<Zone>, sectors: Iterable<Sector>, paths: Iterable<Path>) {
+        this.zones = zones.filter { it.area.id == id }.onEach { it.populateSectors(sectors, paths) }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

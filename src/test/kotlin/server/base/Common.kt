@@ -7,11 +7,10 @@ import database.entity.Blocking
 import database.entity.Path
 import database.entity.Sector
 import database.entity.Zone
-import io.ktor.server.testing.ApplicationTestBuilder
 import kotlin.test.assertNotNull
 import server.DataProvider
 
-context(ApplicationTestBuilder)
+context(StubApplicationTestBuilder)
 suspend fun EntityTypes<*>.provide(): Int? {
     when (this) {
         EntityTypes.AREA -> {

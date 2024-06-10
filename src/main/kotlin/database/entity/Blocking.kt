@@ -2,16 +2,17 @@ package database.entity
 
 import data.BlockingRecurrenceYearly
 import data.BlockingTypes
+import database.serialization.BlockingSerializer
 import database.table.BlockingTable
 import java.time.Instant
 import java.time.LocalDateTime
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.json.JSONObject
-import utils.jsonOf
-import utils.serialization.JsonSerializable
+import server.response.ResponseData
 
-class Blocking(id: EntityID<Int>) : BaseEntity(id), JsonSerializable {
+@Serializable(with = BlockingSerializer::class)
+class Blocking(id: EntityID<Int>) : BaseEntity(id), ResponseData {
     companion object : IntEntityClass<Blocking>(BlockingTable)
 
     override var timestamp: Instant by BlockingTable.timestamp
@@ -53,13 +54,4 @@ class Blocking(id: EntityID<Int>) : BaseEntity(id), JsonSerializable {
     private var _toMonth by BlockingTable.toMonth
 
     private var _endDate by BlockingTable.endDate
-
-    override fun toJson(): JSONObject = jsonOf(
-        "id" to id.value,
-        "timestamp" to timestamp,
-        "type" to type,
-        "recurrence" to recurrence,
-        "end_date" to endDate,
-        "path_id" to path.id.value,
-    )
 }

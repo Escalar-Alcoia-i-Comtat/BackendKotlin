@@ -3,22 +3,24 @@ package server.base
 import Logger
 import ServerDatabase
 import database.EntityTypes
+import database.serialization.Json
 import distribution.Notifier
-import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.client.request.delete
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.patch
-import io.ktor.client.request.post
-import io.ktor.http.HttpHeaders
-import io.ktor.server.testing.ApplicationTestBuilder
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.newCoroutineContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import setupApplication
 import storage.Storage
@@ -27,7 +29,10 @@ import system.EnvironmentVariables
 /**
  * Provides some utility functions to perform operations in the application.
  */
-abstract class ApplicationTestBase {
+abstract class ApplicationTestBase(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val taskTimeout: Long = 15_000
+) {
     companion object {
         const val AUTH_TOKEN = "password"
     }
@@ -117,7 +122,7 @@ abstract class ApplicationTestBase {
      * Prepares the testing database, and configures the applications to start making requests and testing application
      * endpoints. Perform all the desired steps in [block].
      */
-    fun test(block: suspend ApplicationTestBuilder.() -> Unit) {
+    fun test(block: suspend StubApplicationTestBuilder.() -> Unit) = runBlocking(dispatcher) {
         // Configure database
         ServerDatabase.url = "jdbc:sqlite:testing.db"
         ServerDatabase.logger = StdOutSqlLogger
@@ -136,42 +141,21 @@ abstract class ApplicationTestBase {
             application {
                 setupApplication()
             }
-            block()
+
+            val client = createClient {
+                install(ContentNegotiation) { json(Json) }
+            }
+
+            withTimeout(taskTimeout) {
+                block(
+                    object : StubApplicationTestBuilder(AUTH_TOKEN) {
+                        override val client = client
+                    }
+                )
+            }
         }
 
         // Delete all files created
         Storage.BaseDir.deleteRecursively()
-    }
-
-    suspend fun ApplicationTestBuilder.get(
-        urlString: String,
-        block: HttpRequestBuilder.() -> Unit = {}
-    ) = client.get(urlString) {
-        header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        block()
-    }
-
-    suspend fun ApplicationTestBuilder.post(
-        urlString: String,
-        block: HttpRequestBuilder.() -> Unit = {}
-    ) = client.post(urlString) {
-        header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        block()
-    }
-
-    suspend fun ApplicationTestBuilder.patch(
-        urlString: String,
-        block: HttpRequestBuilder.() -> Unit = {}
-    ) = client.patch(urlString) {
-        header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        block()
-    }
-
-    suspend fun ApplicationTestBuilder.delete(
-        urlString: String,
-        block: HttpRequestBuilder.() -> Unit = {}
-    ) = client.delete(urlString) {
-        header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")
-        block()
     }
 }

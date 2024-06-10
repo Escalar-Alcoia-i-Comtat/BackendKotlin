@@ -3,6 +3,7 @@ package server.endpoints.query
 import assertions.assertFailure
 import assertions.assertIsUUID
 import assertions.assertSuccess
+import database.entity.Zone
 import io.ktor.http.HttpStatusCode
 import java.time.Instant
 import kotlin.test.Test
@@ -12,8 +13,8 @@ import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
-import utils.getLongOrNull
-import utils.getStringOrNull
+import server.response.files.RequestFileResponseData
+import storage.Storage
 
 class TestZoneFetchingEndpoint: ApplicationTestBase() {
     @Test
@@ -28,17 +29,17 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
         var kmz: String? = null
 
         get("/zone/$zoneId").apply {
-            assertSuccess { data ->
+            assertSuccess<Zone> { data ->
                 assertNotNull(data)
 
-                assertEquals(zoneId, data.getInt("id"))
-                assertEquals(areaId, data.getInt("area_id"))
-                assertEquals(DataProvider.SampleZone.displayName, data.getString("display_name"))
-                assertEquals(DataProvider.SampleZone.webUrl, data.getString("web_url"))
-                assertTrue(data.getLong("timestamp") < Instant.now().toEpochMilli())
+                assertEquals(zoneId, data.id.value)
+                assertEquals(areaId, data.area.id.value)
+                assertEquals(DataProvider.SampleZone.displayName, data.displayName)
+                assertEquals(DataProvider.SampleZone.webUrl, data.webUrl.toString())
+                assertTrue(data.timestamp < Instant.now())
 
-                image = data.getString("image")
-                kmz = data.getString("kmz")
+                image = data.image.toRelativeString(Storage.ImagesDir)
+                kmz = data.kmz.toRelativeString(Storage.TracksDir)
             }
         }
 
@@ -48,21 +49,11 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
         assertIsUUID(kmz!!)
 
         get("/file/$image").apply {
-            assertSuccess { data ->
-                assertNotNull(data?.getStringOrNull("download"))
-                assertNotNull(data?.getStringOrNull("filename"))
-                assertNotNull(data?.getStringOrNull("hash"))
-                assertNotNull(data?.getLongOrNull("size"))
-            }
+            assertSuccess<RequestFileResponseData>()
         }
 
         get("/file/$kmz").apply {
-            assertSuccess { data ->
-                assertNotNull(data?.getStringOrNull("download"))
-                assertNotNull(data?.getStringOrNull("filename"))
-                assertNotNull(data?.getStringOrNull("hash"))
-                assertNotNull(data?.getLongOrNull("size"))
-            }
+            assertSuccess<RequestFileResponseData>()
         }
     }
 

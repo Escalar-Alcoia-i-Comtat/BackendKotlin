@@ -1,8 +1,6 @@
 package server.endpoints.blocking
 
 import ServerDatabase
-import data.BlockingRecurrenceYearly
-import data.BlockingTypes
 import database.EntityTypes
 import database.entity.Blocking
 import database.entity.info.LastUpdate
@@ -10,20 +8,16 @@ import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
-import io.ktor.server.request.receiveText
+import io.ktor.server.request.receive
 import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
-import java.time.LocalDateTime
 import server.endpoints.EndpointBase
 import server.error.Errors
+import server.request.AddBlockRequest
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import utils.areAllNull
-import utils.getEnumOrNull
-import utils.getJSONObjectOrNull
-import utils.getStringOrNull
-import utils.json
-import utils.jsonOf
 
 object PatchBlockEndpoint: EndpointBase("/block/{blockId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -32,10 +26,8 @@ object PatchBlockEndpoint: EndpointBase("/block/{blockId}") {
         val block: Blocking = ServerDatabase.instance.query { Blocking.findById(blockId) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
-        val body = call.receiveText().json
-        val type = body.getEnumOrNull(BlockingTypes::class, "type")
-        val recurrence = body.getJSONObjectOrNull("recurrence")?.let(BlockingRecurrenceYearly::fromJson)
-        val endDate = body.getStringOrNull("end_date")?.let(LocalDateTime::parse)
+        val body = call.receive<AddBlockRequest>()
+        val (type, recurrence, endDate) = body
 
         if (areAllNull(type, recurrence, endDate)) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
@@ -48,7 +40,7 @@ object PatchBlockEndpoint: EndpointBase("/block/{blockId}") {
             recurrence?.let { block.recurrence = it }
             endDate?.let { block.endDate = it }
 
-            block.toJson()
+            block
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
@@ -56,7 +48,7 @@ object PatchBlockEndpoint: EndpointBase("/block/{blockId}") {
         Notifier.getInstance().notifyUpdated(EntityTypes.BLOCKING, blockId)
 
         respondSuccess(
-            jsonOf("element" to updatedBlock)
+            UpdateResponseData(updatedBlock)
         )
     }
 }
