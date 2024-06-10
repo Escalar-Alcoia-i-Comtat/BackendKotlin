@@ -1,9 +1,13 @@
 package database.entity
 
+import database.serialization.AreaSerializer
 import database.table.Areas
 import java.io.File
 import java.net.URL
 import java.time.Instant
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.json.JSONObject
@@ -16,26 +20,32 @@ import utils.toJson
 /**
  * Represents the data structure of an Area, which contains Zones.
  */
+@Serializable(with = AreaSerializer::class)
 class Area(id: EntityID<Int>) : DataEntity(id), JsonSerializable {
     companion object : IntEntityClass<Area>(Areas)
 
     override var timestamp: Instant by Areas.timestamp
+    @SerialName("display_name")
     override var displayName: String by Areas.displayName
 
+    @Transient
     var image: File
         get() = File(Storage.ImagesDir, _image)
         set(value) {
             _image = value.toRelativeString(Storage.ImagesDir)
         }
 
+    @Transient
     override var webUrl: URL
         get() = URL(_webUrl)
         set(value) {
             _webUrl = value.toString()
         }
 
+    @SerialName("image")
     private var _image: String by Areas.imagePath
 
+    @SerialName("web_url")
     private var _webUrl: String by Areas.webUrl
 
 
