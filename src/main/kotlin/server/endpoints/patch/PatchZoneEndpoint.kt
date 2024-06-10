@@ -7,6 +7,7 @@ import database.EntityTypes
 import database.entity.Area
 import database.entity.Zone
 import database.entity.info.LastUpdate
+import database.serialization.Json
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -17,18 +18,16 @@ import java.io.File
 import java.net.URL
 import java.time.Instant
 import java.util.UUID
+import kotlinx.serialization.encodeToString
 import server.endpoints.SecureEndpointBase
 import server.error.Errors
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import storage.Storage
 import utils.areAllFalse
 import utils.areAllNull
-import utils.json
-import utils.jsonArray
-import utils.jsonOf
-import utils.serialize
 
 object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
@@ -43,7 +42,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
         var displayName: String? = null
         var webUrl: String? = null
         var point: LatLng? = null
-        var points: Set<DataPoint>? = null
+        var points: List<DataPoint>? = null
         var area: Area? = null
 
         var removePoint = false
@@ -56,7 +55,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
                     "webUrl" -> webUrl = partData.value
-                    "points" -> points = partData.value.jsonArray.serialize(DataPoint.Companion).toSet()
+                    "points" -> points = Json.decodeFromString(partData.value)
                     "area" -> ServerDatabase.instance.query {
                         area = Area.findById(partData.value.toInt())
                     }
@@ -64,7 +63,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
                         if (value == "\u0000")
                             removePoint = true
                         else
-                            point = value.json.let { LatLng.fromJson(it) }
+                            point = Json.decodeFromString(value)
                     }
                 }
             },
@@ -82,7 +81,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
             }
         )
 
-        points?.let { p -> println("New Points: [${p.joinToString { it.toJson().toString() }}]") }
+        points?.let { println("New Points: [${Json.encodeToString(it)}]") }
 
         if (areAllNull(displayName, webUrl, point, points, imageFile, kmzFile) &&
             areAllFalse(removePoint)
@@ -90,18 +89,16 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
-        val json = ServerDatabase.instance.query {
+        ServerDatabase.instance.query {
             displayName?.let { zone.displayName = it }
             webUrl?.let { zone.webUrl = URL(it) }
             point?.let { zone.point = it }
-            points?.let { zone.pointsSet = it.map { ps -> ps.toJson().toString() } }
+            points?.let { zone.points = it }
             area?.let { zone.area = it }
 
             if (removePoint) zone.point = null
 
             zone.timestamp = Instant.now()
-
-            zone.toJson()
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
@@ -109,7 +106,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
         Notifier.getInstance().notifyUpdated(EntityTypes.ZONE, zoneId)
 
         respondSuccess(
-            data = jsonOf("element" to json)
+            data = UpdateResponseData(zone)
         )
     }
 }

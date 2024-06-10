@@ -1,18 +1,30 @@
 package assertions
 
+import database.serialization.Json
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.HttpStatusCode
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
-import org.json.JSONObject
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import server.error.Error
-import utils.getJSONArrayOrNull
-import utils.getJSONObjectOrNull
-import utils.getStringOrNull
-import utils.json
+import server.response.FailureResponse
+import server.response.Response
+import server.response.ResponseData
+import server.response.SuccessResponse
+
+/**
+ * Asserts that the request was successful.
+ *
+ * @param statusCode If the request doesn't respond OK (200), you can modify it here.
+ */
+suspend fun HttpResponse.assertSuccess(
+    statusCode: HttpStatusCode = HttpStatusCode.OK
+) {
+    assertSuccess<ResponseData>(statusCode) {}
+}
 
 /**
  * Asserts that the request was successful.
@@ -20,15 +32,20 @@ import utils.json
  * @param statusCode If the request doesn't respond OK (200), you can modify it here.
  * @param block If any, allows handling the response if any.
  */
-suspend inline fun HttpResponse.assertSuccess(
+suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
-    block: (data: JSONObject?) -> Unit = {}
+    block: (data: Type?) -> Unit = {}
 ) {
-    val json = bodyAsText().json
-    val error = json.getJSONObjectOrNull("error")
-    val errorMessage = error?.getStringOrNull("message")
-    val errorType = error?.getStringOrNull("type")
-    val stackTrace = error?.getJSONArrayOrNull("stackTrace")?.joinToString("\n    ")
+    val response = Json.decodeFromString<Response>(bodyAsText())
+
+    var errorMessage: String? = null
+    var errorType: String? = null
+    var stackTrace: String? = null
+    if (response is FailureResponse) {
+        errorMessage = response.error.message
+        errorType = response.error.type
+        stackTrace = response.error.stackTrace?.joinToString("\n    ")
+    }
 
     assertEquals(
         statusCode,
@@ -48,8 +65,9 @@ suspend inline fun HttpResponse.assertSuccess(
         }.toString()
     )
 
-    assertEquals(true, json.getBoolean("success"))
-    block(json.getJSONObjectOrNull("data"))
+    assertTrue(response.success)
+    assertIs<SuccessResponse<Type>>(response)
+    block(response.data)
 }
 
 /**
@@ -60,15 +78,20 @@ suspend inline fun HttpResponse.assertSuccess(
 suspend fun HttpResponse.assertFailure(
     error: Error
 ) {
-    val json = bodyAsText().json
-    val responseError = json.getJSONObjectOrNull("error")
-    val errorMessage = json.getStringOrNull("message")
-    val errorType = responseError?.getStringOrNull("type")
-    val stackTrace = responseError?.getJSONArrayOrNull("stackTrace")?.joinToString("\n    ")
+    val response = Json.decodeFromString<Response>(bodyAsText())
+
+    var errorMessage: String? = null
+    var errorType: String? = null
+    var stackTrace: String? = null
+    if (response is FailureResponse) {
+        errorMessage = response.error.message
+        errorType = response.error.type
+        stackTrace = response.error.stackTrace?.joinToString("\n    ")
+    }
 
     assertEquals(
         error.status,
-        status,
+        status.value,
         StringBuilder().apply {
             appendLine("expected: ${error.status} but was: $status")
             if (errorMessage != null) {
@@ -83,10 +106,9 @@ suspend fun HttpResponse.assertFailure(
         }.toString()
     )
 
-    assertFalse(json.getBoolean("success"))
+    assertFalse(response.success)
 
-    val errorJson = json.getJSONObjectOrNull("error")
-    assertNotNull(errorJson)
-    assertEquals(error.code, errorJson.getInt("code"))
-    assertEquals(error.message, errorJson.getString("message"))
+    assertIs<FailureResponse>(response)
+    assertEquals(error.code, response.error.code)
+    assertEquals(error.message, response.error.message)
 }

@@ -24,6 +24,6 @@ object AreaEndpoint : EndpointBase("/area/{areaId}") {
         val area = ServerDatabase.instance.query { Area.findById(areaId) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
-        respondSuccess(area.toJson())
+        respondSuccess(data = area)
     }
 }

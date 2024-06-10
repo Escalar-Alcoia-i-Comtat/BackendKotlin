@@ -30,9 +30,6 @@ val tcnativeClassifier = when {
 }
 
 dependencies {
-    // JSON support
-    implementation(libs.json)
-
     // Kotlin Serialization
     implementation(libs.kotlin.serializationJson)
 
@@ -53,6 +50,7 @@ dependencies {
     implementation(libs.exposed.dao)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.javaTime)
+    implementation(libs.exposed.json)
 
     // Database engines
     implementation(libs.postgresql)

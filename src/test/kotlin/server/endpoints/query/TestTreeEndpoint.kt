@@ -4,9 +4,9 @@ import assertions.assertSuccess
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
+import server.response.query.TreeResponseData
 
 class TestTreeEndpoint: ApplicationTestBase() {
     @Test
@@ -24,29 +24,27 @@ class TestTreeEndpoint: ApplicationTestBase() {
         assertNotNull(pathId)
 
         get("/tree").apply {
-            assertSuccess { data ->
+            assertSuccess<TreeResponseData> { data ->
                 assertNotNull(data)
 
-                val areas = data.getJSONArray("areas")
-                assertEquals(1, areas.length())
+                val areas = data.areas
+                assertEquals(1, areas.size)
 
-                val area = areas.getJSONObject(0)
-                assertTrue(area.has("zones"))
+                val area = areas[0]
+                val zones = area.zones
 
-                val zones = area.getJSONArray("zones")
-                assertEquals(1, zones.length())
+                assertNotNull(zones)
+                assertEquals(1, zones.size)
 
-                val zone = zones.getJSONObject(0)
-                assertTrue(zone.has("sectors"))
+                val zone = zones[0]
+                val sectors = zone.sectors
+                assertNotNull(sectors)
+                assertEquals(1, sectors.size)
 
-                val sectors = zone.getJSONArray("sectors")
-                assertEquals(1, sectors.length())
-
-                val sector = sectors.getJSONObject(0)
-                assertTrue(sector.has("paths"))
-
-                val paths = sector.getJSONArray("paths")
-                assertEquals(1, paths.length())
+                val sector = sectors[0]
+                val paths = sector.paths
+                assertNotNull(paths)
+                assertEquals(1, paths.size)
             }
         }
     }
@@ -60,17 +58,17 @@ class TestTreeEndpoint: ApplicationTestBase() {
         assertNotNull(zoneId)
 
         get("/tree").apply {
-            assertSuccess { data ->
+            assertSuccess<TreeResponseData> { data ->
                 assertNotNull(data)
 
-                assertTrue(data.has("areas"))
-                val areas = data.getJSONArray("areas")
-                assertEquals(1, areas.length())
-                val area = areas.getJSONObject(0)
+                val areas = data.areas
+                assertNotNull(areas)
+                assertEquals(1, areas.size)
+                val area = areas[0]
 
-                assertTrue(area.has("zones"))
-                val zones = area.getJSONArray("zones")
-                assertEquals(1, zones.length())
+                val zones = area.zones
+                assertNotNull(zones)
+                assertEquals(1, zones.size)
             }
         }
     }

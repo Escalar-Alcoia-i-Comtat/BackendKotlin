@@ -4,7 +4,6 @@ exposed = "0.51.1"
 firebase-admin = "9.3.0"
 foojay-resolver = "0.8.0"
 imageio-webp = "0.1.6"
-json = "20240303"
 kotlin = "2.0.0"
 kotlinx-kover = "0.8.0"
 kotlin-serialization = "1.6.3"
@@ -18,7 +17,6 @@ sqlite = "3.46.0.0"
 crowdin = { module = "com.github.crowdin:crowdin-api-client-java", version.ref = "crowdin" }
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
 imageio-webp = { module = "org.sejda.imageio:webp-imageio", version.ref = "imageio-webp" }
-json = { module = "org.json:json", version.ref = "json" }
 kotlin-serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -34,12 +32,12 @@ exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "e
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-javaTime = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }
 
 [plugins]
-gradle-toolchains-fooljayResolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay-resolver" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kotlinx-kover" }

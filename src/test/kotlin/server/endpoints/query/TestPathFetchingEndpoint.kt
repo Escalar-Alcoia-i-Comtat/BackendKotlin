@@ -3,10 +3,6 @@ package server.endpoints.query
 import ServerDatabase
 import assertions.assertFailure
 import assertions.assertSuccess
-import data.Builder
-import data.Ending
-import data.Grade
-import data.PitchInfo
 import database.entity.Path
 import io.ktor.http.HttpStatusCode
 import java.time.Instant
@@ -19,10 +15,8 @@ import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
-import utils.getLongOrNull
-import utils.getStringOrNull
-import utils.getUInt
-import utils.serialize
+import server.response.files.RequestFileResponseData
+import storage.Storage
 
 class TestPathFetchingEndpoint: ApplicationTestBase() {
     @Test
@@ -40,45 +34,40 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
         assertNotNull(pathId)
 
         get("/path/$pathId").apply {
-            assertSuccess { data ->
+            assertSuccess<Path> { data ->
                 assertNotNull(data)
 
-                println(data.toString(2))
+                assertEquals(zoneId, data.id.value)
+                assertEquals(sectorId, data.sector.id.value)
 
-                assertEquals(zoneId, data.getInt("id"))
-                assertEquals(sectorId, data.getInt("sector_id"))
+                assertEquals(DataProvider.SamplePath.displayName, data.displayName)
+                assertEquals(DataProvider.SamplePath.sketchId, data.sketchId)
 
-                assertEquals(DataProvider.SamplePath.displayName, data.getString("display_name"))
-                assertEquals(DataProvider.SamplePath.sketchId, data.getUInt("sketch_id"))
+                assertEquals(DataProvider.SamplePath.height, data.height)
+                assertEquals(DataProvider.SamplePath.grade, data.grade)
+                assertEquals(DataProvider.SamplePath.ending, data.ending)
 
-                assertEquals(DataProvider.SamplePath.height, data.getUInt("height"))
-                assertEquals(DataProvider.SamplePath.grade, data.getString("grade").let { Grade.fromString(it) })
-                assertEquals(DataProvider.SamplePath.ending, data.getString("ending").let { Ending.valueOf(it) })
+                assertContentEquals(DataProvider.SamplePath.pitches, data.pitches)
 
-                assertContentEquals(DataProvider.SamplePath.pitches, data.getJSONArray("pitches").serialize(PitchInfo))
+                assertEquals(DataProvider.SamplePath.stringCount, data.stringCount)
 
-                assertEquals(DataProvider.SamplePath.stringCount, data.getUInt("string_count"))
+                assertEquals(DataProvider.SamplePath.paraboltCount, data.paraboltCount)
+                assertEquals(DataProvider.SamplePath.burilCount, data.burilCount)
+                assertEquals(DataProvider.SamplePath.pitonCount, data.pitonCount)
+                assertEquals(DataProvider.SamplePath.spitCount, data.spitCount)
+                assertEquals(DataProvider.SamplePath.tensorCount, data.tensorCount)
 
-                assertEquals(DataProvider.SamplePath.paraboltCount, data.getUInt("parabolt_count"))
-                assertEquals(DataProvider.SamplePath.burilCount, data.getUInt("buril_count"))
-                assertEquals(DataProvider.SamplePath.pitonCount, data.getUInt("piton_count"))
-                assertEquals(DataProvider.SamplePath.spitCount, data.getUInt("spit_count"))
-                assertEquals(DataProvider.SamplePath.tensorCount, data.getUInt("tensor_count"))
+                assertEquals(DataProvider.SamplePath.crackerRequired, data.crackerRequired)
+                assertEquals(DataProvider.SamplePath.friendRequired, data.friendRequired)
+                assertEquals(DataProvider.SamplePath.lanyardRequired, data.lanyardRequired)
+                assertEquals(DataProvider.SamplePath.nailRequired, data.nailRequired)
+                assertEquals(DataProvider.SamplePath.pitonRequired, data.pitonRequired)
+                assertEquals(DataProvider.SamplePath.stapesRequired, data.stapesRequired)
 
-                assertEquals(DataProvider.SamplePath.crackerRequired, data.getBoolean("cracker_required"))
-                assertEquals(DataProvider.SamplePath.friendRequired, data.getBoolean("friend_required"))
-                assertEquals(DataProvider.SamplePath.lanyardRequired, data.getBoolean("lanyard_required"))
-                assertEquals(DataProvider.SamplePath.nailRequired, data.getBoolean("nail_required"))
-                assertEquals(DataProvider.SamplePath.pitonRequired, data.getBoolean("piton_required"))
-                assertEquals(DataProvider.SamplePath.stapesRequired, data.getBoolean("stapes_required"))
+                assertEquals(DataProvider.SamplePath.builder, data.builder)
+                assertContentEquals(DataProvider.SamplePath.reBuilder, data.reBuilder)
 
-                assertEquals(DataProvider.SamplePath.builder, data.getJSONObject("builder").let(Builder::fromJson))
-                assertContentEquals(
-                    DataProvider.SamplePath.reBuilder,
-                    data.getJSONArray("re_builder").serialize(Builder)
-                )
-
-                assertTrue(data.getLong("timestamp") < Instant.now().toEpochMilli())
+                assertTrue(data.timestamp < Instant.now())
             }
         }
     }
@@ -100,24 +89,20 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
         var image: String? = null
 
         get("/path/$pathId").apply {
-            assertSuccess { data ->
+            assertSuccess<Path> { data ->
                 assertNotNull(data)
 
-                val images = data.getJSONArray("images")
-                assertEquals(1, images.length())
-                image = images.getString(0)
+                val images = data.images?.map { it.toRelativeString(Storage.ImagesDir) }
+                assertNotNull(images)
+                assertEquals(1, images.size)
+                image = images[0]
             }
         }
 
         assertNotNull(image)
 
         get("/file/$image").apply {
-            assertSuccess { data ->
-                assertNotNull(data?.getStringOrNull("download"))
-                assertNotNull(data?.getStringOrNull("filename"))
-                assertNotNull(data?.getStringOrNull("hash"))
-                assertNotNull(data?.getLongOrNull("size"))
-            }
+            assertSuccess<RequestFileResponseData>()
         }
     }
 

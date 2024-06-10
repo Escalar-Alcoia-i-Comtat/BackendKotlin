@@ -46,6 +46,8 @@ class ServerDatabase private constructor() {
          */
         val instance by lazy { ServerDatabase() }
 
+        const val VERSION = 1
+
         /**
          * Configures the database connection parameters from the environment variables.
          *

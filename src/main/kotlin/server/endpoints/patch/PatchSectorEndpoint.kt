@@ -6,6 +6,7 @@ import database.EntityTypes
 import database.entity.Sector
 import database.entity.Zone
 import database.entity.info.LastUpdate
+import database.serialization.Json
 import distribution.Notifier
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -21,11 +22,10 @@ import server.error.Errors
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import storage.Storage
 import utils.areAllFalse
 import utils.areAllNull
-import utils.json
-import utils.jsonOf
 
 object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
@@ -71,7 +71,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                         if (value == "\u0000")
                             removePoint = true
                         else
-                            point = value.json.let { LatLng.fromJson(it) }
+                            point = Json.decodeFromString(value)
                     }
                     "walkingTime" -> partData.value.let { value ->
                         if (value == "\u0000")
@@ -121,7 +121,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         if (deleteGpx) sector.gpx?.delete()
 
-        val json = ServerDatabase.instance.query {
+        ServerDatabase.instance.query {
             displayName?.let { sector.displayName = it }
             kidsApt?.let { sector.kidsApt = it }
             sunTime?.let { sector.sunTime = it }
@@ -136,8 +136,6 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             if (deleteGpx) sector.gpx = null
 
             sector.timestamp = Instant.now()
-
-            sector.toJson()
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }
@@ -145,7 +143,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
         Notifier.getInstance().notifyUpdated(EntityTypes.SECTOR, sectorId)
 
         respondSuccess(
-            data = jsonOf("element" to json)
+            data = UpdateResponseData(sector)
         )
     }
 }

@@ -2,6 +2,7 @@ package database.serialization
 
 import ServerDatabase
 import data.LatLng
+import database.entity.Path
 import database.entity.Sector
 import database.entity.Zone
 import database.table.Sectors
@@ -9,6 +10,7 @@ import database.table.Zones
 import java.time.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -34,8 +36,10 @@ object SectorSerializer : KSerializer<Sector> {
         element<String?>("gpx")
         element<String>("point")
         element<Int>("zone_id")
+        element<List<Path>?>("paths")
     }
 
+    @Suppress("MaxLineLength")
     override fun serialize(encoder: Encoder, value: Sector) = ServerDatabase.instance.querySync {
         var idx = 0
         encoder.encodeStructure(descriptor) {
@@ -49,6 +53,7 @@ object SectorSerializer : KSerializer<Sector> {
             encodeNullableSerializableElement(descriptor, idx++, String.serializer(), value.gpx?.toRelativeString(Storage.TracksDir))
             encodeNullableSerializableElement(descriptor, idx++, LatLng.serializer(), value.point)
             encodeIntElement(descriptor, idx++, value.zone.id.value)
+            encodeNullableSerializableElement(descriptor, idx++, ListSerializer(Path.serializer()), value.paths)
         }
     }
 
@@ -94,6 +99,7 @@ object SectorSerializer : KSerializer<Sector> {
             this.gpx = gpx?.let { Storage.TracksDir.resolve(it) }
             this.point = point
             this.zone = Zone(EntityID(zoneId, Zones))
+            // Note: "paths" is never initialized here, it's not intended to ever decode the list of paths
         }
     }
 }

@@ -1,6 +1,7 @@
 package server.endpoints.files
 
 import assertions.assertSuccess
+import database.entity.Area
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.readBytes
 import io.ktor.http.isSuccess
@@ -16,6 +17,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
+import storage.Storage
 
 class TestFileDownloading : ApplicationTestBase() {
     private suspend inline fun ApplicationTestBuilder.provideImageFile(
@@ -27,9 +29,9 @@ class TestFileDownloading : ApplicationTestBase() {
         var image: String? = null
 
         get("/area/$areaId").apply {
-            assertSuccess { data ->
+            assertSuccess<Area> { data ->
                 assertNotNull(data)
-                image = data.getString("image")
+                image = data.image.toRelativeString(Storage.ImagesDir)
             }
         }
 

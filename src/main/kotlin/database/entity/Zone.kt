@@ -1,6 +1,5 @@
 package database.entity
 
-import ServerDatabase
 import data.DataPoint
 import data.LatLng
 import database.serialization.ZoneSerializer
@@ -9,15 +8,11 @@ import java.io.File
 import java.net.URL
 import java.time.Instant
 import kotlinx.serialization.Serializable
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.json.JSONObject
+import server.response.ResponseData
 import storage.Storage
-import utils.json
-import utils.jsonOf
-import utils.mapJson
-import utils.serialization.JsonSerializable
-import utils.toJson
 
 /**
  * Represents a Zone entity.
@@ -26,7 +21,7 @@ import utils.toJson
  * @param id The ID of the zone.
  */
 @Serializable(with = ZoneSerializer::class)
-class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
+class Zone(id: EntityID<Int>): DataEntity(id), ResponseData {
     companion object: IntEntityClass<Zone>(Zones)
 
     override var timestamp: Instant by Zones.timestamp
@@ -44,67 +39,9 @@ class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
         get() = URL(_webUrl)
         set(value) { _webUrl = value.toString() }
 
-    var point: LatLng?
-        get() = _latitude?.let { lat -> _longitude?.let { lon -> LatLng(lat, lon) } }
-        set(value) { _latitude = value?.latitude; _longitude = value?.longitude }
+    var point: LatLng? by Zones.point
 
-    var pointsSet: List<String>
-        get() = _points.split("\n").filter { it.isNotBlank() }
-        set(value) { _points = value.joinToString("\n") }
-
-    val points: MutableSet<DataPoint> = object : MutableSet<DataPoint> {
-        private val mutablePoints: MutableList<String>
-            get() = pointsSet.toMutableList()
-
-        override fun add(element: DataPoint): Boolean =
-            mutablePoints.add(element.toJson().toString()).also {
-                pointsSet = mutablePoints
-            }
-
-        override fun addAll(elements: Collection<DataPoint>): Boolean =
-            mutablePoints.addAll(elements.map { it.toJson().toString() }).also {
-                pointsSet = mutablePoints
-            }
-
-        override val size: Int
-            get() = pointsSet.size
-
-        override fun clear() {
-            mutablePoints.clear().also {
-                pointsSet = mutablePoints
-            }
-        }
-
-        override fun isEmpty(): Boolean = pointsSet.isEmpty()
-
-        override fun containsAll(elements: Collection<DataPoint>): Boolean =
-            elements.all { pointsSet.contains(it.toJson().toString()) }
-
-        override fun contains(element: DataPoint): Boolean =
-            pointsSet.contains(element.toJson().toString())
-
-        override fun iterator(): MutableIterator<DataPoint> =
-            pointsSet
-                .filter { it.isNotBlank() }
-                .map { DataPoint.fromJson(it.json) }
-                .toMutableSet()
-                .iterator()
-
-        override fun retainAll(elements: Collection<DataPoint>): Boolean =
-            mutablePoints.retainAll(elements.map { it.toJson().toString() }).also {
-                pointsSet = mutablePoints
-            }
-
-        override fun removeAll(elements: Collection<DataPoint>): Boolean =
-            mutablePoints.removeAll(elements.map { it.toJson().toString() }).also {
-                pointsSet = mutablePoints
-            }
-
-        override fun remove(element: DataPoint): Boolean =
-            mutablePoints.remove(element.toJson().toString()).also {
-                pointsSet = mutablePoints
-            }
-    }
+    var points: List<DataPoint> by Zones.points
 
     var area by Area referencedOn Zones.area
 
@@ -113,52 +50,36 @@ class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
 
     private var _webUrl: String by Zones.webUrl
 
-    private var _latitude: Double? by Zones.latitude
-    private var _longitude: Double? by Zones.longitude
 
-    private var _points: String by Zones.points
+    // Kept for migration, do not use
+    @set:VisibleForTesting
+    @Suppress("Deprecation")
+    @Deprecated("Do not use. Only for migration")
+    var latitude: Double? by Zones.latitude
 
-    /**
-     * Converts the object to a JSON representation.
-     *
-     * **Must be in a database transaction**.
-     *
-     * See [ServerDatabase.query].
-     *
-     * Structure:
-     * - `id`: [id] ([Int])
-     * - `timestamp`: [timestamp] ([Long])
-     * - `display_name`: [displayName] ([String])
-     * - `image`: [image] ([String])
-     * - `kmz`: [kmz] ([String])
-     * - `web_url`: [webUrl] ([String])
-     * - `point`: [point] ([String])
-     * - `points`: [points] ([String])
-     * - `area_id`: [area] ([Int])
-     *
-     * @return The JSON object representing the object.
-     */
-    override fun toJson(): JSONObject = jsonOf(
-        "id" to id.value,
-        "timestamp" to timestamp.toEpochMilli(),
-        "display_name" to displayName,
-        "image" to _image.substringBeforeLast('.'),
-        "kmz" to _kmz.substringBeforeLast('.'),
-        "web_url" to webUrl,
-        "point" to point,
-        "points" to points,
-        "area_id" to area.id.value
-    )
+    @set:VisibleForTesting
+    @Suppress("Deprecation")
+    @Deprecated("Do not use. Only for migration")
+    var longitude: Double? by Zones.longitude
+
+    @set:VisibleForTesting
+    @Suppress("Deprecation")
+    @Deprecated("Do not use. Only for migration")
+    var pointsString: String by Zones.pointsString
+    // End of migration
+
+
+    var sectors: List<Sector>? = null
+        private set
 
     /**
-     * Uses [toJson] to convert the data into a [JSONObject], but adds a new key called `zones` with the data of the
-     * zones.
-     * This method requires a list of [sectors] and [paths] which will be used for knowing the whole dataset.
+     * Updates the value of [sectors] with the given list of [sectors], filtering the ones that belong to this sector.
+     * Calls [Sector.populatePaths] on each child.
      *
      * **Must be in a transaction to use**
      */
-    fun toJsonWithSectors(sectors: Iterable<Sector>, paths: Iterable<Path>): JSONObject = toJson().apply {
-        put("sectors", sectors.filter { it.zone.id == id }.mapJson { it.toJsonWithPaths(paths) })
+    fun populateSectors(sectors: Iterable<Sector>, paths: Iterable<Path>) {
+        this.sectors = sectors.filter { it.zone.id == id }.onEach { it.populatePaths(paths) }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -178,7 +99,6 @@ class Zone(id: EntityID<Int>): DataEntity(id), JsonSerializable {
         result = 31 * result + kmz.hashCode()
         result = 31 * result + webUrl.toString().hashCode()
         result = 31 * result + (point?.hashCode() ?: 0)
-        result = 31 * result + pointsSet.hashCode()
         result = 31 * result + points.hashCode()
         result = 31 * result + area.hashCode()
         return result

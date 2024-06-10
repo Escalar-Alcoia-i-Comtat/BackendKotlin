@@ -1,8 +1,10 @@
 package data
 
+import database.serialization.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlinx.serialization.encodeToString
 
 class TestPitchInfo {
     @Test
@@ -15,7 +17,7 @@ class TestPitchInfo {
             EndingInfo.EQUIPPED,
             EndingInclination.HORIZONTAL
         )
-        assertEquals(pitchInfo, PitchInfo.fromJson(pitchInfo.toJson()))
+        assertEquals(pitchInfo, Json.decodeFromString(Json.encodeToString(pitchInfo)))
     }
 
     @Test

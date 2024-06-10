@@ -1,10 +1,13 @@
 package database.serialization
 
 import database.entity.Area
+import database.entity.Zone
 import database.table.Areas
 import java.net.URL
 import java.time.Instant
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
@@ -16,6 +19,7 @@ import kotlinx.serialization.encoding.encodeStructure
 import org.jetbrains.exposed.dao.id.EntityID
 import storage.Storage
 
+@OptIn(ExperimentalSerializationApi::class)
 object AreaSerializer : KSerializer<Area> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Area") {
         element<Int>("id")
@@ -23,6 +27,7 @@ object AreaSerializer : KSerializer<Area> {
         element<String>("display_name")
         element<String>("image")
         element<String>("web_url")
+        element<List<Zone>?>("zones")
     }
 
     override fun serialize(encoder: Encoder, value: Area) {
@@ -33,6 +38,7 @@ object AreaSerializer : KSerializer<Area> {
             encodeStringElement(descriptor, idx++, value.displayName)
             encodeStringElement(descriptor, idx++, value.image.toRelativeString(Storage.ImagesDir))
             encodeStringElement(descriptor, idx++, value.webUrl.toString())
+            encodeNullableSerializableElement(descriptor, idx++, ListSerializer(Zone.serializer()), value.zones)
         }
     }
 

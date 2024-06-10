@@ -11,6 +11,7 @@ import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
+import server.response.files.RequestFileResponseData
 
 class TestFileFetching : ApplicationTestBase() {
     @Test
@@ -21,13 +22,8 @@ class TestFileFetching : ApplicationTestBase() {
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
 
         get("/file/${area.image.name}").apply {
-            assertSuccess { data ->
+            assertSuccess<RequestFileResponseData> { data ->
                 assertNotNull(data)
-                assertTrue(data.has("uuid"))
-                assertTrue(data.has("hash"))
-                assertTrue(data.has("filename"))
-                assertTrue(data.has("download"))
-                assertTrue(data.has("size"))
             }
         }
     }
@@ -40,13 +36,8 @@ class TestFileFetching : ApplicationTestBase() {
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
 
         get("/file/${area.image.nameWithoutExtension}").apply {
-            assertSuccess { data ->
+            assertSuccess<RequestFileResponseData> { data ->
                 assertNotNull(data)
-                assertTrue(data.has("uuid"))
-                assertTrue(data.has("hash"))
-                assertTrue(data.has("filename"))
-                assertTrue(data.has("download"))
-                assertTrue(data.has("size"))
             }
         }
     }
@@ -69,20 +60,11 @@ class TestFileFetching : ApplicationTestBase() {
         val zone: Zone = ServerDatabase.instance.query { Zone[zoneId] }
 
         get("/file/${area.image.name},${zone.image.name}").apply {
-            assertSuccess { data ->
+            assertSuccess<RequestFileResponseData> { data ->
                 assertNotNull(data)
-                assertTrue(data.has("files"))
 
-                val files = data.getJSONArray("files")
-                (0 until files.length())
-                    .map { files.getJSONObject(it) }
-                    .forEach { file ->
-                        assertTrue(file.has("uuid"))
-                        assertTrue(file.has("hash"))
-                        assertTrue(file.has("filename"))
-                        assertTrue(file.has("download"))
-                        assertTrue(file.has("size"))
-                    }
+                val files = data.files
+                assertTrue(files.isNotEmpty())
             }
         }
     }

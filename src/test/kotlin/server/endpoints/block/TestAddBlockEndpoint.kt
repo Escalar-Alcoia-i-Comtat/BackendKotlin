@@ -20,11 +20,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlinx.serialization.json.JsonObject
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
-import utils.getJSONObjectOrNull
-import utils.jsonOf
+import server.request.AddBlockRequest
+import server.response.update.UpdateResponseData
 
 class TestAddBlockEndpoint: ApplicationTestBase() {
     @Test
@@ -38,13 +39,14 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
         post("/block/$pathId") {
             setBody(
-                jsonOf(
-                    "type" to BlockingTypes.BUILD
-                ).toString()
+                AddBlockRequest(BlockingTypes.BUILD)
             )
         }.apply {
-            assertSuccess(HttpStatusCode.Created) {
-                assertNotNull(it?.getJSONObjectOrNull("element"))
+            assertSuccess<UpdateResponseData<Blocking>>(HttpStatusCode.Created) {
+                assertNotNull(it)
+                assertEquals(BlockingTypes.BUILD, it.element.type)
+                assertNull(it.element.recurrence)
+                assertNull(it.element.endDate)
             }
         }
 
@@ -74,7 +76,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
         post("/block/$pathId") {
             setBody(
-                jsonOf().toString()
+                JsonObject(emptyMap())
             )
         }.apply {
             assertFailure(Errors.MissingData)
@@ -86,9 +88,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
     fun `test adding block to path - invalid path`() = test {
         post("/block/123") {
             setBody(
-                jsonOf(
-                    "type" to BlockingTypes.BUILD
-                ).toString()
+                AddBlockRequest(BlockingTypes.BUILD)
             )
         }.apply {
             assertFailure(Errors.ObjectNotFound)
@@ -105,11 +105,11 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
         post("/block/$pathId") {
             setBody(
-                jsonOf(
-                    "type" to BlockingTypes.BUILD,
-                    "end_date" to LocalDateTime.now(),
-                    "recurrence" to BlockingRecurrenceYearly(1U, Month.JANUARY, 3U, Month.FEBRUARY)
-                ).toString()
+                AddBlockRequest(
+                    type = BlockingTypes.BUILD,
+                    endDate = LocalDateTime.now(),
+                    recurrence = BlockingRecurrenceYearly(1U, Month.JANUARY, 3U, Month.FEBRUARY)
+                )
             )
         }.apply {
             assertFailure(Errors.Conflict)
@@ -128,14 +128,17 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
         post("/block/$pathId") {
             setBody(
-                jsonOf(
-                    "type" to BlockingTypes.BUILD,
-                    "end_date" to endDate
-                ).toString()
+                AddBlockRequest(
+                    type = BlockingTypes.BUILD,
+                    endDate = endDate
+                )
             )
         }.apply {
-            assertSuccess(HttpStatusCode.Created) {
-                assertNotNull(it?.getJSONObjectOrNull("element"))
+            assertSuccess<UpdateResponseData<Blocking>>(HttpStatusCode.Created) {
+                assertNotNull(it)
+                assertEquals(BlockingTypes.BUILD, it.element.type)
+                assertNull(it.element.recurrence)
+                assertEquals(endDate.truncatedTo(ChronoUnit.MILLIS), it.element.endDate)
             }
         }
 
@@ -165,14 +168,17 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
         post("/block/$pathId") {
             setBody(
-                jsonOf(
-                    "type" to BlockingTypes.BUILD,
-                    "recurrence" to recurrence
-                ).toString()
+                AddBlockRequest(
+                    type = BlockingTypes.BUILD,
+                    recurrence = recurrence
+                )
             )
         }.apply {
-            assertSuccess(HttpStatusCode.Created) {
-                assertNotNull(it?.getJSONObjectOrNull("element"))
+            assertSuccess<UpdateResponseData<Blocking>>(HttpStatusCode.Created) {
+                assertNotNull(it)
+                assertEquals(BlockingTypes.BUILD, it.element.type)
+                assertEquals(recurrence, it.element.recurrence)
+                assertNull(it.element.endDate)
             }
         }
 

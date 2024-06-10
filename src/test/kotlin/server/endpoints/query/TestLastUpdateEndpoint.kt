@@ -9,18 +9,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import server.base.ApplicationTestBase
-import utils.getLongOrNull
+import server.response.query.LastUpdateResponseData
 
 class TestLastUpdateEndpoint: ApplicationTestBase() {
     @Test
     fun `test last update`() = test {
         // At first, it will be null
         get("/last_update").apply {
-            assertSuccess { data ->
+            assertSuccess< LastUpdateResponseData> { data ->
                 assertNotNull(data)
-
-                val lastUpdate = data.getLongOrNull("last_update")
-                assertNull(lastUpdate)
+                assertNull(data.lastUpdate)
             }
         }
 
@@ -30,11 +28,9 @@ class TestLastUpdateEndpoint: ApplicationTestBase() {
 
         // Now check that it has been updated
         get("/last_update").apply {
-            assertSuccess { data ->
+            assertSuccess<LastUpdateResponseData> { data ->
                 assertNotNull(data)
-
-                val lastUpdate = data.getLongOrNull("last_update")?.let(Instant::ofEpochMilli)
-                assertEquals(timestamp, lastUpdate)
+                assertEquals(timestamp, data.lastUpdate)
             }
         }
     }

@@ -95,10 +95,4 @@ object EnvironmentVariables {
         @KoverIgnore
         data object CrowdinProjectId : EnvironmentVariable("CROWDIN_PROJECT_ID")
     }
-
-    @KoverIgnore
-    object Legacy {
-        @KoverIgnore
-        data object Importer : EnvironmentVariable("ENABLE_IMPORTER")
-    }
 }

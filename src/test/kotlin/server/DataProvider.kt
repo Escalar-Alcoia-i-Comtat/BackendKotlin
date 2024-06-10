@@ -11,7 +11,11 @@ import data.EndingInfo
 import data.Grade
 import data.LatLng
 import data.PitchInfo
+import database.entity.Area
+import database.entity.Path
 import database.entity.Sector
+import database.entity.Zone
+import database.serialization.Json
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
@@ -24,10 +28,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.Month
 import kotlin.test.assertNotNull
+import kotlinx.serialization.encodeToString
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
-import utils.getIntOrNull
-import utils.getJSONObjectOrNull
-import utils.toJson
+import server.response.update.UpdateResponseData
 
 @Suppress("LongParameterList", "MayBeConst", "MayBeConstant")
 object DataProvider {
@@ -44,9 +47,9 @@ object DataProvider {
         imageFile: String = "/images/alcoi.jpg",
         assertion: suspend HttpResponse.() -> Int? = {
             var areaId: Int? = null
-            assertSuccess(HttpStatusCode.Created) { data ->
+            assertSuccess<UpdateResponseData<Area>>(HttpStatusCode.Created) { data ->
                 assertNotNull(data)
-                areaId = data.getJSONObjectOrNull("element")?.getIntOrNull("id")
+                areaId = data.element.id.value
             }
             assertNotNull(areaId)
             areaId
@@ -84,7 +87,7 @@ object DataProvider {
         val displayName = "Testing Zone"
         val webUrl = "https://example.com"
         val point = LatLng(0.12345, 0.67890)
-        val points = setOf(
+        val points = listOf(
             DataPoint(LatLng(0.12345, 0.67890), "Label 1", "testing-icon"),
             DataPoint(LatLng(0.12345, 0.67890), "Label 2", "testing-icon")
         )
@@ -100,9 +103,9 @@ object DataProvider {
         emptyPoints: Boolean = false,
         assertion: suspend HttpResponse.() -> Int? = {
             var zoneId: Int? = null
-            assertSuccess(HttpStatusCode.Created) { data ->
+            assertSuccess<UpdateResponseData<Zone>>(HttpStatusCode.Created) { data ->
                 assertNotNull(data)
-                zoneId = data.getJSONObjectOrNull("element")?.getIntOrNull("id")
+                zoneId = data.element.id.value
             }
             assertNotNull(zoneId)
             zoneId
@@ -126,10 +129,10 @@ object DataProvider {
                     append("displayName", SampleZone.displayName)
                 if (!skipWebUrl)
                     append("webUrl", SampleZone.webUrl)
-                append("point", SampleZone.point.toJson().toString())
+                append("point", Json.encodeToString(SampleZone.point))
                 append(
                     "points",
-                    (if (emptyPoints) emptyList() else SampleZone.points).toJson().toString()
+                    Json.encodeToString(if (emptyPoints) emptyList() else SampleZone.points)
                 )
                 if (!skipImage)
                     append("image", image, Headers.build {
@@ -169,9 +172,9 @@ object DataProvider {
         skipGpx: Boolean = false,
         assertion: suspend HttpResponse.() -> Int? = {
             var sectorId: Int? = null
-            assertSuccess(HttpStatusCode.Created) { data ->
+            assertSuccess<UpdateResponseData<Sector>>(HttpStatusCode.Created) { data ->
                 assertNotNull(data)
-                sectorId = data.getJSONObjectOrNull("element")?.getIntOrNull("id")
+                sectorId = data.element.id.value
             }
             assertNotNull(sectorId)
             sectorId
@@ -198,7 +201,7 @@ object DataProvider {
                 if (!skipSunTime)
                     append("sunTime", SampleSector.sunTime.name)
                 append("walkingTime", SampleSector.walkingTime.toInt())
-                append("point", SampleSector.point.toJson().toString())
+                append("point", Json.encodeToString(SampleSector.point))
                 if (!skipImage)
                     append("image", image, Headers.build {
                         append(HttpHeaders.ContentType, "image/jpeg")
@@ -274,9 +277,9 @@ object DataProvider {
         images: List<String>? = null,
         assertion: suspend HttpResponse.() -> Int? = {
             var pathId: Int? = null
-            assertSuccess(HttpStatusCode.Created) { data ->
+            assertSuccess<UpdateResponseData<Path>>(HttpStatusCode.Created) { data ->
                 assertNotNull(data)
-                pathId = data.getJSONObjectOrNull("element")?.getIntOrNull("id")
+                pathId = data.element.id.value
             }
             assertNotNull(pathId)
             pathId
@@ -300,7 +303,7 @@ object DataProvider {
                 append("height", SamplePath.height.toInt())
                 append("grade", SamplePath.grade.name)
                 append("ending", SamplePath.ending.name)
-                append("pitches", SamplePath.pitches.toJson().toString())
+                append("pitches", Json.encodeToString(SamplePath.pitches))
                 append("stringCount", SamplePath.stringCount.toInt())
                 append("paraboltCount", SamplePath.paraboltCount.toInt())
                 append("burilCount", SamplePath.burilCount.toInt())
@@ -315,8 +318,8 @@ object DataProvider {
                 append("stapesRequired", SamplePath.stapesRequired)
                 append("showDescription", SamplePath.showDescription)
                 append("description", SamplePath.description)
-                append("builder", SamplePath.builder.toJson().toString())
-                append("reBuilder", SamplePath.reBuilder.toJson().toString())
+                append("builder", Json.encodeToString(SamplePath.builder))
+                append("reBuilder", Json.encodeToString(SamplePath.reBuilder))
 
                 imagesData?.forEachIndexed { index, image ->
                     append("image", image, Headers.build {

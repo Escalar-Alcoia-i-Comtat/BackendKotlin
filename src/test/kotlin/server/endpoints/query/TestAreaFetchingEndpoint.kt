@@ -3,6 +3,7 @@ package server.endpoints.query
 import assertions.assertFailure
 import assertions.assertIsUUID
 import assertions.assertSuccess
+import database.entity.Area
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,8 +12,8 @@ import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
-import utils.getLongOrNull
-import utils.getStringOrNull
+import server.response.files.RequestFileResponseData
+import storage.Storage
 
 class TestAreaFetchingEndpoint: ApplicationTestBase() {
     @Test
@@ -23,15 +24,15 @@ class TestAreaFetchingEndpoint: ApplicationTestBase() {
         var image: String? = null
 
         get("/area/$areaId").apply {
-            assertSuccess { data ->
+            assertSuccess<Area> { data ->
                 assertNotNull(data)
 
-                assertEquals(areaId, data.getInt("id"))
-                assertEquals(DataProvider.SampleArea.displayName, data.getString("display_name"))
-                assertEquals(DataProvider.SampleArea.webUrl, data.getString("web_url"))
-                assertTrue(data.getLong("timestamp") < Instant.now().toEpochMilli())
+                assertEquals(areaId, data.id.value)
+                assertEquals(DataProvider.SampleArea.displayName, data.displayName)
+                assertEquals(DataProvider.SampleArea.webUrl, data.webUrl.toString())
+                assertTrue(data.timestamp < Instant.now())
 
-                image = data.getString("image")
+                image = data.image.toRelativeString(Storage.ImagesDir)
             }
         }
 
@@ -39,12 +40,7 @@ class TestAreaFetchingEndpoint: ApplicationTestBase() {
         assertIsUUID(image!!)
 
         get("/file/$image").apply {
-            assertSuccess { data ->
-                assertNotNull(data?.getStringOrNull("download"))
-                assertNotNull(data?.getStringOrNull("filename"))
-                assertNotNull(data?.getStringOrNull("hash"))
-                assertNotNull(data?.getLongOrNull("size"))
-            }
+            assertSuccess<RequestFileResponseData>()
         }
     }
 

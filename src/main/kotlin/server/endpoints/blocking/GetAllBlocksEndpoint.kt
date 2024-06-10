@@ -5,21 +5,16 @@ import database.entity.Blocking
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import server.endpoints.EndpointBase
+import server.response.query.BlocksResponseData
 import server.response.respondSuccess
-import utils.jsonOf
-import utils.toJson
 
 object GetAllBlocksEndpoint: EndpointBase("/blocks") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
         // Check that the path exists
-        val blocks = ServerDatabase.instance.query {
-            Blocking.all().toJson()
-        }
+        val blocks = ServerDatabase.instance.query { Blocking.all() }
 
         respondSuccess(
-            jsonOf(
-                "blocks" to blocks
-            )
+            data = BlocksResponseData(blocks.toList())
         )
     }
 }

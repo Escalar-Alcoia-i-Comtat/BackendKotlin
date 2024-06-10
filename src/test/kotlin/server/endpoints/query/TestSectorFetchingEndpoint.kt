@@ -3,7 +3,6 @@ package server.endpoints.query
 import assertions.assertFailure
 import assertions.assertIsUUID
 import assertions.assertSuccess
-import data.LatLng
 import database.entity.Sector
 import io.ktor.http.HttpStatusCode
 import java.time.Instant
@@ -14,11 +13,8 @@ import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
-import utils.getBooleanOrNull
-import utils.getEnumOrNull
-import utils.getLongOrNull
-import utils.getStringOrNull
-import utils.getUIntOrNull
+import server.response.files.RequestFileResponseData
+import storage.Storage
 
 class TestSectorFetchingEndpoint : ApplicationTestBase() {
     @Test
@@ -36,28 +32,20 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
         var gpx: String? = null
 
         get("/sector/$sectorId").apply {
-            assertSuccess { data ->
+            assertSuccess<Sector> { data ->
                 assertNotNull(data)
 
-                println(data.toString(2))
+                assertEquals(sectorId, data.id.value)
+                assertEquals(zoneId, data.zone.id.value)
+                assertEquals(DataProvider.SampleSector.displayName, data.displayName)
+                assertEquals(DataProvider.SampleSector.point, data.point)
+                assertEquals(DataProvider.SampleSector.kidsApt, data.kidsApt)
+                assertEquals(DataProvider.SampleSector.sunTime, data.sunTime)
+                assertEquals(DataProvider.SampleSector.walkingTime, data.walkingTime)
+                assertTrue(data.timestamp < Instant.now())
 
-                assertEquals(sectorId, data.getInt("id"))
-                assertEquals(zoneId, data.getInt("zone_id"))
-                assertEquals(DataProvider.SampleSector.displayName, data.getString("display_name"))
-                assertEquals(
-                    DataProvider.SampleSector.point,
-                    data.getJSONObject("point").let { LatLng.fromJson(it) }
-                )
-                assertEquals(DataProvider.SampleSector.kidsApt, data.getBooleanOrNull("kids_apt"))
-                assertEquals(
-                    DataProvider.SampleSector.sunTime,
-                    data.getEnumOrNull(Sector.SunTime::class, "sun_time")
-                )
-                assertEquals(DataProvider.SampleSector.walkingTime, data.getUIntOrNull("walking_time"))
-                assertTrue(data.getLong("timestamp") < Instant.now().toEpochMilli())
-
-                image = data.getString("image")
-                gpx = data.getStringOrNull("gpx")
+                image = data.image.toRelativeString(Storage.ImagesDir)
+                gpx = data.gpx?.toRelativeString(Storage.TracksDir)
             }
         }
 
@@ -68,21 +56,11 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
         assertIsUUID(gpx!!)
 
         get("/file/$image").apply {
-            assertSuccess { data ->
-                assertNotNull(data?.getStringOrNull("download"))
-                assertNotNull(data?.getStringOrNull("filename"))
-                assertNotNull(data?.getStringOrNull("hash"))
-                assertNotNull(data?.getLongOrNull("size"))
-            }
+            assertSuccess<RequestFileResponseData>()
         }
 
         get("/file/$gpx").apply {
-            assertSuccess { data ->
-                assertNotNull(data?.getStringOrNull("download"))
-                assertNotNull(data?.getStringOrNull("filename"))
-                assertNotNull(data?.getStringOrNull("hash"))
-                assertNotNull(data?.getLongOrNull("size"))
-            }
+            assertSuccess<RequestFileResponseData>()
         }
     }
 

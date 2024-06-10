@@ -15,7 +15,6 @@ import server.error.Errors
 import server.response.respondFailure
 import storage.Storage
 import utils.ImageUtils
-import utils.jsonOf
 
 object DownloadFileEndpoint : EndpointBase("/download/{uuid}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -24,15 +23,7 @@ object DownloadFileEndpoint : EndpointBase("/download/{uuid}") {
         val width = call.request.queryParameters["width"]?.toIntOrNull()
         val height = call.request.queryParameters["height"]?.toIntOrNull()
 
-        val file = Storage.find(uuid) ?: return respondFailure(
-            Errors.FileNotFound.withExtra(
-                jsonOf(
-                    "ImagesDir" to Storage.ImagesDir.absolutePath,
-                    "TracksDir" to Storage.TracksDir.absolutePath,
-                    "uuid" to uuid
-                )
-            )
-        )
+        val file = Storage.find(uuid) ?: return respondFailure(Errors.FileNotFound)
 
         // Add the file's MIME type to the response
         withContext(Dispatchers.IO) {

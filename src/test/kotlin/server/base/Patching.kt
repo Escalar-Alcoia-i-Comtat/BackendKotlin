@@ -5,6 +5,7 @@ import assertions.assertSuccess
 import database.EntityTypes
 import database.entity.BaseEntity
 import database.entity.info.LastUpdate
+import database.serialization.Json
 import distribution.Notifier
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -17,14 +18,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import org.json.JSONArray
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import server.base.patch.PropertyValuePair
+import server.response.files.RequestFileResponseData
 import storage.HashUtils
 import storage.MessageDigestAlgorithm
 import storage.Storage
-import utils.serialization.JsonSerializable
-import utils.toJson
 
 fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
     type: EntityTypes<EntityType>,
@@ -52,13 +53,11 @@ fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching
 
                 when (newValue) {
                     null -> append(propertyName, "\u0000")
-                    is JsonSerializable -> append(propertyName, newValue.toJson().toString())
                     is Number -> append(propertyName, newValue)
-                    is Iterable<*> -> if (newValue.firstOrNull() is JsonSerializable)
-                        @Suppress("UNCHECKED_CAST")
-                        append(propertyName, (newValue as Iterable<JsonSerializable>).toJson().toString())
+                    is Iterable<*> -> if (newValue.firstOrNull() is Serializable)
+                        append(propertyName, Json.encodeToString(newValue))
                     else
-                        append(propertyName, JSONArray().toString())
+                        append(propertyName, "[]")
 
                     else -> append(propertyName, newValue.toString())
                 }
@@ -157,9 +156,10 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
     // Only fetch file if the request was not a removal
     if (resourcePath != null) {
         get("/file/$elementFile").apply {
-            assertSuccess { data ->
+            assertSuccess<RequestFileResponseData> { response ->
+                val data = response?.files?.first()
                 assertNotNull(data)
-                val serverHash = data.getString("hash")
+                val serverHash = data.hash
                 val localHash = HashUtils.getCheckSumFromStream(
                     MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256),
                     this::class.java.getResourceAsStream(resourcePath)!!

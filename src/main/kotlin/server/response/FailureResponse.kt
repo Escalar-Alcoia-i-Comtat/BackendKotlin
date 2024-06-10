@@ -1,16 +1,20 @@
 package server.response
 
 import com.crowdin.client.core.http.exceptions.HttpBadRequestException
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
-import io.ktor.server.response.respondText
+import io.ktor.server.response.respond
 import io.ktor.util.pipeline.PipelineContext
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.Serializable
 import server.error.Error
-import utils.jsonOf
+
+@Serializable
+data class FailureResponse(
+    val error: Error
+): Response {
+    override val success: Boolean = false
+}
 
 /**
  * Responds with a failure message to the client.
@@ -29,13 +33,9 @@ suspend fun PipelineContext<Unit, ApplicationCall>.respondFailure(
  * @param error The error object containing the error code and message.
  */
 suspend fun ApplicationCall.respondFailure(error: Error, extra: String? = null) {
-    respondText(
-        JSONObject().apply {
-            put("success", false)
-            put("error", jsonOf("code" to error.code, "message" to error.message, "extra" to extra))
-        }.toString(),
-        contentType = ContentType.Application.Json,
-        status = error.status
+    respond(
+        message = FailureResponse(error.copy(extra = extra)),
+        status = error.statusCode
     )
 }
 
@@ -45,41 +45,28 @@ suspend fun ApplicationCall.respondFailure(error: Error, extra: String? = null) 
  * @param throwable The exception thrown that shall be logged.
  */
 suspend fun ApplicationCall.respondFailure(throwable: Throwable) {
-    respondText(
-        JSONObject().apply {
-            put("success", false)
-            put(
-                "error",
-                jsonOf(
-                    "code" to -1,
-                    "message" to throwable.message,
-                    "type" to throwable::class.java.simpleName,
-                    "stackTrace" to JSONArray().apply {
-                        putAll(throwable.stackTrace)
-                    },
-                    "errors" to (throwable as? HttpBadRequestException)?.let { exception ->
-                        JSONArray().apply {
-                            putAll(
-                                exception.errors.map { errorHolder ->
-                                    val holdingError = errorHolder.error
-                                    jsonOf(
-                                        "key" to holdingError.key,
-                                        "errors" to JSONArray().apply {
-                                            holdingError.errors.forEach { error ->
-                                                put(
-                                                    jsonOf("code" to error.code, "message" to error.message)
-                                                )
-                                            }
-                                        }
-                                    )
-                                }
+    respondFailure(
+        Error(
+            code = -1,
+            message = throwable.message ?: "An error occurred",
+            status = HttpStatusCode.InternalServerError
+        ).copy(
+            type = throwable::class.java.simpleName,
+            stackTrace = throwable.stackTrace.map { it.toString() },
+            errors = if (throwable is HttpBadRequestException) {
+                throwable.errors.map { errorHolder ->
+                    val holdingError = errorHolder.error
+                    Error.ErrorMeta(
+                        key = holdingError.key,
+                        errors = holdingError.errors.map { error ->
+                            Error.ErrorMeta.Value(
+                                code = error.code,
+                                message = error.message
                             )
                         }
-                    }
-                )
-            )
-        }.toString(),
-        contentType = ContentType.Application.Json,
-        status = HttpStatusCode.InternalServerError
+                    )
+                }
+            } else null
+        )
     )
 }

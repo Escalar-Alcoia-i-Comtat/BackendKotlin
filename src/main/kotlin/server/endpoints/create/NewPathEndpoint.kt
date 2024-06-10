@@ -15,6 +15,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.util.pipeline.PipelineContext
 import java.io.File
+import kotlinx.serialization.json.Json
 import localization.Localization
 import server.endpoints.SecureEndpointBase
 import server.error.Errors
@@ -24,11 +25,8 @@ import server.error.Errors.TooManyImages
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
+import server.response.update.UpdateResponseData
 import storage.Storage
-import utils.json
-import utils.jsonArray
-import utils.jsonOf
-import utils.serialize
 
 object NewPathEndpoint : SecureEndpointBase("/path") {
     /** The number of different count properties. */
@@ -64,7 +62,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
         var showDescription: Boolean? = null
         var description: String? = null
         var builder: Builder? = null
-        val reBuilder: MutableList<Builder> = mutableListOf()
+        var reBuilder: List<Builder>? = null
         var sector: Sector? = null
 
         var imageFiles: List<File>? = null
@@ -79,7 +77,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
                     "grade" -> grade = partData.value.let { Grade.fromString(it) }
                     "ending" -> ending = partData.value.let { Ending.valueOf(it) }
 
-                    "pitches" -> pitches = partData.value.jsonArray.serialize(PitchInfo)
+                    "pitches" -> pitches = Json.decodeFromString(partData.value)
 
                     "stringCount" -> stringCount = partData.value.toUIntOrNull()
 
@@ -99,8 +97,8 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
                     "showDescription" -> showDescription = partData.value.toBoolean()
                     "description" -> description = partData.value
 
-                    "builder" -> builder = partData.value.let { Builder.fromJson(it.json) }
-                    "reBuilder" -> reBuilder.addAll(partData.value.jsonArray.serialize(Builder))
+                    "builder" -> builder = Json.decodeFromString(partData.value)
+                    "reBuilder" -> reBuilder = Json.decodeFromString(partData.value)
 
                     "sector" -> ServerDatabase.instance.query {
                         sector = Sector.findById(partData.value.toInt())
@@ -171,11 +169,10 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
-        val pathJson = ServerDatabase.instance.query { path.toJson() }
-        Notifier.getInstance().notifyCreated(EntityTypes.PATH, pathJson["id"] as Int)
+        Notifier.getInstance().notifyCreated(EntityTypes.PATH, path.id.value)
 
         respondSuccess(
-            jsonOf("element" to ServerDatabase.instance.query { path.toJson() }),
+            data = UpdateResponseData(path),
             httpStatusCode = HttpStatusCode.Created
         )
     }

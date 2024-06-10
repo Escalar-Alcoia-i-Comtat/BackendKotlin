@@ -4,6 +4,7 @@ import ServerDatabase
 import data.DataPoint
 import data.LatLng
 import database.entity.Area
+import database.entity.Sector
 import database.entity.Zone
 import database.table.Areas
 import database.table.Zones
@@ -35,6 +36,7 @@ object ZoneSerializer : KSerializer<Zone> {
         element<String>("point")
         element<String>("points")
         element<Int>("area_id")
+        element<List<Sector>?>("sectors")
     }
 
     override fun serialize(encoder: Encoder, value: Zone) = ServerDatabase.instance.querySync {
@@ -49,6 +51,7 @@ object ZoneSerializer : KSerializer<Zone> {
             encodeNullableSerializableElement(descriptor, idx++, LatLng.serializer(), value.point)
             encodeSerializableElement(descriptor, idx++, ListSerializer(DataPoint.serializer()), value.points.toList())
             encodeIntElement(descriptor, idx++, value.area.id.value)
+            encodeNullableSerializableElement(descriptor, idx++, ListSerializer(Sector.serializer()), value.sectors)
         }
     }
 
@@ -89,8 +92,9 @@ object ZoneSerializer : KSerializer<Zone> {
             this.kmz = Storage.TracksDir.resolve(kmz)
             this.webUrl = URL(webUrl)
             this.point = point
-            this.points.addAll(points)
+            this.points = points
             this.area = Area(EntityID(areaId, Areas))
+            // Note: "sectors" is never initialized here, it's not intended to ever decode the list of sectors
         }
     }
 }

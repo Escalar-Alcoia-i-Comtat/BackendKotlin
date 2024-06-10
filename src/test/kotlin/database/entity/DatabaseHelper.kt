@@ -35,13 +35,13 @@ object DatabaseHelper {
         displayName: String = DataProvider.SampleZone.displayName,
         webUrl: String = DataProvider.SampleZone.webUrl,
         point: LatLng = DataProvider.SampleZone.point,
-        pointsSet: Set<DataPoint> = DataProvider.SampleZone.points
+        points: List<DataPoint> = DataProvider.SampleZone.points
     ): Zone = ServerDatabase.instance.query {
         Zone.new {
             this.displayName = displayName
             this.webUrl = URL(webUrl)
             this.point = point
-            this.pointsSet = pointsSet.map { it.toJson().toString() }
+            this.points = points
 
             // Required, but not used
             image = File(Storage.ImagesDir, "abc")

@@ -10,10 +10,9 @@ import io.ktor.server.util.getValue
 import io.ktor.util.pipeline.PipelineContext
 import server.endpoints.EndpointBase
 import server.error.Errors
+import server.response.query.BlocksResponseData
 import server.response.respondFailure
 import server.response.respondSuccess
-import utils.jsonOf
-import utils.toJson
 
 object GetBlockEndpoint: EndpointBase("/block/{pathId}") {
     override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
@@ -24,13 +23,11 @@ object GetBlockEndpoint: EndpointBase("/block/{pathId}") {
             ?: return call.respondFailure(Errors.ObjectNotFound)
 
         val blocks = ServerDatabase.instance.query {
-            Blocking.find { BlockingTable.path eq pathId }.toJson()
+            Blocking.find { BlockingTable.path eq pathId }
         }
 
         respondSuccess(
-            jsonOf(
-                "blocks" to blocks
-            )
+            BlocksResponseData(blocks.toList())
         )
     }
 }
