@@ -10,7 +10,7 @@ kotlin-serialization = "1.7.0"
 ktor = "2.3.11"
 postgresql = "42.7.3"
 progressbar = "0.10.1"
-sentry = "4.7.1"
+sentry = "4.8.0"
 sqlite = "3.46.0.0"
 
 [libraries]
