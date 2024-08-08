@@ -37,9 +37,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v4
       - name: Run tests
         env:
           SENTRY_DSN_TESTS: ${{ secrets.SENTRY_DSN_TESTS }}
@@ -63,9 +63,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v4
       - name: Run Kover
         env:
           SENTRY_DSN_TESTS: ${{ secrets.SENTRY_DSN_TESTS }}
