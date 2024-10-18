@@ -4,10 +4,21 @@
       <env name="AUTH_TOKEN" value="cwBsTxhjf8mFQrN8zPUpGstmtCeg3z" />
       <env name="DATABASE_URL" value="jdbc:sqlite:testing.db" />
       <env name="ENABLE_IMPORTER" value="true" />
+      <env name="SERVER_UUID" value="0e590deb-1389-47bd-a833-b70919d64683" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="MainKt" />
     <module name="EscalarAlcoiaIComtat-Backend.main" />
     <shortenClasspath name="NONE" />
+    <extension name="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+      </ENTRIES>
+    </extension>
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

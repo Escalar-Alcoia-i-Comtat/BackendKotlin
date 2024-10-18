@@ -1,5 +1,6 @@
 package assertions
 
+import ServerDatabase
 import database.serialization.Json
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
@@ -10,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlinx.serialization.SerializationException
 import server.error.Error
 import server.response.FailureResponse
 import server.response.Response
@@ -26,8 +28,39 @@ suspend fun HttpResponse.assertSuccess(
 ) {
     val response = body<Response>()
 
-    assertEquals(statusCode, status)
-    assertTrue(response.success)
+    if (response.success) {
+        assertEquals(statusCode, status)
+        assertTrue(response.success)
+    } else {
+        var errorMessage: String? = null
+        var errorType: String? = null
+        var stackTrace: String? = null
+        if (response is FailureResponse) {
+            errorMessage = response.error?.message
+            errorType = response.error?.type
+            stackTrace = response.error?.stackTrace?.joinToString("\n    ")
+        }
+
+        throw AssertionError(
+            StringBuilder().apply {
+                appendLine("expected: $statusCode but was: $status")
+                appendLine("Url: ${request.url}")
+                if (errorMessage != null) {
+                    appendLine("Message: $errorMessage")
+                }
+                if (errorType != null) {
+                    appendLine("Type: $errorType")
+                }
+                if (stackTrace != null) {
+                    appendLine("Stack trace:\n    $stackTrace")
+                }
+            }.toString()
+        )
+    }
+}
+
+fun interface SuccessfulAssertionBlock<Type : ResponseData> {
+    suspend operator fun invoke(data: Type?)
 }
 
 /**
@@ -36,9 +69,9 @@ suspend fun HttpResponse.assertSuccess(
  * @param statusCode If the request doesn't respond OK (200), you can modify it here.
  * @param block If any, allows handling the response if any.
  */
-suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
+suspend inline fun HttpResponse.assertSuccessRaw(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
-    block: (data: Type?) -> Unit = {}
+    block: (body: String) -> Unit = {}
 ) {
     val response = body<Response>()
 
@@ -71,7 +104,25 @@ suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
 
     assertTrue(response.success)
     assertIs<SuccessResponse>(response)
-    block(response.data<Type>())
+    block(bodyAsText())
+}
+
+/**
+ * Asserts that the request was successful.
+ *
+ * @param statusCode If the request doesn't respond OK (200), you can modify it here.
+ * @param block If any, allows handling the response if any.
+ */
+suspend inline fun <reified Type : ResponseData> HttpResponse.assertSuccess(
+    statusCode: HttpStatusCode = HttpStatusCode.OK,
+    block: SuccessfulAssertionBlock<Type> = SuccessfulAssertionBlock {}
+) = assertSuccessRaw(statusCode) {
+    try {
+        val data: SuccessResponse = Json.decodeFromString<SuccessResponse>(it)
+        ServerDatabase { block(data.data()) }
+    } catch (e: SerializationException) {
+        throw SerializationException("Failed to parse response:\n\t$it", e)
+    }
 }
 
 /**
@@ -99,7 +150,7 @@ suspend fun HttpResponse.assertFailure(
         error.status,
         status.value,
         StringBuilder().apply {
-            appendLine("expected: ${error.status} but was: $status")
+            appendLine("expected: ${error.status} but was: ${status.value}")
             if (errorMessage != null) {
                 appendLine("Message: $errorMessage")
             }

@@ -11,12 +11,12 @@ import kotlin.test.assertNull
 import server.base.ApplicationTestBase
 import server.response.query.LastUpdateResponseData
 
-class TestLastUpdateEndpoint: ApplicationTestBase() {
+class TestLastUpdateEndpoint : ApplicationTestBase() {
     @Test
     fun `test last update`() = test {
         // At first, it will be null
         get("/last_update").apply {
-            assertSuccess< LastUpdateResponseData> { data ->
+            assertSuccess<LastUpdateResponseData> { data ->
                 assertNotNull(data)
                 assertNull(data.lastUpdate)
             }
@@ -30,7 +30,7 @@ class TestLastUpdateEndpoint: ApplicationTestBase() {
         get("/last_update").apply {
             assertSuccess<LastUpdateResponseData> { data ->
                 assertNotNull(data)
-                assertEquals(timestamp, data.lastUpdate)
+                assertEquals(timestamp.toEpochMilli(), data.lastUpdate)
             }
         }
     }

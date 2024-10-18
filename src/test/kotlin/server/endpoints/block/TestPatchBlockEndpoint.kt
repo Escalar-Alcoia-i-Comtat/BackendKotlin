@@ -21,15 +21,15 @@ import server.base.ApplicationTestBase
 import server.request.AddBlockRequest
 import server.response.update.UpdateResponseData
 
-class TestPatchBlockEndpoint: ApplicationTestBase() {
+class TestPatchBlockEndpoint : ApplicationTestBase() {
     private fun patch(
         request: AddBlockRequest,
         assert: (element: Blocking) -> Unit
     ) = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = DataProvider.provideSampleArea(this)
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
+        val sectorId = DataProvider.provideSampleSector(this, zoneId)
+        val pathId = DataProvider.provideSamplePath(this, sectorId)
 
         var blockId: Int? = null
 

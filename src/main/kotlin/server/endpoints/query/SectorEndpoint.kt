@@ -2,18 +2,16 @@ package server.endpoints.query
 
 import ServerDatabase
 import database.entity.Sector
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.plugins.ParameterConversionException
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import server.endpoints.EndpointBase
 import server.error.Errors
 import server.response.respondFailure
 import server.response.respondSuccess
 
 object SectorEndpoint : EndpointBase("/sector/{sectorId}") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val sectorId = try {
             val sectorId: Int by call.parameters
             sectorId

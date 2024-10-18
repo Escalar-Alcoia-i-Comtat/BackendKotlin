@@ -13,14 +13,13 @@ import database.serialization.Json
 import database.table.Paths
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.time.Instant
 import localization.Localization
 import server.endpoints.SecureEndpointBase
+import server.error.Error
 import server.error.Errors
 import server.request.save
 import server.response.respondFailure
@@ -32,7 +31,7 @@ import utils.areAllNull
 
 object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val pathId: Int by call.parameters
 
         val path = ServerDatabase.instance.query { Path.findById(pathId) }
@@ -82,6 +81,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
         var removeReBuilder = false
         var removeImages = emptyList<String>()
 
+        var error: Error? = null
         receiveMultipart(
             forEachFormItem = { partData ->
                 when (partData.name) {
@@ -193,7 +193,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
 
                     "path" -> ServerDatabase.instance.query {
                         sector = Sector.findById(partData.value.toInt())
-                            ?: return@query respondFailure(Errors.ParentNotFound)
+                            ?: return@query Errors.ParentNotFound.let { error = it }
                     }
                 }
             },
@@ -205,6 +205,9 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
                 }
             }
         )
+        if (error != null) {
+            return respondFailure(error)
+        }
 
         if (areAllNull(
                 displayName, sketchId, height, grade, ending, pitches, stringCount, paraboltCount, burilCount,
@@ -226,8 +229,8 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
 
-        if (path.images != null && imageFiles != null && path.images!!.size + imageFiles!!.size > Paths.MAX_IMAGES) {
-            imageFiles?.forEach {
+        if (path.images != null && imageFiles != null && path.images!!.size + imageFiles.size > Paths.MAX_IMAGES) {
+            imageFiles.forEach {
                 if (!it.delete()) {
                     return respondFailure(
                         Errors.CouldNotClear,

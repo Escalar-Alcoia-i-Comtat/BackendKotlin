@@ -8,12 +8,10 @@ import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.request.receiveMultipart
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import java.io.File
-import java.net.URL
+import java.net.URI
 import server.endpoints.SecureEndpointBase
 import server.error.Errors.MissingData
 import server.request.save
@@ -23,7 +21,7 @@ import server.response.update.UpdateResponseData
 import storage.Storage
 
 object NewAreaEndpoint : SecureEndpointBase("/area") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val multipart = call.receiveMultipart()
 
         var displayName: String? = null
@@ -41,11 +39,13 @@ object NewAreaEndpoint : SecureEndpointBase("/area") {
                         "webUrl" -> webUrl = partData.value
                     }
                 }
+
                 is PartData.FileItem -> {
                     when (partData.name) {
                         "image" -> imageFile = partData.save(Storage.ImagesDir)
                     }
                 }
+
                 else -> Unit
             }
         }
@@ -60,9 +60,9 @@ object NewAreaEndpoint : SecureEndpointBase("/area") {
 
         val area = ServerDatabase.instance.query {
             Area.new {
-                this.displayName = displayName!!
-                this.image = imageFile!!
-                this.webUrl = URL(webUrl!!)
+                this.displayName = displayName
+                this.image = imageFile
+                this.webUrl = URI.create(webUrl).toURL()
             }
         }
 

@@ -19,13 +19,13 @@ import storage.Storage
 class TestSectorFetchingEndpoint : ApplicationTestBase() {
     @Test
     fun `test getting sector`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = DataProvider.provideSampleSector(this, zoneId)
         assertNotNull(sectorId)
 
         var image: String? = null
@@ -44,13 +44,13 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
                 assertEquals(DataProvider.SampleSector.walkingTime, data.walkingTime)
                 assertTrue(data.timestamp < Instant.now())
 
-                image = data.image.toRelativeString(Storage.ImagesDir)
-                gpx = data.gpx?.toRelativeString(Storage.TracksDir)
+                image = data.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
+                gpx = data.gpx?.toRelativeString(Storage.TracksDir)?.substringBeforeLast('.')
             }
         }
 
         assertNotNull(image)
-        assertIsUUID(image!!)
+        assertIsUUID(image)
 
         assertNotNull(gpx)
         assertIsUUID(gpx!!)

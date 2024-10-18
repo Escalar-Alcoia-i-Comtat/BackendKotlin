@@ -1,6 +1,8 @@
 package data
 
+import database.serialization.Json
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 
 @Serializable
 data class PitchInfo(
@@ -10,4 +12,6 @@ data class PitchInfo(
     val ending: Ending? = null,
     val info: EndingInfo? = null,
     val inclination: EndingInclination? = null
-)
+) {
+    override fun toString(): String = Json.encodeToString(this)
+}

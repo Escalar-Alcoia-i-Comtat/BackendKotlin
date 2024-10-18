@@ -48,4 +48,3 @@ testing.db-journal
 
 ### Ignore secrets file ###
 local.properties
-secrets.env

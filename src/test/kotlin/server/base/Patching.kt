@@ -38,7 +38,7 @@ fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching
     type: EntityTypes<EntityType>,
     properties: List<PropertyValuePair<EntityType, PropertyType>>
 ) = test {
-    val elementId = type.provide()
+    val elementId = type.provide(this)
     assertNotNull(elementId)
 
     val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
@@ -105,7 +105,7 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
     rootDir: File,
     fileAccessor: (Type) -> File?
 ) = test {
-    val elementId = type.provide()
+    val elementId = type.provide(this)
     assertNotNull(elementId)
 
     val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }

@@ -39,8 +39,8 @@ object DataProvider {
         val webUrl = "https://example.com"
     }
 
-    context(StubApplicationTestBuilder)
     suspend fun provideSampleArea(
+        builder: StubApplicationTestBuilder,
         skipDisplayName: Boolean = false,
         skipWebUrl: Boolean = false,
         skipImage: Boolean = false,
@@ -61,7 +61,7 @@ object DataProvider {
 
         var areaId: Int?
 
-        client.submitFormWithBinaryData(
+        builder.client.submitFormWithBinaryData(
             url = "/area",
             formData = formData {
                 if (!skipDisplayName)
@@ -93,8 +93,8 @@ object DataProvider {
         )
     }
 
-    context(StubApplicationTestBuilder)
     suspend fun provideSampleZone(
+        builder: StubApplicationTestBuilder,
         areaId: Int?,
         skipDisplayName: Boolean = false,
         skipWebUrl: Boolean = false,
@@ -120,7 +120,7 @@ object DataProvider {
 
         var zoneId: Int?
 
-        client.submitFormWithBinaryData(
+        builder.client.submitFormWithBinaryData(
             url = "/zone",
             formData = formData {
                 if (areaId != null)
@@ -162,8 +162,8 @@ object DataProvider {
         val walkingTime = 12U
     }
 
-    context(StubApplicationTestBuilder)
     suspend fun provideSampleSector(
+        builder: StubApplicationTestBuilder,
         zoneId: Int?,
         skipDisplayName: Boolean = false,
         skipKidsApt: Boolean = false,
@@ -189,7 +189,7 @@ object DataProvider {
 
         var sectorId: Int?
 
-        client.submitFormWithBinaryData(
+        builder.client.submitFormWithBinaryData(
             url = "/sector",
             formData = formData {
                 if (zoneId != null)
@@ -266,8 +266,8 @@ object DataProvider {
         )
     }
 
-    context(StubApplicationTestBuilder)
     suspend fun provideSamplePath(
+        builder: StubApplicationTestBuilder,
         sectorId: Int?,
         skipDisplayName: Boolean = false,
         skipSketchId: Boolean = false,
@@ -291,7 +291,7 @@ object DataProvider {
             this::class.java.getResourceAsStream(path)!!.use { it.readBytes() }
         }
 
-        client.submitFormWithBinaryData(
+        builder.client.submitFormWithBinaryData(
             url = "/path",
             formData = formData {
                 if (sectorId != null)

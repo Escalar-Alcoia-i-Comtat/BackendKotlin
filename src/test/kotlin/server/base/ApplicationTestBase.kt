@@ -9,20 +9,17 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.testApplication
 import java.io.File
-import kotlin.coroutines.CoroutineContext
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.newCoroutineContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import module
 import org.jetbrains.exposed.sql.StdOutSqlLogger
-import setupApplication
 import storage.Storage
 import system.EnvironmentVariables
 
@@ -122,7 +119,7 @@ abstract class ApplicationTestBase(
      * Prepares the testing database, and configures the applications to start making requests and testing application
      * endpoints. Perform all the desired steps in [block].
      */
-    fun test(block: suspend StubApplicationTestBuilder.() -> Unit) = runBlocking(dispatcher) {
+    fun test(block: suspend StubApplicationTestBuilder.() -> Unit) = runBlocking<Unit>(dispatcher) {
         // Configure database
         ServerDatabase.url = "jdbc:sqlite:testing.db"
         ServerDatabase.logger = StdOutSqlLogger
@@ -139,7 +136,7 @@ abstract class ApplicationTestBase(
 
         testApplication {
             application {
-                setupApplication()
+                module()
             }
 
             val client = createClient {

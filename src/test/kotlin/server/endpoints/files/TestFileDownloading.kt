@@ -3,10 +3,9 @@ package server.endpoints.files
 import assertions.assertSuccess
 import database.entity.Area
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.statement.readBytes
+import io.ktor.client.statement.readRawBytes
 import io.ktor.http.isSuccess
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.copyAndClose
+import io.ktor.utils.io.readBuffer
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -14,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.io.copyTo
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.base.StubApplicationTestBuilder
@@ -24,7 +24,7 @@ class TestFileDownloading : ApplicationTestBase() {
         imageFile: String = "/images/alcoi.jpg",
         block: (imageUUID: String) -> Unit
     ) {
-        val areaId = DataProvider.provideSampleArea(imageFile = imageFile)
+        val areaId = DataProvider.provideSampleArea(this, imageFile = imageFile)
 
         var image: String? = null
 
@@ -37,7 +37,7 @@ class TestFileDownloading : ApplicationTestBase() {
 
         assertNotNull(image)
 
-        block(image!!)
+        block(image)
     }
 
     private fun downloadResized(
@@ -55,7 +55,7 @@ class TestFileDownloading : ApplicationTestBase() {
             )
 
             val channel = response.bodyAsChannel()
-            channel.copyAndClose(tempFile.writeChannel())
+            channel.readBuffer().use { read -> tempFile.outputStream().use { write -> read.copyTo(write) } }
 
             try {
                 val img: BufferedImage? = ImageIO.read(tempFile)
@@ -78,7 +78,7 @@ class TestFileDownloading : ApplicationTestBase() {
                         "Content-Type header is not JPEG. Got: $contentType"
                     )
                 }
-                readBytes()
+                readRawBytes()
             }
         }
     }

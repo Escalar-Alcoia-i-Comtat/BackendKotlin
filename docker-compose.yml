@@ -2,7 +2,9 @@ version: '3.7'
 
 services:
   backend:
-    image: escalaralcoiaicomtat:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: escalaralcoiaicomtat_backend
     restart: "no"
     environment:
@@ -21,11 +23,7 @@ services:
       # -- Configure Sentry
       # Optional: SENTRY_DSN
       # IS_PRODUCTION: false by default
-    env_file:
-      - "secrets.env"
     volumes:
-      - ./keystore:/var/lib/escalaralcoiaicomtat/keystore
-      - ./certificates:/var/lib/escalaralcoiaicomtat/certs
       - ./files:/var/lib/escalaralcoiaicomtat/files
       - ./google-services.json:/var/lib/escalaralcoiaicomtat/google-services.json
     networks:

@@ -23,7 +23,7 @@ fun <EntityType: BaseEntity> ApplicationTestBase.testDeleting(
     type: EntityTypes<EntityType>,
     fileRemovals: List<FileRemoval<EntityType>> = emptyList()
 ) = test {
-    val elementId = type.provide()
+    val elementId = type.provide(this)
     assertNotNull(elementId)
 
     val element = ServerDatabase.instance.query { type.getter(elementId) }

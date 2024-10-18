@@ -5,17 +5,15 @@ import database.EntityTypes
 import database.entity.Zone
 import database.entity.info.LastUpdate
 import distribution.Notifier
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import server.endpoints.SecureEndpointBase
 import server.error.Errors
 import server.response.respondFailure
 import server.response.respondSuccess
 
 object DeleteZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val zoneId: Int by call.parameters
 
         val zone = ServerDatabase.instance.query { Zone.findById(zoneId)?.also(Zone::delete) }

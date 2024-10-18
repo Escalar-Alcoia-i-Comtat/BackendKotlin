@@ -10,12 +10,10 @@ import database.entity.info.LastUpdate
 import database.serialization.Json
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import java.io.File
-import java.net.URL
+import java.net.URI
 import java.time.Instant
 import java.util.UUID
 import kotlinx.serialization.encodeToString
@@ -31,7 +29,7 @@ import utils.areAllNull
 
 object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val zoneId: Int by call.parameters
 
         val zone = ServerDatabase.instance.query { Zone.findById(zoneId) }
@@ -55,7 +53,12 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
                     "webUrl" -> webUrl = partData.value
-                    "points" -> points = Json.decodeFromString(partData.value)
+                    "points" -> partData.value.let { value ->
+                        if (value == "\u0000")
+                            removePoint = true
+                        else
+                            points = Json.decodeFromString(value)
+                    }
                     "area" -> ServerDatabase.instance.query {
                         area = Area.findById(partData.value.toInt())
                     }
@@ -91,7 +94,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
 
         ServerDatabase.instance.query {
             displayName?.let { zone.displayName = it }
-            webUrl?.let { zone.webUrl = URL(it) }
+            webUrl?.let { zone.webUrl = URI.create(it).toURL() }
             point?.let { zone.point = it }
             points?.let { zone.points = it }
             area?.let { zone.area = it }

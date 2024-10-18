@@ -16,13 +16,13 @@ import server.error.Errors
 import server.response.files.RequestFileResponseData
 import storage.Storage
 
-class TestZoneFetchingEndpoint: ApplicationTestBase() {
+class TestZoneFetchingEndpoint : ApplicationTestBase() {
     @Test
     fun `test getting zone`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
         var image: String? = null
@@ -38,15 +38,15 @@ class TestZoneFetchingEndpoint: ApplicationTestBase() {
                 assertEquals(DataProvider.SampleZone.webUrl, data.webUrl.toString())
                 assertTrue(data.timestamp < Instant.now())
 
-                image = data.image.toRelativeString(Storage.ImagesDir)
-                kmz = data.kmz.toRelativeString(Storage.TracksDir)
+                image = data.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
+                kmz = data.kmz.toRelativeString(Storage.TracksDir).substringBeforeLast('.')
             }
         }
 
         assertNotNull(image)
-        assertIsUUID(image!!)
+        assertIsUUID(image)
         assertNotNull(kmz)
-        assertIsUUID(kmz!!)
+        assertIsUUID(kmz)
 
         get("/file/$image").apply {
             assertSuccess<RequestFileResponseData>()

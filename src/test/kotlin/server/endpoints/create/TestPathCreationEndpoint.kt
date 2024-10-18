@@ -18,21 +18,21 @@ import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
 
-class TestPathCreationEndpoint: ApplicationTestBase() {
+class TestPathCreationEndpoint : ApplicationTestBase() {
     @Test
     fun `test path creation`() = test {
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
-        val areaId: Int? = DataProvider.provideSampleArea()
+        val areaId: Int? = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
+        val zoneId: Int? = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
-        val sectorId: Int? = DataProvider.provideSampleSector(zoneId)
+        val sectorId: Int? = DataProvider.provideSampleSector(this, zoneId)
         assertNotNull(sectorId)
 
-        val pathId: Int? = DataProvider.provideSamplePath(sectorId)
+        val pathId: Int? = DataProvider.provideSamplePath(this, sectorId)
         assertNotNull(pathId)
 
         ServerDatabase.instance.query {
@@ -75,17 +75,17 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test path creation - with image`() = test {
-        val areaId: Int? = DataProvider.provideSampleArea()
+        val areaId: Int? = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
+        val zoneId: Int? = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
-        val sectorId: Int? = DataProvider.provideSampleSector(zoneId)
+        val sectorId: Int? = DataProvider.provideSampleSector(this, zoneId)
         assertNotNull(sectorId)
 
         // Include only an image, using uixola as sample
-        val pathId: Int? = DataProvider.provideSamplePath(sectorId, images = listOf("/images/uixola.jpg"))
+        val pathId: Int? = DataProvider.provideSamplePath(this, sectorId, images = listOf("/images/uixola.jpg"))
         assertNotNull(pathId)
 
         ServerDatabase.instance.query {
@@ -103,17 +103,18 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test path creation - with multiple images`() = test {
-        val areaId: Int? = DataProvider.provideSampleArea()
+        val areaId: Int? = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
+        val zoneId: Int? = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
-        val sectorId: Int? = DataProvider.provideSampleSector(zoneId)
+        val sectorId: Int? = DataProvider.provideSampleSector(this, zoneId)
         assertNotNull(sectorId)
 
         // Include only an image, using uixola as sample
         val pathId: Int? = DataProvider.provideSamplePath(
+            this,
             sectorId,
             images = listOf("/images/uixola.jpg", "/images/uixola.jpg")
         )
@@ -135,14 +136,14 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test path creation - missing arguments`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
-        val sectorId: Int? = DataProvider.provideSampleSector(zoneId)
-        DataProvider.provideSamplePath(sectorId, skipDisplayName = true) {
+        val areaId = DataProvider.provideSampleArea(this)
+        val zoneId: Int? = DataProvider.provideSampleZone(this, areaId)
+        val sectorId: Int? = DataProvider.provideSampleSector(this, zoneId)
+        DataProvider.provideSamplePath(this, sectorId, skipDisplayName = true) {
             assertFailure(Errors.MissingData)
             null
         }
-        DataProvider.provideSamplePath(sectorId, skipSketchId = true) {
+        DataProvider.provideSamplePath(this, sectorId, skipSketchId = true) {
             assertFailure(Errors.MissingData)
             null
         }
@@ -152,7 +153,7 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test path creation - invalid zone id`() = test {
-        DataProvider.provideSamplePath(123) {
+        DataProvider.provideSamplePath(this, 123) {
             assertFailure(Errors.ParentNotFound)
             null
         }
@@ -162,10 +163,11 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test path creation - too many images`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
-        val sectorId: Int? = DataProvider.provideSampleSector(zoneId)
+        val areaId = DataProvider.provideSampleArea(this)
+        val zoneId: Int? = DataProvider.provideSampleZone(this, areaId)
+        val sectorId: Int? = DataProvider.provideSampleSector(this, zoneId)
         DataProvider.provideSamplePath(
+            this,
             sectorId,
             images = arrayOfNulls<String>(Paths.MAX_IMAGES + 1)
                 .map { "/images/uixola.jpg" }

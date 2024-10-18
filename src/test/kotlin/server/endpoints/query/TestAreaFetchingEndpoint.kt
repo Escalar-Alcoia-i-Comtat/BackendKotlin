@@ -15,10 +15,10 @@ import server.error.Errors
 import server.response.files.RequestFileResponseData
 import storage.Storage
 
-class TestAreaFetchingEndpoint: ApplicationTestBase() {
+class TestAreaFetchingEndpoint : ApplicationTestBase() {
     @Test
     fun `test getting area`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
         var image: String? = null
@@ -32,12 +32,12 @@ class TestAreaFetchingEndpoint: ApplicationTestBase() {
                 assertEquals(DataProvider.SampleArea.webUrl, data.webUrl.toString())
                 assertTrue(data.timestamp < Instant.now())
 
-                image = data.image.toRelativeString(Storage.ImagesDir)
+                image = data.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
             }
         }
 
         assertNotNull(image)
-        assertIsUUID(image!!)
+        assertIsUUID(image)
 
         get("/file/$image").apply {
             assertSuccess<RequestFileResponseData>()

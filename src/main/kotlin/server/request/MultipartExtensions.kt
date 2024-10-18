@@ -1,10 +1,11 @@
 package server.request
 
 import io.ktor.http.content.PartData
-import io.ktor.http.content.streamProvider
+import io.ktor.utils.io.readBuffer
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import kotlinx.io.copyTo
 
 /**
  * Saves the FileItem to a specified root directory. Creates any necessary parent directories.
@@ -15,7 +16,7 @@ import java.util.UUID
  *
  * @throws IOException If there's a problem while writing to the file system.
  */
-fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null, overwrite: Boolean = true): File {
+suspend fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null, overwrite: Boolean = true): File {
     rootDir.mkdirs()
 
     val fileExtension = originalFileName?.takeLastWhile { it != '.' }
@@ -26,8 +27,10 @@ fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null, overwrite: Boolean
         targetFile.delete()
     }
 
-    streamProvider().buffered().use { stream ->
-        targetFile.writeBytes(stream.readBytes())
+    provider().readBuffer().use { input ->
+        targetFile.outputStream().use { output ->
+            input.copyTo(output)
+        }
     }
 
     return targetFile

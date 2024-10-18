@@ -10,13 +10,13 @@ import database.entity.info.LastUpdate
 import database.serialization.Json
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import java.io.File
-import java.net.URL
+import java.net.URI
 import server.endpoints.SecureEndpointBase
-import server.error.Errors
+import server.error.Error
 import server.error.Errors.MissingData
+import server.error.Errors.ParentNotFound
 import server.request.save
 import server.response.respondFailure
 import server.response.respondSuccess
@@ -26,7 +26,7 @@ import utils.isAnyNull
 
 object NewZoneEndpoint : SecureEndpointBase("/zone") {
     @Suppress("DuplicatedCode")
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         var displayName: String? = null
         var webUrl: String? = null
         var point: LatLng? = null
@@ -38,6 +38,7 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
         var imageFile: File? = null
         var kmzFile: File? = null
 
+        var error: Error? = null
         receiveMultipart(
             forEachFormItem = { partData ->
                 when (partData.name) {
@@ -47,7 +48,7 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
                     "points" -> points = Json.decodeFromString(partData.value)
                     "area" -> ServerDatabase.instance.query {
                         area = Area.findById(partData.value.toInt())
-                            ?: return@query respondFailure(Errors.ParentNotFound)
+                            ?: return@query ParentNotFound.let { error = it }
                     }
                 }
             },
@@ -58,6 +59,10 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
                 }
             }
         )
+        if (error != null) {
+            call.respondFailure(error)
+            return
+        }
 
         if (isAnyNull(displayName, webUrl, imageFile, kmzFile, area)) {
             imageFile?.delete()
@@ -73,7 +78,7 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
         val zone = ServerDatabase.instance.query {
             Zone.new {
                 this.displayName = displayName!!
-                this.webUrl = URL(webUrl!!)
+                this.webUrl = URI.create(webUrl!!).toURL()
                 this.image = imageFile!!
                 this.kmz = kmzFile!!
                 this.point = point
