@@ -26,16 +26,16 @@ import server.base.testDeleting
 import server.base.testDeletingNotFound
 import server.error.Errors
 
-class TestDeletePathEndpoint: ApplicationTestBase() {
+class TestDeletePathEndpoint : ApplicationTestBase() {
     @Test
     fun `test deleting Path`() = testDeleting(EntityTypes.PATH)
 
     @Test
     fun `test deleting Path with blocks`() = test {
-        val areaId = with(DataProvider) { provideSampleArea() }
-        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
-        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
-        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
+        val areaId = DataProvider.provideSampleArea(this)
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
+        val sectorId = DataProvider.provideSampleSector(this, zoneId)
+        val pathId = DataProvider.provideSamplePath(this, sectorId)
 
         assertNotNull(pathId)
 
@@ -75,10 +75,10 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test deleting Path with images`() = test {
-        val areaId = with(DataProvider) { provideSampleArea() }
-        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
-        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
-        val pathId = with(DataProvider) { provideSamplePath(sectorId, images = listOf("/images/uixola.jpg")) }
+        val areaId = DataProvider.provideSampleArea(this)
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
+        val sectorId = DataProvider.provideSampleSector(this, zoneId)
+        val pathId = DataProvider.provideSamplePath(this, sectorId, images = listOf("/images/uixola.jpg"))
 
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 

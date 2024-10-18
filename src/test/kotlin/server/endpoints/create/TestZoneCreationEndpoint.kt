@@ -16,15 +16,15 @@ import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
 
-class TestZoneCreationEndpoint: ApplicationTestBase() {
+class TestZoneCreationEndpoint : ApplicationTestBase() {
     @Test
     fun `test zone creation`() = test {
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
-        val areaId: Int? = with(DataProvider) { provideSampleArea() }
+        val areaId: Int? = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId: Int? = with(DataProvider) { provideSampleZone(areaId) }
+        val zoneId: Int? = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
         ServerDatabase.instance.query {
@@ -49,43 +49,35 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test zone creation - missing arguments`() = test {
-        val areaId = with(DataProvider) { provideSampleArea() }
-        with(DataProvider) {
-            provideSampleZone(areaId, skipDisplayName = true) {
+        val areaId = DataProvider.provideSampleArea(this)
+        DataProvider.provideSampleZone(this, areaId, skipDisplayName = true) {
             assertFailure(Errors.MissingData)
             assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
             null
         }
+        DataProvider.provideSampleZone(this, areaId, skipImage = true) {
+            assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
+            null
         }
-        with(DataProvider) {
-            provideSampleZone(areaId, skipImage = true) {
-                assertFailure(Errors.MissingData)
-                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
-                null
-            }
+        DataProvider.provideSampleZone(this, areaId, skipWebUrl = true) {
+            assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
+            null
         }
-        with(DataProvider) {
-            provideSampleZone(areaId, skipWebUrl = true) {
-                assertFailure(Errors.MissingData)
-                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
-                null
-            }
-        }
-        with(DataProvider) {
-            provideSampleZone(areaId, skipKmz = true) {
-                assertFailure(Errors.MissingData)
-                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
-                null
-            }
+        DataProvider.provideSampleZone(this, areaId, skipKmz = true) {
+            assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
+            null
         }
     }
 
     @Test
     fun `test zone creation - no points`() = test {
-        val areaId = with(DataProvider) { provideSampleArea() }
+        val areaId = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId = with(DataProvider) { provideSampleZone(areaId, emptyPoints = true) }
+        val zoneId = DataProvider.provideSampleZone(this, areaId, emptyPoints = true)
         assertNotNull(zoneId)
 
         ServerDatabase.instance.query {
@@ -99,12 +91,10 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test zone creation - invalid zone id`() = test {
-        with(DataProvider) {
-            provideSampleZone(123) {
-                assertFailure(Errors.ParentNotFound)
-                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
-                null
-            }
+        DataProvider.provideSampleZone(this, 123) {
+            assertFailure(Errors.ParentNotFound)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
+            null
         }
     }
 }

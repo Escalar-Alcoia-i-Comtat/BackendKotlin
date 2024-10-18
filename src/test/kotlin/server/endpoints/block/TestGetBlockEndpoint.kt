@@ -14,13 +14,13 @@ import server.base.ApplicationTestBase
 import server.request.AddBlockRequest
 import server.response.query.BlocksResponseData
 
-class TestGetBlockEndpoint: ApplicationTestBase() {
+class TestGetBlockEndpoint : ApplicationTestBase() {
     @Test
     fun `test get path's block`() = test {
-        val areaId = with(DataProvider) { provideSampleArea() }
-        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
-        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
-        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
+        val areaId = DataProvider.provideSampleArea(this)
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
+        val sectorId = DataProvider.provideSampleSector(this, zoneId)
+        val pathId = DataProvider.provideSamplePath(this, sectorId)
 
         post("/block/$pathId") {
             setBody(

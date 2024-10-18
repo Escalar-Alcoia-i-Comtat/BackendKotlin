@@ -13,40 +13,44 @@ import server.DataProvider
 suspend fun EntityTypes<*>.provide(builder: StubApplicationTestBuilder): Int? {
     when (this) {
         EntityTypes.AREA -> {
-            return with(DataProvider) { builder.provideSampleArea() }
+            return DataProvider.provideSampleArea(builder)
         }
+
         EntityTypes.ZONE -> {
-            val areaId = with(DataProvider) { builder.provideSampleArea() }
+            val areaId = DataProvider.provideSampleArea(builder)
             assertNotNull(areaId)
-            return with(DataProvider) { builder.provideSampleZone(areaId) }
+            return DataProvider.provideSampleZone(builder, areaId)
         }
+
         EntityTypes.SECTOR -> {
-            val areaId = with(DataProvider) { builder.provideSampleArea() }
+            val areaId = DataProvider.provideSampleArea(builder)
             assertNotNull(areaId)
 
-            val zoneId = with(DataProvider) { builder.provideSampleZone(areaId) }
+            val zoneId = DataProvider.provideSampleZone(builder, areaId)
             assertNotNull(zoneId)
 
-            return with(DataProvider) { builder.provideSampleSector(zoneId) }
+            return DataProvider.provideSampleSector(builder, zoneId)
         }
+
         EntityTypes.PATH -> {
-            val areaId = with(DataProvider) { builder.provideSampleArea() }
+            val areaId = DataProvider.provideSampleArea(builder)
             assertNotNull(areaId)
 
-            val zoneId = with(DataProvider) { builder.provideSampleZone(areaId) }
+            val zoneId = DataProvider.provideSampleZone(builder, areaId)
             assertNotNull(zoneId)
 
-            val sectorId = with(DataProvider) { builder.provideSampleSector(zoneId) }
+            val sectorId = DataProvider.provideSampleSector(builder, zoneId)
             assertNotNull(sectorId)
 
-            return with(DataProvider) { builder.provideSamplePath(sectorId) }
+            return DataProvider.provideSamplePath(builder, sectorId)
         }
+
         else -> error("Not implemented")
     }
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <Type: BaseEntity> EntityTypes<Type>.getter(id: Int): Type {
+fun <Type : BaseEntity> EntityTypes<Type>.getter(id: Int): Type {
     return when (this) {
         EntityTypes.AREA -> Area[id] as Type
         EntityTypes.ZONE -> Zone[id] as Type

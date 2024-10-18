@@ -19,13 +19,13 @@ import storage.Storage
 class TestSectorFetchingEndpoint : ApplicationTestBase() {
     @Test
     fun `test getting sector`() = test {
-        val areaId = with(DataProvider) { provideSampleArea() }
+        val areaId = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
-        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val sectorId = DataProvider.provideSampleSector(this, zoneId)
         assertNotNull(sectorId)
 
         var image: String? = null
@@ -50,10 +50,10 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
         }
 
         assertNotNull(image)
-        assertIsUUID(image!!)
+        assertIsUUID(image)
 
         assertNotNull(gpx)
-        assertIsUUID(gpx!!)
+        assertIsUUID(gpx)
 
         get("/file/$image").apply {
             assertSuccess<RequestFileResponseData>()

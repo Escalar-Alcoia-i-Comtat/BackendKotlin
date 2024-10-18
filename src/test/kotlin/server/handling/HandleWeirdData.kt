@@ -12,13 +12,13 @@ import server.base.ApplicationTestBase
 /**
  * This class handles states where the data stored in the database for a given item may be old or not well formatted.
  */
-class HandleWeirdData: ApplicationTestBase() {
+class HandleWeirdData : ApplicationTestBase() {
     @Test
     fun `test Path - empty pitches`() = test {
-        val areaId = with(DataProvider) { provideSampleArea() }
-        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
-        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
-        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
+        val areaId = DataProvider.provideSampleArea(this)
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
+        val sectorId = DataProvider.provideSampleSector(this, zoneId)
+        val pathId = DataProvider.provideSamplePath(this, sectorId)
 
         assertNotNull(pathId)
 

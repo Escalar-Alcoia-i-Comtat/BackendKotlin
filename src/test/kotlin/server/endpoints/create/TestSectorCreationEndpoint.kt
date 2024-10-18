@@ -16,18 +16,18 @@ import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
 
-class TestSectorCreationEndpoint: ApplicationTestBase() {
+class TestSectorCreationEndpoint : ApplicationTestBase() {
     @Test
     fun `test sector creation`() = test {
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
-        val areaId: Int? = with(DataProvider) { provideSampleArea() }
+        val areaId: Int? = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId: Int? = with(DataProvider) { provideSampleZone(areaId) }
+        val zoneId: Int? = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
-        val sectorId: Int? = with(DataProvider) { provideSampleSector(zoneId) }
+        val sectorId: Int? = DataProvider.provideSampleSector(this, zoneId)
         assertNotNull(sectorId)
 
         ServerDatabase.instance.query {
@@ -56,13 +56,13 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
     fun `test sector creation - without gpx`() = test {
         val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
-        val areaId: Int? = with(DataProvider) { provideSampleArea() }
+        val areaId: Int? = DataProvider.provideSampleArea(this)
         assertNotNull(areaId)
 
-        val zoneId: Int? = with(DataProvider) { provideSampleZone(areaId) }
+        val zoneId: Int? = DataProvider.provideSampleZone(this, areaId)
         assertNotNull(zoneId)
 
-        val sectorId: Int? = with(DataProvider) { provideSampleSector(zoneId, skipGpx = true) }
+        val sectorId: Int? = DataProvider.provideSampleSector(this, zoneId, skipGpx = true)
         assertNotNull(sectorId)
 
         ServerDatabase.instance.query {
@@ -88,53 +88,41 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test sector creation - missing arguments`() = test {
-        val areaId = with(DataProvider) { provideSampleArea() }
-        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
-        with(DataProvider) {
-            provideSampleSector(null) {
-                assertFailure(Errors.MissingData)
-                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
-                null
-            }
-        }
-        with(DataProvider) {
-            provideSampleSector(zoneId, skipDisplayName = true) {
-                assertFailure(Errors.MissingData)
-                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
-                null
-            }
-        }
-        with(DataProvider) {
-            provideSampleSector(zoneId, skipImage = true) {
-                assertFailure(Errors.MissingData)
-                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
-                null
-            }
-        }
-        with(DataProvider) {
-            provideSampleSector(zoneId, skipKidsApt = true) {
+        val areaId = DataProvider.provideSampleArea(this)
+        val zoneId = DataProvider.provideSampleZone(this, areaId)
+        DataProvider.provideSampleSector(this, null) {
             assertFailure(Errors.MissingData)
             assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
         }
-        }
-        with(DataProvider) {
-            provideSampleSector(areaId, skipSunTime = true) {
+        DataProvider.provideSampleSector(this, zoneId, skipDisplayName = true) {
             assertFailure(Errors.MissingData)
             assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
         }
+        DataProvider.provideSampleSector(this, zoneId, skipImage = true) {
+            assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
+            null
+        }
+        DataProvider.provideSampleSector(this, zoneId, skipKidsApt = true) {
+            assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
+            null
+        }
+        DataProvider.provideSampleSector(this, areaId, skipSunTime = true) {
+            assertFailure(Errors.MissingData)
+            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
+            null
         }
     }
 
     @Test
     fun `test sector creation - invalid zone id`() = test {
-        with(DataProvider) {
-            provideSampleSector(123) {
+        DataProvider.provideSampleSector(this, 123) {
             assertFailure(Errors.ParentNotFound)
             assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR)
             null
-        }
         }
     }
 }
