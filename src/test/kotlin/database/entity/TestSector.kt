@@ -45,6 +45,7 @@ class TestSector: ApplicationTestBase() {
         assertTrue(json.containsKey("image"))
         assertTrue(json.containsKey("gpx"))
         assertTrue(json.containsKey("point"))
+        assertTrue(json.containsKey("weight"))
         assertTrue(json.containsKey("zone_id"))
     }
 }
