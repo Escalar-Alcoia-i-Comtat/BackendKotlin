@@ -1,7 +1,6 @@
 package server.endpoints.delete
 
 import database.EntityTypes
-import database.entity.Sector
 import kotlin.test.Test
 import server.base.ApplicationTestBase
 import server.base.delete.SingleFileRemoval
@@ -12,7 +11,7 @@ class TestDeleteSectorEndpoint: ApplicationTestBase() {
     @Test
     fun `test deleting Sector`() = testDeleting(
         EntityTypes.SECTOR,
-        listOf(SingleFileRemoval(Sector::image), SingleFileRemoval(Sector::gpx))
+        listOf(SingleFileRemoval { it.image }, SingleFileRemoval { it.gpx })
     )
 
     @Test

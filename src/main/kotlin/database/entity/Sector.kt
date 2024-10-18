@@ -31,7 +31,8 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
     var weight: String by Sectors.weight
 
     private fun findFileByUUID(uuid: String, dir: File): File {
-        return dir.listFiles { _, name -> name.startsWith(uuid) }?.first()
+        return dir.listFiles { _, name -> name.startsWith(uuid) }
+            ?.firstOrNull()
             ?: throw IllegalArgumentException("File ($uuid) not found in $dir")
     }
 
