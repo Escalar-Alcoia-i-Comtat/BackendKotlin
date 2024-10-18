@@ -12,7 +12,7 @@ import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.RoutingContext
 import java.io.File
-import java.net.URL
+import java.net.URI
 import server.endpoints.SecureEndpointBase
 import server.error.Errors
 import server.error.Errors.MissingData
@@ -72,7 +72,7 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
         val zone = ServerDatabase.instance.query {
             Zone.new {
                 this.displayName = displayName!!
-                this.webUrl = URL(webUrl!!)
+                this.webUrl = URI.create(webUrl!!).toURL()
                 this.image = imageFile!!
                 this.kmz = kmzFile!!
                 this.point = point

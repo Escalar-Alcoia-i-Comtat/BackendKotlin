@@ -11,7 +11,7 @@ import io.ktor.http.content.forEachPart
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.routing.RoutingContext
 import java.io.File
-import java.net.URL
+import java.net.URI
 import server.endpoints.SecureEndpointBase
 import server.error.Errors.MissingData
 import server.request.save
@@ -60,9 +60,9 @@ object NewAreaEndpoint : SecureEndpointBase("/area") {
 
         val area = ServerDatabase.instance.query {
             Area.new {
-                this.displayName = displayName!!
-                this.image = imageFile!!
-                this.webUrl = URL(webUrl!!)
+                this.displayName = displayName
+                this.image = imageFile
+                this.webUrl = URI.create(webUrl).toURL()
             }
         }
 

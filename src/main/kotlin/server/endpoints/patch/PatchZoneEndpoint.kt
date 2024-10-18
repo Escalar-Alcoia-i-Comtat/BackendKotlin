@@ -13,7 +13,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
 import java.io.File
-import java.net.URL
+import java.net.URI
 import java.time.Instant
 import java.util.UUID
 import kotlinx.serialization.encodeToString
@@ -89,7 +89,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
 
         ServerDatabase.instance.query {
             displayName?.let { zone.displayName = it }
-            webUrl?.let { zone.webUrl = URL(it) }
+            webUrl?.let { zone.webUrl = URI.create(it).toURL() }
             point?.let { zone.point = it }
             points?.let { zone.points = it }
             area?.let { zone.area = it }
