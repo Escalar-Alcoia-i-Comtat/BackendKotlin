@@ -32,6 +32,7 @@ object SectorSerializer : KSerializer<Sector> {
         element<String>("image")
         element<String?>("gpx")
         element<String>("point")
+        element<String>("weight")
         element<Int>("zone_id")
         element<List<Path>?>("paths")
     }
@@ -58,6 +59,7 @@ object SectorSerializer : KSerializer<Sector> {
                 value.gpx?.toRelativeString(Storage.TracksDir)?.substringBeforeLast('.')
             )
             encodeNullableSerializableElement(descriptor, idx++, LatLng.serializer(), value.point)
+            encodeStringElement(descriptor, idx++, value.weight)
             encodeIntElement(descriptor, idx++, value.zone.id.value)
             encodeNullableSerializableElement(descriptor, idx++, ListSerializer(Path.serializer()), value.paths)
         }
@@ -74,6 +76,7 @@ object SectorSerializer : KSerializer<Sector> {
         var image = ""
         var gpx: String? = null
         var point: LatLng? = null
+        var weight: String = ""
         var zoneId = 0
 
         decoder.decodeStructure(descriptor) {
@@ -88,8 +91,9 @@ object SectorSerializer : KSerializer<Sector> {
                     6 -> image = decodeStringElement(descriptor, index)
                     7 -> gpx = decodeNullableSerializableElement(descriptor, index, String.serializer())
                     8 -> point = decodeNullableSerializableElement(descriptor, index, LatLng.serializer())
-                    9 -> zoneId = decodeIntElement(descriptor, index)
-                    10 -> break // Ignore paths
+                    9 -> weight = decodeStringElement(descriptor, index)
+                    10 -> zoneId = decodeIntElement(descriptor, index)
+                    11 -> break // Ignore paths
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
                 }
@@ -106,6 +110,7 @@ object SectorSerializer : KSerializer<Sector> {
                 this.image = Storage.ImagesDir.resolve(image)
                 this.gpx = gpx?.let { Storage.TracksDir.resolve(it) }
                 this.point = point
+                this.weight = weight
                 this.zone = Zone[zoneId]
                 // Note: "paths" is never initialized here, it's not intended to ever decode the list of paths
                 return this
