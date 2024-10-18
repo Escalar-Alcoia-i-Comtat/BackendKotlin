@@ -20,7 +20,6 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.statusPages)
-    implementation(libs.ktor.tlsCertificates)
     implementation(libs.ktor.utils)
 
     // Ktor client for making requests
@@ -41,8 +40,6 @@ dependencies {
 
     // Database engines
     implementation(libs.postgresql)
-    // Keep in sync with https://github.com/JetBrains/Exposed/wiki/Database-and-DataSource
-    @Suppress("VulnerableLibrariesLocal", "RedundantSuppression")
     implementation(libs.sqlite)
 
     // For displaying progress bar in terminal
@@ -64,26 +61,15 @@ dependencies {
     testImplementation(libs.ktor.test.server)
 }
 
-fun getSecret(key: String): String? {
-    val file = file("secrets.env")
-    if (!file.exists()) error("Secrets file not found")
-    val secrets = file.readLines()
-    return secrets.find { it.startsWith(key) }?.split("=")?.get(1)
-}
-
 tasks.test {
     useJUnitPlatform()
-
-    val sentryDsn: String? = System.getenv("SENTRY_DSN_TESTS") ?: getSecret("SENTRY_DSN_TESTS")
-    environment("SENTRY_DSN_TESTS", sentryDsn ?: error("Sentry DSN not configured for tests"))
 }
 
 kotlin {
-    jvmToolchain(22)
+    jvmToolchain(17)
 
     sourceSets {
         all {
-            languageSettings.enableLanguageFeature("ContextReceivers")
             resources.srcDir(file("package"))
         }
     }
