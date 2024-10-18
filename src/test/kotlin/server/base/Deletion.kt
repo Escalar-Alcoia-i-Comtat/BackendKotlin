@@ -5,7 +5,6 @@ import assertions.assertFailure
 import assertions.assertSuccess
 import database.EntityTypes
 import database.entity.BaseEntity
-import database.entity.info.LastUpdate
 import distribution.Notifier
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -28,7 +27,7 @@ fun <EntityType: BaseEntity> ApplicationTestBase.testDeleting(
 
     val element = ServerDatabase.instance.query { type.getter(elementId) }
 
-    val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+    val lastUpdate = ServerDatabase.instance.query { LastUpdate() }
 
     for (removal in fileRemovals) {
         assertTrue { removal.exists(element) }
@@ -44,7 +43,7 @@ fun <EntityType: BaseEntity> ApplicationTestBase.testDeleting(
         assertFalse { removal.exists(element) }
     }
 
-    ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
+    ServerDatabase.instance.query { assertNotEquals(LastUpdate(), lastUpdate) }
 
     client.get("/${type.urlName}/$elementId") {
         header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")

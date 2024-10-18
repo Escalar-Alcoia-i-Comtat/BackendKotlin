@@ -19,7 +19,7 @@ import server.error.Errors
 class TestAreaCreationEndpoint: ApplicationTestBase() {
     @Test
     fun `test area creation`() = test {
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         val areaId: Int? = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
@@ -33,7 +33,7 @@ class TestAreaCreationEndpoint: ApplicationTestBase() {
             val imageFile = area.image
             assertTrue(imageFile.exists())
 
-            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
 
         assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.AREA, areaId)

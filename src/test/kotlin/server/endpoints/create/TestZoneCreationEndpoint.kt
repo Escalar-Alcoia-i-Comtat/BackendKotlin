@@ -19,7 +19,7 @@ import server.error.Errors
 class TestZoneCreationEndpoint: ApplicationTestBase() {
     @Test
     fun `test zone creation`() = test {
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         val areaId: Int? = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
@@ -41,7 +41,7 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
             val kmzFile = zone.kmz
             assertTrue(kmzFile.exists())
 
-            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
 
         assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE, zoneId)

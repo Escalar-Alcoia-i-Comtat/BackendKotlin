@@ -33,7 +33,7 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
 
         var blockId: Int? = null
 
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         post("/block/$pathId") {
             setBody(
@@ -46,7 +46,7 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
                 blockId = element.id.value
             }
 
-            ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
+            ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
         }
         assertNotNull(blockId)
 

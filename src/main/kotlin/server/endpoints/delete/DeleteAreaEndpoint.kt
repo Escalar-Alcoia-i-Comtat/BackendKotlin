@@ -22,7 +22,7 @@ object DeleteAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
         // Delete the image file
         area.image.delete()
 
-        ServerDatabase.instance.query { with(LastUpdate) { set() } }
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         Notifier.getInstance().notifyDeleted(EntityTypes.AREA, areaId)
 

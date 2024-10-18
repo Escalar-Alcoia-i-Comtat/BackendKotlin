@@ -9,7 +9,7 @@ import server.response.respondSuccess
 
 object LastUpdateEndpoint : EndpointBase("/last_update") {
     override suspend fun RoutingContext.endpoint() {
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         respondSuccess(
             data = LastUpdateResponseData(lastUpdate)

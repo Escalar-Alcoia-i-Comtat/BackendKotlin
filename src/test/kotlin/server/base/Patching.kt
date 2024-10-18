@@ -41,7 +41,7 @@ fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching
     val elementId = type.provide(this)
     assertNotNull(elementId)
 
-    val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+    val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
     val oldTimestamp = ServerDatabase.instance.query { type.getter(elementId).timestamp }
 
     client.submitFormWithBinaryData(
@@ -69,7 +69,7 @@ fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching
         assertSuccess()
     }
 
-    ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
+    ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
 
     ServerDatabase.instance.query {
         val element: EntityType = type.getter(elementId)
@@ -108,7 +108,7 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
     val elementId = type.provide(this)
     assertNotNull(elementId)
 
-    val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+    val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
     val oldTimestamp = ServerDatabase.instance.query { type.getter(elementId).timestamp }
 
     val fileBytes = if (resourcePath != null) this::class.java.getResourceAsStream(resourcePath)!!.use {
@@ -131,7 +131,7 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
         assertSuccess()
     }
 
-    ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
+    ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
 
     var elementFile: String? = null
 

@@ -99,7 +99,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
             zone.timestamp = Instant.now()
         }
 
-        ServerDatabase.instance.query { with(LastUpdate) { set() } }
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         Notifier.getInstance().notifyUpdated(EntityTypes.ZONE, zoneId)
 

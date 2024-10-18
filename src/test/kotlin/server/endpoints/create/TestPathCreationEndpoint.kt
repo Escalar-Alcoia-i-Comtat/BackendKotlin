@@ -21,7 +21,7 @@ import server.error.Errors
 class TestPathCreationEndpoint: ApplicationTestBase() {
     @Test
     fun `test path creation`() = test {
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         val areaId: Int? = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
@@ -67,7 +67,7 @@ class TestPathCreationEndpoint: ApplicationTestBase() {
 
             assertNull(path.images)
 
-            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
 
         assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.PATH, pathId)

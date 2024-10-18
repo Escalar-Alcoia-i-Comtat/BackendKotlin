@@ -23,7 +23,7 @@ object DeleteSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
         sector.image.delete()
         sector.gpx?.delete()
 
-        ServerDatabase.instance.query { with(LastUpdate) { set() } }
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         Notifier.getInstance().notifyDeleted(EntityTypes.SECTOR, sectorId)
 

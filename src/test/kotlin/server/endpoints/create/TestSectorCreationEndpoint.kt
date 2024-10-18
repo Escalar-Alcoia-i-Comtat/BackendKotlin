@@ -19,7 +19,7 @@ import server.error.Errors
 class TestSectorCreationEndpoint: ApplicationTestBase() {
     @Test
     fun `test sector creation`() = test {
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         val areaId: Int? = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
@@ -46,7 +46,7 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
             assertNotNull(gpxFile)
             assertTrue(gpxFile.exists())
 
-            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
 
         assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR, sectorId)
@@ -54,7 +54,7 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test sector creation - without gpx`() = test {
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         val areaId: Int? = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
@@ -80,7 +80,7 @@ class TestSectorCreationEndpoint: ApplicationTestBase() {
             val gpxFile = sector.gpx
             assertNull(gpxFile)
 
-            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
 
         assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.SECTOR, sectorId)

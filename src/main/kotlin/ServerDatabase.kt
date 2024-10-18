@@ -86,9 +86,9 @@ class ServerDatabase private constructor() {
         SchemaUtils.createMissingTablesAndColumns(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
 
         var loops = 0
-        while (with(Version) { updateRequired() }) {
+        while (Version.updateRequired()) {
             check(loops++ <= VERSION) { "Version update loop detected" }
-            val version = with(Version) { get() }
+            val version = Version.get()
             val migration = Migration.all.find { it.from == version }
                 ?: error("No migration found for version $version")
             Logger.info("Migrating database from version $version to ${migration.to}")

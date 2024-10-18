@@ -34,7 +34,7 @@ class TestAddBlockEndpoint : ApplicationTestBase() {
         val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         post("/block/$pathId") {
             setBody(
@@ -59,7 +59,7 @@ class TestAddBlockEndpoint : ApplicationTestBase() {
             assertNull(block.recurrence)
             assertNull(block.endDate)
 
-            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
+            assertNotEquals(LastUpdate.get(), lastUpdate)
         }
 
         assertNotNull(blockId)

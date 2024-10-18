@@ -80,7 +80,7 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
         val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         val pathId = with(DataProvider) { provideSamplePath(sectorId, images = listOf("/images/uixola.jpg")) }
 
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         assertNotNull(pathId)
         val path = ServerDatabase.instance.query { Path[pathId] }
@@ -95,7 +95,7 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
             assertSuccess()
         }
 
-        ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
+        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
 
         client.get("/path/$pathId") {
             header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")

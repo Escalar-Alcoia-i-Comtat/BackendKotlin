@@ -68,7 +68,7 @@ object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
             area.timestamp = Instant.now()
         }
 
-        ServerDatabase.instance.query { with(LastUpdate) { set() } }
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         Notifier.getInstance().notifyUpdated(EntityTypes.AREA, areaId)
 

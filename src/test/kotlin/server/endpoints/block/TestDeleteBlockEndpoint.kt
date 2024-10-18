@@ -34,7 +34,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
             assertSuccess(HttpStatusCode.Created)
         }
 
-        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
+        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
 
         var blockId: Int? = null
         val block = ServerDatabase.instance.query {
@@ -52,7 +52,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
             assertNull(it)
         }
 
-        ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
+        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
 
         assertNotNull(blockId)
         assertNotificationSent(Notifier.TOPIC_DELETED, EntityTypes.BLOCKING, blockId!!)

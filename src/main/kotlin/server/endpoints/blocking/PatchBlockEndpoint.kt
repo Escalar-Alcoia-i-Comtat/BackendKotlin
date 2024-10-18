@@ -41,7 +41,7 @@ object PatchBlockEndpoint : EndpointBase("/block/{blockId}") {
             block
         }
 
-        ServerDatabase.instance.query { with(LastUpdate) { set() } }
+        ServerDatabase.instance.query { LastUpdate.set() }
 
         Notifier.getInstance().notifyUpdated(EntityTypes.BLOCKING, blockId)
 
