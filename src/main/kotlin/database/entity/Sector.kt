@@ -32,7 +32,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
 
     private fun findFileByUUID(uuid: String, dir: File): File {
         return dir.listFiles { _, name -> name.startsWith(uuid) }?.first()
-            ?: throw IllegalArgumentException("File not found")
+            ?: throw IllegalArgumentException("File ($uuid) not found in $dir")
     }
 
     var image: File
