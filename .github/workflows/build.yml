@@ -32,7 +32,7 @@ jobs:
 
       - name: Update version.txt
         if: ${{ github.event_name == 'release' }}
-        run: echo ${{ github.event.release.tag_name }} > package/version.txt
+        run: echo ${{ github.event.release.tag_name }} > ./package/version.txt
 
       # If the event is a release, build and push the release image, tagging it as latest and the release tag
       - name: Build and push release
