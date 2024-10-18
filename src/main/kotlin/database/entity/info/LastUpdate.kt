@@ -6,11 +6,9 @@ import org.jetbrains.exposed.sql.Transaction
 object LastUpdate : InfoEntryCompanion<Instant> {
     private const val ID = "last_update"
 
-    context(Transaction)
-    override fun get(): Instant? = InfoEntry.findById(ID)?.value?.toLong()?.let(Instant::ofEpochMilli)
+    override fun Transaction.get(): Instant? = InfoEntry.findById(ID)?.value?.toLong()?.let(Instant::ofEpochMilli)
 
-    context(Transaction)
-    override fun update(value: Instant) {
+    override fun Transaction.update(value: Instant) {
         val entry = InfoEntry.findById(ID)
         if (entry != null) {
             // Already exists, update
@@ -22,6 +20,5 @@ object LastUpdate : InfoEntryCompanion<Instant> {
         }
     }
 
-    context(Transaction)
-    fun set(value: Instant = Instant.now()) = update(value)
+    fun Transaction.set(value: Instant = Instant.now()) = update(value)
 }

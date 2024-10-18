@@ -24,7 +24,7 @@ object DeleteBlockEndpoint : SecureEndpointBase("/block/{blockId}") {
             block.delete()
         }
 
-        ServerDatabase.instance.query { LastUpdate.set() }
+        ServerDatabase.instance.query { with(LastUpdate) { set() } }
 
         Notifier.getInstance().notifyDeleted(EntityTypes.BLOCKING, blockId)
 

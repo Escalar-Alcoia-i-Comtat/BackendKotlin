@@ -39,8 +39,7 @@ object DataProvider {
         val webUrl = "https://example.com"
     }
 
-    context(StubApplicationTestBuilder)
-    suspend fun provideSampleArea(
+    suspend fun StubApplicationTestBuilder.provideSampleArea(
         skipDisplayName: Boolean = false,
         skipWebUrl: Boolean = false,
         skipImage: Boolean = false,
@@ -93,8 +92,7 @@ object DataProvider {
         )
     }
 
-    context(StubApplicationTestBuilder)
-    suspend fun provideSampleZone(
+    suspend fun StubApplicationTestBuilder.provideSampleZone(
         areaId: Int?,
         skipDisplayName: Boolean = false,
         skipWebUrl: Boolean = false,
@@ -162,8 +160,7 @@ object DataProvider {
         val walkingTime = 12U
     }
 
-    context(StubApplicationTestBuilder)
-    suspend fun provideSampleSector(
+    suspend fun StubApplicationTestBuilder.provideSampleSector(
         zoneId: Int?,
         skipDisplayName: Boolean = false,
         skipKidsApt: Boolean = false,
@@ -266,8 +263,7 @@ object DataProvider {
         )
     }
 
-    context(StubApplicationTestBuilder)
-    suspend fun provideSamplePath(
+    suspend fun StubApplicationTestBuilder.provideSamplePath(
         sectorId: Int?,
         skipDisplayName: Boolean = false,
         skipSketchId: Boolean = false,

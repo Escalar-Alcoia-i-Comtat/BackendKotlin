@@ -45,7 +45,7 @@ object AddBlockEndpoint: SecureEndpointBase("/block/{pathId}") {
             }
         }
 
-        ServerDatabase.instance.query { LastUpdate.set() }
+        ServerDatabase.instance.query { with(LastUpdate) { set() } }
 
         Notifier.getInstance().notifyCreated(EntityTypes.BLOCKING, blocking.id.value)
 

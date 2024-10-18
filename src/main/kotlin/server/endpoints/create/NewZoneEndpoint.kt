@@ -81,7 +81,7 @@ object NewZoneEndpoint : SecureEndpointBase("/zone") {
             }
         }
 
-        ServerDatabase.instance.query { LastUpdate.set() }
+        ServerDatabase.instance.query { with(LastUpdate) { set() } }
 
         Notifier.getInstance().notifyCreated(EntityTypes.ZONE, zone.id.value)
 

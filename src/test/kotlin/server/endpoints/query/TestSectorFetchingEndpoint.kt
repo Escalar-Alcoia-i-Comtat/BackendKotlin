@@ -19,13 +19,13 @@ import storage.Storage
 class TestSectorFetchingEndpoint : ApplicationTestBase() {
     @Test
     fun `test getting sector`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
         var image: String? = null

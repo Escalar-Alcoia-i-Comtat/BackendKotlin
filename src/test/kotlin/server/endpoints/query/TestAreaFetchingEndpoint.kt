@@ -18,7 +18,7 @@ import storage.Storage
 class TestAreaFetchingEndpoint: ApplicationTestBase() {
     @Test
     fun `test getting area`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
         var image: String? = null

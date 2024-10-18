@@ -24,7 +24,7 @@ class TestFileDownloading : ApplicationTestBase() {
         imageFile: String = "/images/alcoi.jpg",
         block: (imageUUID: String) -> Unit
     ) {
-        val areaId = DataProvider.provideSampleArea(imageFile = imageFile)
+        val areaId = with(DataProvider) { provideSampleArea(imageFile = imageFile) }
 
         var image: String? = null
 

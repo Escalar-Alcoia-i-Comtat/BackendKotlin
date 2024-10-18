@@ -119,7 +119,7 @@ abstract class ApplicationTestBase(
      * Prepares the testing database, and configures the applications to start making requests and testing application
      * endpoints. Perform all the desired steps in [block].
      */
-    fun test(block: suspend StubApplicationTestBuilder.() -> Unit) = runBlocking(dispatcher) {
+    fun test(block: suspend StubApplicationTestBuilder.() -> Unit) = runBlocking<Unit>(dispatcher) {
         // Configure database
         ServerDatabase.url = "jdbc:sqlite:testing.db"
         ServerDatabase.logger = StdOutSqlLogger

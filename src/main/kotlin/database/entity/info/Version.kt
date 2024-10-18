@@ -6,11 +6,9 @@ import org.jetbrains.exposed.sql.Transaction
 object Version: InfoEntryCompanion<Int> {
     private const val ID = "version"
 
-    context(Transaction)
-    override fun get(): Int? = InfoEntry.findById(ID)?.value?.toInt()
+    override fun Transaction.get(): Int? = InfoEntry.findById(ID)?.value?.toInt()
 
-    context(Transaction)
-    override fun update(value: Int) {
+    override fun Transaction.update(value: Int) {
         val entry = InfoEntry.findById(ID)
         if (entry != null) {
             // Already exists, update
@@ -22,9 +20,7 @@ object Version: InfoEntryCompanion<Int> {
         }
     }
 
-    context(Transaction)
-    fun set(value: Int) = update(value)
+    fun Transaction.set(value: Int) = update(value)
 
-    context(Transaction)
-    fun updateRequired(): Boolean = get() != VERSION
+    fun Transaction.updateRequired(): Boolean = get() != VERSION
 }

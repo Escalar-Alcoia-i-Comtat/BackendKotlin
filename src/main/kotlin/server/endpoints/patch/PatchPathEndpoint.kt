@@ -288,7 +288,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
             Localization.synchronizePathDescription(path)
         }
 
-        ServerDatabase.instance.query { LastUpdate.set() }
+        ServerDatabase.instance.query { with(LastUpdate) { set() } }
 
         Notifier.getInstance().notifyUpdated(EntityTypes.PATH, pathId)
 

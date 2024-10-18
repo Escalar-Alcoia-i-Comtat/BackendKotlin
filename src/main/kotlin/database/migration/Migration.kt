@@ -23,6 +23,6 @@ abstract class Migration(
         migrate()
 
         // Update the version of the database
-        Version.set(to)
+        with(Version) { set(to) }
     }
 }

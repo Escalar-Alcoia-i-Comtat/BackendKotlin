@@ -9,11 +9,11 @@ import server.response.respondSuccess
 import system.EnvironmentVariables
 import system.Package
 
-object ServerInfoEndpoint: EndpointBase("/info") {
+object ServerInfoEndpoint : EndpointBase("/info") {
     override suspend fun RoutingContext.endpoint() {
         val uuid = EnvironmentVariables.Environment.ServerUUID.value!!
         val version = Package.getVersion()
-        val databaseVersion = ServerDatabase.instance { Version.get() }
+        val databaseVersion = ServerDatabase.instance { with(Version) { get() } }
 
         respondSuccess(
             data = ServerInfoResponseData(version, uuid, databaseVersion)

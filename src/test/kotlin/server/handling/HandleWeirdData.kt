@@ -15,10 +15,10 @@ import server.base.ApplicationTestBase
 class HandleWeirdData: ApplicationTestBase() {
     @Test
     fun `test Path - empty pitches`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
         assertNotNull(pathId)
 

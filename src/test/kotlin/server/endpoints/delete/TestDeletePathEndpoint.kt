@@ -32,10 +32,10 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test deleting Path with blocks`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
         assertNotNull(pathId)
 
@@ -75,12 +75,12 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test deleting Path with images`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId, images = listOf("/images/uixola.jpg"))
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId, images = listOf("/images/uixola.jpg")) }
 
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
 
         assertNotNull(pathId)
         val path = ServerDatabase.instance.query { Path[pathId] }
@@ -95,7 +95,7 @@ class TestDeletePathEndpoint: ApplicationTestBase() {
             assertSuccess()
         }
 
-        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
+        ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
 
         client.get("/path/$pathId") {
             header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")

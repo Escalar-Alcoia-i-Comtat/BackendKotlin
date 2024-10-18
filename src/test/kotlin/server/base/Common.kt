@@ -10,37 +10,36 @@ import database.entity.Zone
 import kotlin.test.assertNotNull
 import server.DataProvider
 
-context(StubApplicationTestBuilder)
-suspend fun EntityTypes<*>.provide(): Int? {
+suspend fun EntityTypes<*>.provide(builder: StubApplicationTestBuilder): Int? {
     when (this) {
         EntityTypes.AREA -> {
-            return DataProvider.provideSampleArea()
+            return with(DataProvider) { builder.provideSampleArea() }
         }
         EntityTypes.ZONE -> {
-            val areaId = DataProvider.provideSampleArea()
+            val areaId = with(DataProvider) { builder.provideSampleArea() }
             assertNotNull(areaId)
-            return DataProvider.provideSampleZone(areaId)
+            return with(DataProvider) { builder.provideSampleZone(areaId) }
         }
         EntityTypes.SECTOR -> {
-            val areaId = DataProvider.provideSampleArea()
+            val areaId = with(DataProvider) { builder.provideSampleArea() }
             assertNotNull(areaId)
 
-            val zoneId = DataProvider.provideSampleZone(areaId)
+            val zoneId = with(DataProvider) { builder.provideSampleZone(areaId) }
             assertNotNull(zoneId)
 
-            return DataProvider.provideSampleSector(zoneId)
+            return with(DataProvider) { builder.provideSampleSector(zoneId) }
         }
         EntityTypes.PATH -> {
-            val areaId = DataProvider.provideSampleArea()
+            val areaId = with(DataProvider) { builder.provideSampleArea() }
             assertNotNull(areaId)
 
-            val zoneId = DataProvider.provideSampleZone(areaId)
+            val zoneId = with(DataProvider) { builder.provideSampleZone(areaId) }
             assertNotNull(zoneId)
 
-            val sectorId = DataProvider.provideSampleSector(zoneId)
+            val sectorId = with(DataProvider) { builder.provideSampleSector(zoneId) }
             assertNotNull(sectorId)
 
-            return DataProvider.provideSamplePath(sectorId)
+            return with(DataProvider) { builder.provideSamplePath(sectorId) }
         }
         else -> error("Not implemented")
     }

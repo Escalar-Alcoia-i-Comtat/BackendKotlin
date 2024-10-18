@@ -26,14 +26,14 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
         request: AddBlockRequest,
         assert: (element: Blocking) -> Unit
     ) = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
         var blockId: Int? = null
 
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
 
         post("/block/$pathId") {
             setBody(
@@ -46,7 +46,7 @@ class TestPatchBlockEndpoint: ApplicationTestBase() {
                 blockId = element.id.value
             }
 
-            ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
+            ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
         }
         assertNotNull(blockId)
 

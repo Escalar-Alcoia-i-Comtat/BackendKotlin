@@ -136,7 +136,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             sector.timestamp = Instant.now()
         }
 
-        ServerDatabase.instance.query { LastUpdate.set() }
+        ServerDatabase.instance.query { with(LastUpdate) { set() } }
 
         Notifier.getInstance().notifyUpdated(EntityTypes.SECTOR, sectorId)
 

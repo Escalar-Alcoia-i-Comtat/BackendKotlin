@@ -66,7 +66,7 @@ object NewAreaEndpoint : SecureEndpointBase("/area") {
             }
         }
 
-        ServerDatabase.instance.query { LastUpdate.set() }
+        ServerDatabase.instance.query { with(LastUpdate) { set() } }
 
         Notifier.getInstance().notifyCreated(EntityTypes.AREA, area.id.value)
 

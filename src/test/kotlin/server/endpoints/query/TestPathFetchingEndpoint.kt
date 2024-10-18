@@ -21,16 +21,16 @@ import storage.Storage
 class TestPathFetchingEndpoint: ApplicationTestBase() {
     @Test
     fun `test getting path`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
         assertNotNull(pathId)
 
         get("/path/$pathId").apply {
@@ -74,16 +74,16 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test getting path - with image`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(sectorId, images = listOf("/images/uixola.jpg"))
+        val pathId = with(DataProvider) { provideSamplePath(sectorId, images = listOf("/images/uixola.jpg")) }
         assertNotNull(pathId)
 
         var image: String? = null
@@ -122,16 +122,16 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test getting path - fix null builder`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
         assertNotNull(pathId)
 
         ServerDatabase.instance.query {
@@ -149,16 +149,16 @@ class TestPathFetchingEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test getting path - fix invalid pitches`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
         assertNotNull(pathId)
 
         ServerDatabase.instance.query {

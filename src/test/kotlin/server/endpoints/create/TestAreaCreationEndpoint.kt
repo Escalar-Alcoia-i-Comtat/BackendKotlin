@@ -19,9 +19,9 @@ import server.error.Errors
 class TestAreaCreationEndpoint: ApplicationTestBase() {
     @Test
     fun `test area creation`() = test {
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
 
-        val areaId: Int? = DataProvider.provideSampleArea()
+        val areaId: Int? = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
         ServerDatabase.instance.query {
@@ -33,7 +33,7 @@ class TestAreaCreationEndpoint: ApplicationTestBase() {
             val imageFile = area.image
             assertTrue(imageFile.exists())
 
-            assertNotEquals(LastUpdate.get(), lastUpdate)
+            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
         }
 
         assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.AREA, areaId)
@@ -41,20 +41,26 @@ class TestAreaCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test area creation - missing arguments`() = test {
-        DataProvider.provideSampleArea(skipDisplayName = true) {
-            assertFailure(Errors.MissingData)
-            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
-            null
+        with(DataProvider) {
+            provideSampleArea(skipDisplayName = true) {
+                assertFailure(Errors.MissingData)
+                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
+                null
+            }
         }
-        DataProvider.provideSampleArea(skipWebUrl = true) {
-            assertFailure(Errors.MissingData)
-            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
-            null
+        with(DataProvider) {
+            provideSampleArea(skipWebUrl = true) {
+                assertFailure(Errors.MissingData)
+                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
+                null
+            }
         }
-        DataProvider.provideSampleArea(skipImage = true) {
-            assertFailure(Errors.MissingData)
-            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
-            null
+        with(DataProvider) {
+            provideSampleArea(skipImage = true) {
+                assertFailure(Errors.MissingData)
+                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.AREA)
+                null
+            }
         }
     }
 }

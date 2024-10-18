@@ -16,7 +16,7 @@ import server.response.files.RequestFileResponseData
 class TestFileFetching : ApplicationTestBase() {
     @Test
     fun `test data`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
@@ -30,7 +30,7 @@ class TestFileFetching : ApplicationTestBase() {
 
     @Test
     fun `test data no extension`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
@@ -51,9 +51,9 @@ class TestFileFetching : ApplicationTestBase() {
 
     @Test
     fun `test data multiple`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
         val area: Area = ServerDatabase.instance.query { Area[areaId] }

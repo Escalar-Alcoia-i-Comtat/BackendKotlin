@@ -19,10 +19,10 @@ import storage.Storage
 class TestZoneFetchingEndpoint: ApplicationTestBase() {
     @Test
     fun `test getting zone`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
         var image: String? = null

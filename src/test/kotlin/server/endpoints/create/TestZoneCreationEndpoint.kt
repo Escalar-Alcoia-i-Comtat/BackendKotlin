@@ -19,12 +19,12 @@ import server.error.Errors
 class TestZoneCreationEndpoint: ApplicationTestBase() {
     @Test
     fun `test zone creation`() = test {
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
 
-        val areaId: Int? = DataProvider.provideSampleArea()
+        val areaId: Int? = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId: Int? = DataProvider.provideSampleZone(areaId)
+        val zoneId: Int? = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
         ServerDatabase.instance.query {
@@ -41,7 +41,7 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
             val kmzFile = zone.kmz
             assertTrue(kmzFile.exists())
 
-            assertNotEquals(LastUpdate.get(), lastUpdate)
+            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
         }
 
         assertNotificationSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE, zoneId)
@@ -49,35 +49,43 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test zone creation - missing arguments`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        DataProvider.provideSampleZone(areaId, skipDisplayName = true) {
+        val areaId = with(DataProvider) { provideSampleArea() }
+        with(DataProvider) {
+            provideSampleZone(areaId, skipDisplayName = true) {
             assertFailure(Errors.MissingData)
             assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
             null
         }
-        DataProvider.provideSampleZone(areaId, skipImage = true) {
-            assertFailure(Errors.MissingData)
-            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
-            null
         }
-        DataProvider.provideSampleZone(areaId, skipWebUrl = true) {
-            assertFailure(Errors.MissingData)
-            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
-            null
+        with(DataProvider) {
+            provideSampleZone(areaId, skipImage = true) {
+                assertFailure(Errors.MissingData)
+                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
+                null
+            }
         }
-        DataProvider.provideSampleZone(areaId, skipKmz = true) {
-            assertFailure(Errors.MissingData)
-            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
-            null
+        with(DataProvider) {
+            provideSampleZone(areaId, skipWebUrl = true) {
+                assertFailure(Errors.MissingData)
+                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
+                null
+            }
+        }
+        with(DataProvider) {
+            provideSampleZone(areaId, skipKmz = true) {
+                assertFailure(Errors.MissingData)
+                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
+                null
+            }
         }
     }
 
     @Test
     fun `test zone creation - no points`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId, emptyPoints = true)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId, emptyPoints = true) }
         assertNotNull(zoneId)
 
         ServerDatabase.instance.query {
@@ -91,10 +99,12 @@ class TestZoneCreationEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test zone creation - invalid zone id`() = test {
-        DataProvider.provideSampleZone(123) {
-            assertFailure(Errors.ParentNotFound)
-            assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
-            null
+        with(DataProvider) {
+            provideSampleZone(123) {
+                assertFailure(Errors.ParentNotFound)
+                assertNotificationNotSent(Notifier.TOPIC_CREATED, EntityTypes.ZONE)
+                null
+            }
         }
     }
 }

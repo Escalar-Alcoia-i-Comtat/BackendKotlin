@@ -23,12 +23,12 @@ fun <EntityType: BaseEntity> ApplicationTestBase.testDeleting(
     type: EntityTypes<EntityType>,
     fileRemovals: List<FileRemoval<EntityType>> = emptyList()
 ) = test {
-    val elementId = type.provide()
+    val elementId = type.provide(this)
     assertNotNull(elementId)
 
     val element = ServerDatabase.instance.query { type.getter(elementId) }
 
-    val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+    val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
 
     for (removal in fileRemovals) {
         assertTrue { removal.exists(element) }
@@ -44,7 +44,7 @@ fun <EntityType: BaseEntity> ApplicationTestBase.testDeleting(
         assertFalse { removal.exists(element) }
     }
 
-    ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
+    ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
 
     client.get("/${type.urlName}/$elementId") {
         header(HttpHeaders.Authorization, "Bearer $AUTH_TOKEN")

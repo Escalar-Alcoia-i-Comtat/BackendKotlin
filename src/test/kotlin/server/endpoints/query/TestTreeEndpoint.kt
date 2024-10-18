@@ -11,16 +11,16 @@ import server.response.query.TreeResponseData
 class TestTreeEndpoint: ApplicationTestBase() {
     @Test
     fun `test getting tree`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
         assertNotNull(pathId)
 
         get("/tree").apply {
@@ -51,10 +51,10 @@ class TestTreeEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test getting tree - zone without points`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId, emptyPoints = true)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId, emptyPoints = true) }
         assertNotNull(zoneId)
 
         get("/tree").apply {

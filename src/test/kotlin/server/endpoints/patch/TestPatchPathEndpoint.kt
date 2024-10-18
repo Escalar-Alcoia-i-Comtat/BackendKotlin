@@ -25,16 +25,16 @@ import server.base.testPatching
 class TestPatchPathEndpoint : ApplicationTestBase() {
 
     private fun <T> removeProperty(propertyName: String, propertyValue: (Path) -> T) = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
         assertNotNull(pathId)
 
         client.submitFormWithBinaryData(
@@ -194,19 +194,21 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Path - remove image`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(
-            sectorId,
-            images = listOf("/images/uixola.jpg", "/images/uixola.jpg")
-        )
+        val pathId = with(DataProvider) {
+            provideSamplePath(
+                sectorId,
+                images = listOf("/images/uixola.jpg", "/images/uixola.jpg")
+            )
+        }
         assertNotNull(pathId)
 
         val newPath = ServerDatabase.instance.query { Path[pathId] }
@@ -234,16 +236,16 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Path - add image`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
         assertNotNull(pathId)
 
         val image = this::class.java.getResourceAsStream("/images/uixola.jpg")!!.use { it.readBytes() }
@@ -274,16 +276,16 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Path - add and remove image`() = test {
-        val areaId = DataProvider.provideSampleArea()
+        val areaId = with(DataProvider) { provideSampleArea() }
         assertNotNull(areaId)
 
-        val zoneId = DataProvider.provideSampleZone(areaId)
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
         assertNotNull(zoneId)
 
-        val sectorId = DataProvider.provideSampleSector(zoneId)
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
         assertNotNull(sectorId)
 
-        val pathId = DataProvider.provideSamplePath(sectorId, images = listOf("/images/uixola.jpg"))
+        val pathId = with(DataProvider) { provideSamplePath(sectorId, images = listOf("/images/uixola.jpg")) }
         assertNotNull(pathId)
 
         val newPath = ServerDatabase.instance.query { Path[pathId] }

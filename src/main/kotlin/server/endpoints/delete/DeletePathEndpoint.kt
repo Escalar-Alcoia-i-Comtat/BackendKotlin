@@ -41,7 +41,7 @@ object DeletePathEndpoint : SecureEndpointBase("/path/{pathId}") {
         // Now remove the path
         ServerDatabase.instance.query { path.delete() }
 
-        ServerDatabase.instance.query { LastUpdate.set() }
+        ServerDatabase.instance.query { with(LastUpdate) { set() } }
 
         Notifier.getInstance().notifyDeleted(EntityTypes.PATH, pathId)
 

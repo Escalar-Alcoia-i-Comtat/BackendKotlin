@@ -166,7 +166,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
             Localization.synchronizePathDescription(path)
         }
 
-        ServerDatabase.instance.query { LastUpdate.set() }
+        ServerDatabase.instance.query { with(LastUpdate) { set() } }
 
         Notifier.getInstance().notifyCreated(EntityTypes.PATH, path.id.value)
 

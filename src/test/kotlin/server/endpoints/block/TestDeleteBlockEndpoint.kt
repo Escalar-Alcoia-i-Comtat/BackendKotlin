@@ -21,10 +21,10 @@ import server.request.AddBlockRequest
 class TestDeleteBlockEndpoint: ApplicationTestBase() {
     @Test
     fun `test deleting path's block`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
         post("/block/$pathId") {
             setBody(
@@ -34,7 +34,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
             assertSuccess(HttpStatusCode.Created)
         }
 
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
 
         var blockId: Int? = null
         val block = ServerDatabase.instance.query {
@@ -52,7 +52,7 @@ class TestDeleteBlockEndpoint: ApplicationTestBase() {
             assertNull(it)
         }
 
-        ServerDatabase.instance.query { assertNotEquals(LastUpdate.get(), lastUpdate) }
+        ServerDatabase.instance.query { assertNotEquals(with(LastUpdate) { get() }, lastUpdate) }
 
         assertNotNull(blockId)
         assertNotificationSent(Notifier.TOPIC_DELETED, EntityTypes.BLOCKING, blockId!!)

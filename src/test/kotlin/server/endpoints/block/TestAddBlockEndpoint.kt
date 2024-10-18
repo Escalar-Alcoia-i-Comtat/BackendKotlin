@@ -20,22 +20,21 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlinx.serialization.json.JsonObject
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
 import server.request.AddBlockRequest
 import server.response.update.UpdateResponseData
 
-class TestAddBlockEndpoint: ApplicationTestBase() {
+class TestAddBlockEndpoint : ApplicationTestBase() {
     @Test
     fun `test adding block to path - no ending, no recurrence`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
-        val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
+        val lastUpdate = ServerDatabase.instance.query { with(LastUpdate) { get() } }
 
         post("/block/$pathId") {
             setBody(
@@ -60,7 +59,7 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
             assertNull(block.recurrence)
             assertNull(block.endDate)
 
-            assertNotEquals(LastUpdate.get(), lastUpdate)
+            assertNotEquals(with(LastUpdate) { get() }, lastUpdate)
         }
 
         assertNotNull(blockId)
@@ -69,10 +68,10 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test adding block to path - missing type`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
         post("/block/$pathId") {
             /*setBody(
@@ -98,10 +97,10 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test adding block to path - both ending and recurrence`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
         post("/block/$pathId") {
             setBody(
@@ -119,10 +118,10 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test adding block to path - with ending, no recurrence`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
         val endDate = LocalDateTime.now()
 
@@ -159,10 +158,10 @@ class TestAddBlockEndpoint: ApplicationTestBase() {
 
     @Test
     fun `test adding block to path - no ending, with recurrence`() = test {
-        val areaId = DataProvider.provideSampleArea()
-        val zoneId = DataProvider.provideSampleZone(areaId)
-        val sectorId = DataProvider.provideSampleSector(zoneId)
-        val pathId = DataProvider.provideSamplePath(sectorId)
+        val areaId = with(DataProvider) { provideSampleArea() }
+        val zoneId = with(DataProvider) { provideSampleZone(areaId) }
+        val sectorId = with(DataProvider) { provideSampleSector(zoneId) }
+        val pathId = with(DataProvider) { provideSamplePath(sectorId) }
 
         val recurrence = BlockingRecurrenceYearly(1U, Month.JANUARY, 3U, Month.FEBRUARY)
 
