@@ -1,7 +1,3 @@
-import io.ktor.plugin.features.DockerImageRegistry
-import io.ktor.plugin.features.DockerPortMapping
-import io.ktor.plugin.features.DockerPortMappingProtocol
-
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
@@ -18,7 +14,6 @@ repositories {
     maven("https://jitpack.io")
 }
 
-val exposedVersion: String by project
 val tcnativeVersion: String by project
 
 val osName = System.getProperty("os.name").lowercase()
@@ -103,7 +98,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(22)
 
     sourceSets {
         all {
@@ -114,25 +109,8 @@ kotlin {
 }
 
 ktor {
-    docker {
-        jreVersion.set(JavaVersion.VERSION_17)
-        localImageName.set("escalaralcoiaicomtat")
-        imageTag.set(
-            if (System.getenv("IS_PRODUCTION") == "true") version.toString() else "development"
-        )
-        portMappings.set(
-            listOf(
-                DockerPortMapping(80, 8080, DockerPortMappingProtocol.TCP)
-            )
-        )
+    fatJar {
 
-        externalRegistry.set(
-            DockerImageRegistry.dockerHub(
-                appName = provider { "escalaralcoiaicomtat" },
-                username = providers.environmentVariable("DOCKER_HUB_USERNAME"),
-                password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
-            )
-        )
     }
 }
 

@@ -2,7 +2,9 @@ version: '3.7'
 
 services:
   backend:
-    image: escalaralcoiaicomtat:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: escalaralcoiaicomtat_backend
     restart: "no"
     environment:
