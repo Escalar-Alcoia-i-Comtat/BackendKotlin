@@ -25,7 +25,7 @@ services:
       SERVER_UUID: "8bb7d337-cd81-45ab-a5e2-cab3f33a7756"
     volumes:
       - ./files:/var/lib/escalaralcoiaicomtat/files
-      - ./google-services.json:/var/lib/escalaralcoiaicomtat/google-services.json
+      - ./google-services.json:/var/lib/escalaralcoiaicomtat/google-services.json:ro
     networks:
       - escalaralcoiaicomtat_backend
     depends_on:
