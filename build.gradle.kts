@@ -33,6 +33,7 @@ dependencies {
     // Ktor dependencies
     implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.locations)
     implementation(libs.ktor.server.statusPages)
