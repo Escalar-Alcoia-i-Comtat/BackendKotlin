@@ -1,6 +1,6 @@
 services:
   backend:
-    image: arnyminerz/escalaralcoiaicomtat:1.0.40
+    image: arnyminerz/escalaralcoiaicomtat:1.0.43
     restart: unless-stopped
     environment:
       ENABLE_IMPORTER: "false"
