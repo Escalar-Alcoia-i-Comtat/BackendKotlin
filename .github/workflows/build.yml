@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "src/**"
+      - "gradle/**"
+      - "*.kts"
   release:
     types:
       - released
