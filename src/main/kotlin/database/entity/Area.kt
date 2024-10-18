@@ -3,6 +3,7 @@ package database.entity
 import database.serialization.AreaSerializer
 import database.table.Areas
 import java.io.File
+import java.net.URI
 import java.net.URL
 import java.time.Instant
 import kotlinx.serialization.SerialName
@@ -33,7 +34,7 @@ class Area(id: EntityID<Int>) : DataEntity(id), ResponseData {
 
     @Transient
     override var webUrl: URL
-        get() = URL(_webUrl)
+        get() = URI.create(_webUrl).toURL()
         set(value) {
             _webUrl = value.toString()
         }

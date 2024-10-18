@@ -3,7 +3,7 @@ package server.endpoints.files
 import assertions.assertSuccess
 import database.entity.Area
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.statement.readBytes
+import io.ktor.client.statement.readRawBytes
 import io.ktor.http.isSuccess
 import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.copyAndClose
@@ -37,7 +37,7 @@ class TestFileDownloading : ApplicationTestBase() {
 
         assertNotNull(image)
 
-        block(image!!)
+        block(image)
     }
 
     private fun downloadResized(
@@ -78,7 +78,7 @@ class TestFileDownloading : ApplicationTestBase() {
                         "Content-Type header is not JPEG. Got: $contentType"
                     )
                 }
-                readBytes()
+                readRawBytes()
             }
         }
     }
