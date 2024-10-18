@@ -7,10 +7,8 @@ import database.entity.Path
 import database.entity.info.LastUpdate
 import database.table.BlockingTable
 import distribution.Notifier
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import localization.Localization
 import server.endpoints.SecureEndpointBase
@@ -19,7 +17,7 @@ import server.response.respondFailure
 import server.response.respondSuccess
 
 object DeletePathEndpoint : SecureEndpointBase("/path/{pathId}") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val pathId: Int by call.parameters
 
         val path = ServerDatabase.instance.query { Path.findById(pathId) }

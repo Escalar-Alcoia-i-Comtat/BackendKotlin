@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlinx.kover)
     alias(libs.plugins.ktor)
-    alias(libs.plugins.sentry)
 }
 
 group = "com.arnyminerz.escalaralcoiaicomtat.backend"
@@ -20,7 +19,6 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.netty)
-    implementation(libs.ktor.server.locations)
     implementation(libs.ktor.server.statusPages)
     implementation(libs.ktor.tlsCertificates)
     implementation(libs.ktor.utils)
@@ -95,21 +93,6 @@ ktor {
     fatJar {
 
     }
-}
-
-if (System.getenv("SENTRY_DISABLE") != "true") {
-    sentry {
-        // Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
-        // This enables source context, allowing you to see your source
-        // code as part of your stack traces in Sentry.
-        includeSourceContext = true
-
-        org = "escalar-alcoia-i-comtat"
-        projectName = "server"
-        authToken = System.getenv("SENTRY_AUTH_TOKEN")
-    }
-} else {
-    println("Warning: Sentry is disabled.")
 }
 
 application {

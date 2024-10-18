@@ -1,10 +1,8 @@
 package server.endpoints.files
 
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.plugins.origin
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.security.MessageDigest
@@ -24,7 +22,7 @@ object RequestFileEndpoint : EndpointBase("/file/{uuids}") {
 
     private val digest = MessageDigest.getInstance(MessageDigestAlgorithm.SHA_256)
 
-    private suspend fun PipelineContext<Unit, ApplicationCall>.getDataFor(uuid: String): RequestFileResponseData.Data {
+    private suspend fun RoutingContext.getDataFor(uuid: String): RequestFileResponseData.Data {
         val file = Storage.find(uuid) ?: throw FileNotFoundException("Could not find file with uuid $uuid")
         val downloadAddress = call.request.origin.let { p ->
             val port = p.serverPort.takeIf { it != DEFAULT_HTTP_PORT }?.let { ":$it" } ?: ""
@@ -41,7 +39,7 @@ object RequestFileEndpoint : EndpointBase("/file/{uuids}") {
         )
     }
 
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val uuids: String by call.parameters
         val list = uuids.split(",")
 

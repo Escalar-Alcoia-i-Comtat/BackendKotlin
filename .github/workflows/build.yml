@@ -16,20 +16,31 @@ jobs:
   build_and_publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v4
-      - name: Build and publish image
-        env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          IS_PRODUCTION: ${{ github.event_name == 'release' }}
-          SENTRY_DSN_TESTS: ${{ secrets.SENTRY_DSN_TESTS }}
-        run: ./gradlew publishImage
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Update version.txt
+        if: ${{ github.event_name == 'release' }}
+        run: echo ${{ github.event.release.tag_name }} > package/version.txt
+
+      # If the event is a release, build and push the release image, tagging it as latest and the release tag
+      - name: Build and push release
+        uses: docker/build-push-action@v6
+        if: ${{ github.event_name == 'release' }}
+        with:
+          push: true
+          tags: arnyminerz/escalaralcoiaicomtat:latest,arnyminerz/escalaralcoiaicomtat:${{ github.event.release.tag_name }}
+      # Otherwise, build and push the development image, tagging it as development
+      - name: Build and push development
+        uses: docker/build-push-action@v6
+        if: ${{ github.event_name != 'release' }}
+        with:
+          push: true
+          tags: arnyminerz/escalaralcoiaicomtat:development

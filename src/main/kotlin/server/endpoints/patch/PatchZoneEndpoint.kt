@@ -10,10 +10,8 @@ import database.entity.info.LastUpdate
 import database.serialization.Json
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
 import java.time.Instant
@@ -31,7 +29,7 @@ import utils.areAllNull
 
 object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val zoneId: Int by call.parameters
 
         val zone = ServerDatabase.instance.query { Zone.findById(zoneId) }

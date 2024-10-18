@@ -2,10 +2,8 @@ package server.response
 
 import database.serialization.Json
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.response.respond
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -25,7 +23,7 @@ data class SuccessResponse(
  *
  * @param httpStatusCode The HTTP status code to be sent in the response. The default value is [HttpStatusCode.OK].
  */
-suspend inline fun PipelineContext<Unit, ApplicationCall>.respondSuccess(
+suspend inline fun RoutingContext.respondSuccess(
     httpStatusCode: HttpStatusCode = HttpStatusCode.OK
 ) {
     call.respond(
@@ -40,7 +38,7 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.respondSuccess(
  * @param data The optional JSON object containing the data to be sent in the response.
  * @param httpStatusCode The HTTP status code to be sent in the response. The default value is [HttpStatusCode.OK].
  */
-suspend inline fun <reified DataType: ResponseData> PipelineContext<Unit, ApplicationCall>.respondSuccess(
+suspend inline fun <reified DataType: ResponseData> RoutingContext.respondSuccess(
     data: DataType? = null,
     httpStatusCode: HttpStatusCode = HttpStatusCode.OK
 ) {

@@ -12,8 +12,7 @@ import database.entity.info.LastUpdate
 import database.table.Paths
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import java.io.File
 import kotlinx.serialization.json.Json
 import localization.Localization
@@ -49,7 +48,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
     private const val INDEX_REQUIRE_STAPES = 5
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         var displayName: String? = null
         var sketchId: UInt? = null
         var height: UInt? = null
@@ -103,7 +102,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
 
                     "sector" -> ServerDatabase.instance {
                         Sector.findById(value.toInt()).also { sector = it }
-                    } ?: return respondFailure(Errors.ParentNotFound)
+                    } ?: return@receiveMultipart respondFailure(Errors.ParentNotFound)
                 }
             },
             forEachFileItem = { partData ->
@@ -121,8 +120,8 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
                 rawMultipartFormItems.toList().joinToString(", ") { (k, v) -> "$k=$v" }
             )
         }
-        if (imageFiles != null && imageFiles!!.size > Paths.MAX_IMAGES) {
-            imageFiles?.forEach {
+        if (imageFiles != null && imageFiles.size > Paths.MAX_IMAGES) {
+            imageFiles.forEach {
                 if (!it.delete()) {
                     return respondFailure(
                         CouldNotClear,
@@ -136,7 +135,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
 
         val path = ServerDatabase.instance.query {
             Path.new {
-                this.displayName = displayName!!
+                this.displayName = displayName
                 this.sketchId = sketchId!!
                 this.height = height
                 this.grade = grade

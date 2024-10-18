@@ -1,8 +1,5 @@
-import diagnostics.Diagnostics
 import distribution.Notifier
 import io.ktor.server.application.Application
-import io.ktor.server.engine.applicationEngineEnvironment
-import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.runBlocking
@@ -10,8 +7,6 @@ import localization.Localization
 import server.plugins.configureEndpoints
 import server.plugins.installPlugins
 import system.EnvironmentVariables
-
-const val HTTP_PORT = 8080
 
 fun main() {
     if (!EnvironmentVariables.Environment.ServerUUID.isSet) {
@@ -33,19 +28,8 @@ fun main() {
         Localization.synchronizePathDescriptions()
     }
 
-    if (Diagnostics.init()) {
-        Logger.info("Sentry integration is enabled!")
-    } else {
-        Logger.info("Sentry not configured, won't enable feature...")
-    }
-
-    val environment = applicationEngineEnvironment {
-        connector { port = HTTP_PORT }
-        module(Application::setupApplication)
-    }
-
     Logger.info("Starting web server...")
-    embeddedServer(Netty, environment).start(wait = true)
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
 }
 
 /**
@@ -53,7 +37,7 @@ fun main() {
  * 1. Install all the plugin dependencies.
  * 2. Configure all the endpoint listeners.
  */
-fun Application.setupApplication() {
+fun Application.module() {
     installPlugins()
     configureEndpoints()
 }

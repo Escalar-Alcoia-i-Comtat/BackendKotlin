@@ -8,11 +8,9 @@ import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.request.receiveMultipart
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.net.URL
 import java.time.Instant
@@ -26,7 +24,7 @@ import server.response.update.UpdateResponseData
 import storage.Storage
 
 object PatchAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val areaId: Int by call.parameters
 
         val area = ServerDatabase.instance.query { Area.findById(areaId) }

@@ -3,12 +3,10 @@ package server.endpoints.query
 import ServerDatabase
 import database.entity.Path
 import io.ktor.http.HttpHeaders
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.plugins.ParameterConversionException
 import io.ktor.server.request.header
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import localization.Localization
 import server.endpoints.EndpointBase
 import server.error.Errors
@@ -16,7 +14,7 @@ import server.response.respondFailure
 import server.response.respondSuccess
 
 object PathEndpoint : EndpointBase("/path/{pathId}") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val pathId = try {
             val pathId: Int by call.parameters
             pathId

@@ -13,10 +13,8 @@ import database.serialization.Json
 import database.table.Paths
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 import java.time.Instant
 import localization.Localization
@@ -32,7 +30,7 @@ import utils.areAllNull
 
 object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
     @Suppress("DuplicatedCode", "CyclomaticComplexMethod", "LongMethod")
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val pathId: Int by call.parameters
 
         val path = ServerDatabase.instance.query { Path.findById(pathId) }

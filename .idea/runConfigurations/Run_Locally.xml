@@ -4,6 +4,7 @@
       <env name="AUTH_TOKEN" value="cwBsTxhjf8mFQrN8zPUpGstmtCeg3z" />
       <env name="DATABASE_URL" value="jdbc:sqlite:testing.db" />
       <env name="ENABLE_IMPORTER" value="true" />
+      <env name="SERVER_UUID" value="0e590deb-1389-47bd-a833-b70919d64683" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="MainKt" />
     <module name="EscalarAlcoiaIComtat-Backend.main" />

@@ -6,11 +6,9 @@ import database.entity.Blocking
 import database.entity.info.LastUpdate
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.request.receive
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import server.endpoints.EndpointBase
 import server.error.Errors
 import server.request.AddBlockRequest
@@ -19,8 +17,8 @@ import server.response.respondSuccess
 import server.response.update.UpdateResponseData
 import utils.areAllNull
 
-object PatchBlockEndpoint: EndpointBase("/block/{blockId}") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+object PatchBlockEndpoint : EndpointBase("/block/{blockId}") {
+    override suspend fun RoutingContext.endpoint() {
         val blockId: Int by call.parameters
 
         val block: Blocking = ServerDatabase.instance.query { Blocking.findById(blockId) }

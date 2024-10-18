@@ -8,8 +8,7 @@ import database.entity.Zone
 import database.entity.info.LastUpdate
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import java.io.File
 import kotlinx.serialization.json.Json
 import server.endpoints.SecureEndpointBase
@@ -23,7 +22,7 @@ import storage.Storage
 import utils.isAnyNull
 
 object NewSectorEndpoint : SecureEndpointBase("/sector") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         var displayName: String? = null
         var point: LatLng? = null
         var kidsApt: Boolean? = null

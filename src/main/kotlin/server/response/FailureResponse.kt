@@ -3,9 +3,8 @@ package server.response
 import com.crowdin.client.core.http.exceptions.HttpBadRequestException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.response.respond
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import kotlinx.serialization.Serializable
 import server.error.Error
 
@@ -21,7 +20,7 @@ data class FailureResponse(
  *
  * @param error The error object containing the error code and message.
  */
-suspend fun PipelineContext<Unit, ApplicationCall>.respondFailure(
+suspend fun RoutingContext.respondFailure(
     error: Error, extra: String? = null
 ) {
     call.respondFailure(error, extra)

@@ -7,11 +7,9 @@ import database.entity.Path
 import database.entity.info.LastUpdate
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.request.receive
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import io.ktor.util.pipeline.PipelineContext
 import server.endpoints.SecureEndpointBase
 import server.error.Errors
 import server.request.AddBlockRequest
@@ -20,7 +18,7 @@ import server.response.respondSuccess
 import server.response.update.UpdateResponseData
 
 object AddBlockEndpoint: SecureEndpointBase("/block/{pathId}") {
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         val pathId: Int by call.parameters
 
         val body = call.receive<AddBlockRequest>()

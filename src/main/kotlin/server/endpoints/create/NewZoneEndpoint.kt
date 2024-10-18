@@ -10,8 +10,7 @@ import database.entity.info.LastUpdate
 import database.serialization.Json
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.server.routing.RoutingContext
 import java.io.File
 import java.net.URL
 import server.endpoints.SecureEndpointBase
@@ -26,7 +25,7 @@ import utils.isAnyNull
 
 object NewZoneEndpoint : SecureEndpointBase("/zone") {
     @Suppress("DuplicatedCode")
-    override suspend fun PipelineContext<Unit, ApplicationCall>.endpoint() {
+    override suspend fun RoutingContext.endpoint() {
         var displayName: String? = null
         var webUrl: String? = null
         var point: LatLng? = null
