@@ -30,12 +30,18 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
     var walkingTime: UInt? by Sectors.walkingTime
     var weight: String by Sectors.weight
 
+    private fun findFileByUUID(uuid: String, dir: File): File {
+        return dir.listFiles { _, name -> name.startsWith(uuid) }
+            ?.firstOrNull()
+            ?: throw IllegalArgumentException("File ($uuid) not found in $dir")
+    }
+
     var image: File
-        get() = File(Storage.ImagesDir, _image)
+        get() = findFileByUUID(_image, Storage.ImagesDir)
         set(value) { _image = value.toRelativeString(Storage.ImagesDir) }
 
     var gpx: File?
-        get() = _gpx?.let { File(Storage.TracksDir, it) }
+        get() = _gpx?.let { findFileByUUID(it, Storage.TracksDir) }
         set(value) { _gpx = value?.toRelativeString(Storage.TracksDir) }
 
     var point: LatLng?

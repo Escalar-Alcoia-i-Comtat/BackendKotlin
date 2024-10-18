@@ -10,6 +10,7 @@ import data.Grade
 import data.LatLng
 import data.PitchInfo
 import java.io.File
+import java.net.URI
 import java.net.URL
 import java.time.Instant
 import java.time.LocalDateTime
@@ -17,16 +18,23 @@ import server.DataProvider
 import storage.Storage
 
 object DatabaseHelper {
+    fun createTestFile(dir: File, name: String): File {
+        return File(dir, name)
+            .also { it.parentFile.mkdirs() }
+            .also(File::createNewFile)
+            .also(File::deleteOnExit)
+    }
+
     suspend fun createTestArea(
         displayName: String = DataProvider.SampleArea.displayName,
         webUrl: String = DataProvider.SampleArea.webUrl
     ): Area = ServerDatabase.instance.query {
         Area.new {
             this.displayName = displayName
-            this.webUrl = URL(webUrl)
+            this.webUrl = URI.create(webUrl).toURL()
 
             // Required, but not used
-            image = File(Storage.ImagesDir, "abc")
+            image = createTestFile(Storage.ImagesDir, "abc")
         }
     }
 
@@ -44,8 +52,8 @@ object DatabaseHelper {
             this.points = points
 
             // Required, but not used
-            image = File(Storage.ImagesDir, "abc")
-            kmz = File(Storage.TracksDir, "abc")
+            image = createTestFile(Storage.ImagesDir, "abc")
+            kmz = createTestFile(Storage.TracksDir, "abc")
 
             // Must specify a parent
             this.area = area
@@ -68,8 +76,8 @@ object DatabaseHelper {
             this.walkingTime = walkingTime
 
             // Required, but not used
-            image = File(Storage.ImagesDir, "abc")
-            gpx = File(Storage.TracksDir, "abc")
+            image = createTestFile(Storage.ImagesDir, "abc")
+            gpx = createTestFile(Storage.TracksDir, "abc")
 
             // Must specify a parent
             this.zone = zone
@@ -133,8 +141,8 @@ object DatabaseHelper {
             this.description = description
 
             this.images = listOf(
-                File(Storage.ImagesDir, "abc"),
-                File(Storage.ImagesDir, "def")
+                createTestFile(Storage.ImagesDir, "abc"),
+                createTestFile(Storage.ImagesDir, "def")
             )
 
             // Must specify a parent

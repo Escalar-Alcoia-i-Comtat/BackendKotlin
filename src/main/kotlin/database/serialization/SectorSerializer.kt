@@ -47,8 +47,17 @@ object SectorSerializer : KSerializer<Sector> {
             encodeBooleanElement(descriptor, idx++, value.kidsApt)
             encodeSerializableElement(descriptor, idx++, Sector.SunTime.serializer(), value.sunTime)
             encodeNullableSerializableElement(descriptor, idx++, Long.serializer(), value.walkingTime?.toLong())
-            encodeStringElement(descriptor, idx++, value.image.toRelativeString(Storage.ImagesDir))
-            encodeNullableSerializableElement(descriptor, idx++, String.serializer(), value.gpx?.toRelativeString(Storage.TracksDir))
+            encodeStringElement(
+                descriptor,
+                idx++,
+                value.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
+            )
+            encodeNullableSerializableElement(
+                descriptor,
+                idx++,
+                String.serializer(),
+                value.gpx?.toRelativeString(Storage.TracksDir)?.substringBeforeLast('.')
+            )
             encodeNullableSerializableElement(descriptor, idx++, LatLng.serializer(), value.point)
             encodeStringElement(descriptor, idx++, value.weight)
             encodeIntElement(descriptor, idx++, value.zone.id.value)

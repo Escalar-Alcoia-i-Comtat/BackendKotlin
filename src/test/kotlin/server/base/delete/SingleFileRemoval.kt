@@ -6,8 +6,10 @@ import java.io.File
 class SingleFileRemoval<EntityType : BaseEntity>(
     val fileAccessor: (EntityType) -> File?
 ) : FileRemoval<EntityType> {
+    private val entities = mutableMapOf<Int, File?>()
+
     override fun exists(entity: EntityType): Boolean {
-        val file = fileAccessor(entity)
+        val file = entities.getOrPut(entity.id.value) { fileAccessor(entity) }
         return file?.exists() != false
     }
 }
