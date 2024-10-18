@@ -17,6 +17,7 @@ import java.io.File
 import kotlinx.serialization.json.Json
 import localization.Localization
 import server.endpoints.SecureEndpointBase
+import server.error.Error
 import server.error.Errors
 import server.error.Errors.CouldNotClear
 import server.error.Errors.MissingData
@@ -66,6 +67,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
 
         var imageFiles: List<File>? = null
 
+        var error: Error? = null
         receiveMultipart(
             forEachFormItem = { partData ->
                 val value = partData.value
@@ -102,7 +104,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
 
                     "sector" -> ServerDatabase.instance {
                         Sector.findById(value.toInt()).also { sector = it }
-                    } ?: return@receiveMultipart respondFailure(Errors.ParentNotFound)
+                    } ?: return@receiveMultipart Errors.ParentNotFound.let { error = it }
                 }
             },
             forEachFileItem = { partData ->
@@ -113,6 +115,10 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
                 }
             }
         )
+        if (error != null) {
+            call.respondFailure(error)
+            return
+        }
 
         if (displayName == null || sketchId == null || sector == null) {
             return respondFailure(

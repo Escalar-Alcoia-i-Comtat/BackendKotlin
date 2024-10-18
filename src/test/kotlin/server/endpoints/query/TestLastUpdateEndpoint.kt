@@ -30,7 +30,7 @@ class TestLastUpdateEndpoint : ApplicationTestBase() {
         get("/last_update").apply {
             assertSuccess<LastUpdateResponseData> { data ->
                 assertNotNull(data)
-                assertEquals(timestamp, data.lastUpdate)
+                assertEquals(timestamp.toEpochMilli(), data.lastUpdate)
             }
         }
     }

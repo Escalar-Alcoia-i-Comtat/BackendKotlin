@@ -5,8 +5,7 @@ import database.entity.Area
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.isSuccess
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.copyAndClose
+import io.ktor.utils.io.readBuffer
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -14,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.io.copyTo
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.base.StubApplicationTestBuilder
@@ -55,7 +55,7 @@ class TestFileDownloading : ApplicationTestBase() {
             )
 
             val channel = response.bodyAsChannel()
-            channel.copyAndClose(tempFile.writeChannel())
+            channel.readBuffer().use { read -> tempFile.outputStream().use { write -> read.copyTo(write) } }
 
             try {
                 val img: BufferedImage? = ImageIO.read(tempFile)

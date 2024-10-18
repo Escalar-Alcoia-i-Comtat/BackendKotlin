@@ -32,7 +32,7 @@ class TestAreaFetchingEndpoint : ApplicationTestBase() {
                 assertEquals(DataProvider.SampleArea.webUrl, data.webUrl.toString())
                 assertTrue(data.timestamp < Instant.now())
 
-                image = data.image.toRelativeString(Storage.ImagesDir)
+                image = data.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
             }
         }
 

@@ -53,7 +53,12 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
                 when (partData.name) {
                     "displayName" -> displayName = partData.value
                     "webUrl" -> webUrl = partData.value
-                    "points" -> points = Json.decodeFromString(partData.value)
+                    "points" -> partData.value.let { value ->
+                        if (value == "\u0000")
+                            removePoint = true
+                        else
+                            points = Json.decodeFromString(value)
+                    }
                     "area" -> ServerDatabase.instance.query {
                         area = Area.findById(partData.value.toInt())
                     }

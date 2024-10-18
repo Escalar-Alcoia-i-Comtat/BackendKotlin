@@ -1,6 +1,8 @@
 package data
 
+import database.serialization.Json
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 
 /**
  * Represents a data point with location, label, and icon information.
@@ -14,4 +16,6 @@ data class DataPoint(
     val location: LatLng,
     val label: String,
     val icon: String
-)
+) {
+    override fun toString(): String = Json.encodeToString(this)
+}

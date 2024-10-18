@@ -1,7 +1,9 @@
 package data
 
+import database.serialization.Json
 import java.time.Month
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 
 @Serializable
 data class BlockingRecurrenceYearly(
@@ -31,4 +33,6 @@ data class BlockingRecurrenceYearly(
         result = 31 * result + toMonth.hashCode()
         return result
     }
+
+    override fun toString(): String = Json.encodeToString(this)
 }

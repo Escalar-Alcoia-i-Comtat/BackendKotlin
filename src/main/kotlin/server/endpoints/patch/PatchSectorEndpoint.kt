@@ -16,6 +16,7 @@ import java.io.File
 import java.time.Instant
 import java.util.UUID
 import server.endpoints.SecureEndpointBase
+import server.error.Error
 import server.error.Errors
 import server.request.save
 import server.response.respondFailure
@@ -54,6 +55,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         var invalidFile = false
 
+        var error: Error? = null
         receiveMultipart(
             forEachFormItem = { partData ->
                 when (partData.name) {
@@ -63,7 +65,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                     "weight" -> weight = partData.value
                     "zone" -> ServerDatabase.instance.query {
                         zone = Zone.findById(partData.value.toInt())
-                            ?: return@query respondFailure(Errors.ParentNotFound)
+                            ?: return@query Errors.ParentNotFound.let { error = it }
                     }
                     "point" -> partData.value.let { value ->
                         if (value == "\u0000")
@@ -108,6 +110,9 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                 }
             }
         )
+        if (error != null) {
+            return respondFailure(error)
+        }
 
         if (invalidFile) return respondFailure(Errors.InvalidFileType)
 

@@ -26,8 +26,39 @@ suspend fun HttpResponse.assertSuccess(
 ) {
     val response = body<Response>()
 
-    assertEquals(statusCode, status)
-    assertTrue(response.success)
+    if (response.success) {
+        assertEquals(statusCode, status)
+        assertTrue(response.success)
+    } else {
+        var errorMessage: String? = null
+        var errorType: String? = null
+        var stackTrace: String? = null
+        if (response is FailureResponse) {
+            errorMessage = response.error?.message
+            errorType = response.error?.type
+            stackTrace = response.error?.stackTrace?.joinToString("\n    ")
+        }
+
+        throw AssertionError(
+            StringBuilder().apply {
+                appendLine("expected: $statusCode but was: $status")
+                appendLine("Url: ${request.url}")
+                if (errorMessage != null) {
+                    appendLine("Message: $errorMessage")
+                }
+                if (errorType != null) {
+                    appendLine("Type: $errorType")
+                }
+                if (stackTrace != null) {
+                    appendLine("Stack trace:\n    $stackTrace")
+                }
+            }.toString()
+        )
+    }
+}
+
+fun interface SuccessfulAssertionBlock<Type : ResponseData> {
+    suspend operator fun invoke(data: Type?)
 }
 
 /**
@@ -36,9 +67,9 @@ suspend fun HttpResponse.assertSuccess(
  * @param statusCode If the request doesn't respond OK (200), you can modify it here.
  * @param block If any, allows handling the response if any.
  */
-suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
+suspend inline fun <reified Type : ResponseData> HttpResponse.assertSuccess(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
-    block: (data: Type?) -> Unit = {}
+    block: SuccessfulAssertionBlock<Type> = SuccessfulAssertionBlock {}
 ) {
     val response = body<Response>()
 
@@ -71,7 +102,9 @@ suspend inline fun <reified Type: ResponseData> HttpResponse.assertSuccess(
 
     assertTrue(response.success)
     assertIs<SuccessResponse>(response)
-    block(response.data<Type>())
+    ServerDatabase.instance.query {
+        block(response.data<Type>())
+    }
 }
 
 /**
@@ -99,7 +132,7 @@ suspend fun HttpResponse.assertFailure(
         error.status,
         status.value,
         StringBuilder().apply {
-            appendLine("expected: ${error.status} but was: $status")
+            appendLine("expected: ${error.status} but was: ${status.value}")
             if (errorMessage != null) {
                 appendLine("Message: $errorMessage")
             }

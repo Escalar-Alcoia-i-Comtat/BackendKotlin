@@ -38,8 +38,8 @@ class TestZoneFetchingEndpoint : ApplicationTestBase() {
                 assertEquals(DataProvider.SampleZone.webUrl, data.webUrl.toString())
                 assertTrue(data.timestamp < Instant.now())
 
-                image = data.image.toRelativeString(Storage.ImagesDir)
-                kmz = data.kmz.toRelativeString(Storage.TracksDir)
+                image = data.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
+                kmz = data.kmz.toRelativeString(Storage.TracksDir).substringBeforeLast('.')
             }
         }
 

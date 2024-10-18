@@ -1,6 +1,8 @@
 package data
 
+import database.serialization.Json
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 
 /**
  * Represents geographic coordinates in latitude and longitude.
@@ -19,4 +21,6 @@ import kotlinx.serialization.Serializable
 data class LatLng(
     val latitude: Double,
     val longitude: Double
-)
+) {
+    override fun toString(): String = Json.encodeToString(this)
+}

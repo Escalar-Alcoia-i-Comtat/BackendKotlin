@@ -12,12 +12,13 @@ import server.response.respondSuccess
 
 object TreeEndpoint : EndpointBase("/tree") {
     override suspend fun RoutingContext.endpoint() {
-        val array = ServerDatabase.instance.query {
-            val zones = Zone.all()
-            val sectors = Sector.all()
-            val paths = Path.all()
+        val array = ServerDatabase {
+            val zones = Zone.all().toList()
+            val sectors = Sector.all().toList()
+            val paths = Path.all().toList()
 
             Area.all().onEach { it.populateZones(zones, sectors, paths) }
+                .toList()
         }
         respondSuccess(
             data = TreeResponseData(array.toList())

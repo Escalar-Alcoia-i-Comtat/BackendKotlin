@@ -12,6 +12,7 @@ import io.ktor.server.routing.RoutingContext
 import java.io.File
 import kotlinx.serialization.json.Json
 import server.endpoints.SecureEndpointBase
+import server.error.Error
 import server.error.Errors.MissingData
 import server.error.Errors.ParentNotFound
 import server.request.save
@@ -34,6 +35,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
         var imageFile: File? = null
         var gpxFile: File? = null
 
+        var error: Error? = null
         receiveMultipart(
             forEachFormItem = { partData ->
                 when (partData.name) {
@@ -44,7 +46,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                     "walkingTime" -> walkingTime = partData.value.toUIntOrNull()
                     "weight" -> weight = partData.value
                     "zone" -> ServerDatabase.instance.query {
-                        zone = Zone.findById(partData.value.toInt()) ?: return@query respondFailure(ParentNotFound)
+                        zone = Zone.findById(partData.value.toInt()) ?: return@query ParentNotFound.let { error = it }
                     }
                 }
             },
@@ -55,6 +57,10 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                 }
             }
         )
+        if (error != null) {
+            call.respondFailure(error)
+            return
+        }
 
         if (isAnyNull(displayName, imageFile, kidsApt, sunTime, zone)) {
             imageFile?.delete()

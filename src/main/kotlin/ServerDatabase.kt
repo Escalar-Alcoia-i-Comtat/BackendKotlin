@@ -72,6 +72,8 @@ class ServerDatabase private constructor() {
             EnvironmentVariables.Database.Username.value?.let { username = it }
             EnvironmentVariables.Database.Password.value?.let { password = it }
         }
+
+        suspend operator fun <T> invoke(block: suspend Transaction.() -> T): T = instance.query(block)
     }
 
     private val database by lazy {

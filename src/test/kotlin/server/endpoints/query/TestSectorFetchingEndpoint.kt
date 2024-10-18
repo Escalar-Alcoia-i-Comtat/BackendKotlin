@@ -44,8 +44,8 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
                 assertEquals(DataProvider.SampleSector.walkingTime, data.walkingTime)
                 assertTrue(data.timestamp < Instant.now())
 
-                image = data.image.toRelativeString(Storage.ImagesDir)
-                gpx = data.gpx?.toRelativeString(Storage.TracksDir)
+                image = data.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
+                gpx = data.gpx?.toRelativeString(Storage.TracksDir)?.substringBeforeLast('.')
             }
         }
 
@@ -53,7 +53,7 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
         assertIsUUID(image)
 
         assertNotNull(gpx)
-        assertIsUUID(gpx)
+        assertIsUUID(gpx!!)
 
         get("/file/$image").apply {
             assertSuccess<RequestFileResponseData>()

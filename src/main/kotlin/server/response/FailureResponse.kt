@@ -33,8 +33,7 @@ suspend fun RoutingContext.respondFailure(
  */
 suspend fun ApplicationCall.respondFailure(error: Error, extra: String? = null) {
     println("Responding with status: ${error.status}")
-    response.status(error.statusCode)
-    respond(FailureResponse(error.copy(extra = extra)))
+    respond(error.statusCode, FailureResponse(error.copy(extra = extra)))
 }
 
 /**
