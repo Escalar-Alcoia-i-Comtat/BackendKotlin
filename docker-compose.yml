@@ -26,8 +26,6 @@ services:
     env_file:
       - "secrets.env"
     volumes:
-      - ./keystore:/var/lib/escalaralcoiaicomtat/keystore
-      - ./certificates:/var/lib/escalaralcoiaicomtat/certs
       - ./files:/var/lib/escalaralcoiaicomtat/files
       - ./google-services.json:/var/lib/escalaralcoiaicomtat/google-services.json
     networks:

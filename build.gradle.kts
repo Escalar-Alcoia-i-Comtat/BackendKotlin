@@ -14,16 +14,6 @@ repositories {
     maven("https://jitpack.io")
 }
 
-val tcnativeVersion: String by project
-
-val osName = System.getProperty("os.name").lowercase()
-val tcnativeClassifier = when {
-    osName.contains("win") -> "windows-x86_64"
-    osName.contains("linux") -> "linux-x86_64"
-    osName.contains("mac") -> "osx-x86_64"
-    else -> null
-}
-
 dependencies {
     // Ktor dependencies
     implementation(libs.ktor.server.contentNegotiation)
@@ -56,13 +46,6 @@ dependencies {
     // Keep in sync with https://github.com/JetBrains/Exposed/wiki/Database-and-DataSource
     @Suppress("VulnerableLibrariesLocal", "RedundantSuppression")
     implementation(libs.sqlite)
-
-    // SSL Dependencies
-    if (tcnativeClassifier != null) {
-        implementation("io.netty:netty-tcnative-boringssl-static:$tcnativeVersion:$tcnativeClassifier")
-    } else {
-        implementation("io.netty:netty-tcnative-boringssl-static:$tcnativeVersion")
-    }
 
     // For displaying progress bar in terminal
     implementation(libs.progressbar)
