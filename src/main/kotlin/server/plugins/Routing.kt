@@ -49,6 +49,8 @@ fun Application.configureEndpoints() {
     }
 
     routing {
+        configureCORS()
+
         get(RootEndpoint)
         get(ServerInfoEndpoint)
 
