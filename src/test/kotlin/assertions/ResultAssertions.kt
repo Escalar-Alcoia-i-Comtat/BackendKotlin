@@ -1,5 +1,6 @@
 package assertions
 
+import ServerDatabase
 import database.serialization.Json
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
@@ -10,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlinx.serialization.SerializationException
 import server.error.Error
 import server.response.FailureResponse
 import server.response.Response
@@ -67,9 +69,9 @@ fun interface SuccessfulAssertionBlock<Type : ResponseData> {
  * @param statusCode If the request doesn't respond OK (200), you can modify it here.
  * @param block If any, allows handling the response if any.
  */
-suspend inline fun <reified Type : ResponseData> HttpResponse.assertSuccess(
+suspend inline fun HttpResponse.assertSuccessRaw(
     statusCode: HttpStatusCode = HttpStatusCode.OK,
-    block: SuccessfulAssertionBlock<Type> = SuccessfulAssertionBlock {}
+    block: (body: String) -> Unit = {}
 ) {
     val response = body<Response>()
 
@@ -102,8 +104,24 @@ suspend inline fun <reified Type : ResponseData> HttpResponse.assertSuccess(
 
     assertTrue(response.success)
     assertIs<SuccessResponse>(response)
-    ServerDatabase.instance.query {
-        block(response.data<Type>())
+    block(bodyAsText())
+}
+
+/**
+ * Asserts that the request was successful.
+ *
+ * @param statusCode If the request doesn't respond OK (200), you can modify it here.
+ * @param block If any, allows handling the response if any.
+ */
+suspend inline fun <reified Type : ResponseData> HttpResponse.assertSuccess(
+    statusCode: HttpStatusCode = HttpStatusCode.OK,
+    block: SuccessfulAssertionBlock<Type> = SuccessfulAssertionBlock {}
+) = assertSuccessRaw(statusCode) {
+    try {
+        val data: SuccessResponse = Json.decodeFromString<SuccessResponse>(it)
+        ServerDatabase { block(data.data()) }
+    } catch (e: SerializationException) {
+        throw SerializationException("Failed to parse response:\n\t$it", e)
     }
 }
 

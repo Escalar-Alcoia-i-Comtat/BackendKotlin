@@ -1,12 +1,15 @@
 package server.endpoints.query
 
-import assertions.assertSuccess
+import assertions.assertSuccessRaw
+import database.serialization.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import server.DataProvider
 import server.base.ApplicationTestBase
-import server.response.query.TreeResponseData
 
 class TestTreeEndpoint : ApplicationTestBase() {
     @Test
@@ -24,25 +27,28 @@ class TestTreeEndpoint : ApplicationTestBase() {
         assertNotNull(pathId)
 
         get("/tree").apply {
-            assertSuccess<TreeResponseData> { data ->
+            assertSuccessRaw { data ->
+                val json = Json.decodeFromString<JsonElement>(data).jsonObject
+                val data = json["data"]?.jsonObject
                 assertNotNull(data)
 
-                val areas = data.areas
+                val areas = data["areas"]?.jsonArray
+                assertNotNull(areas)
                 assertEquals(1, areas.size)
 
-                val area = areas[0]
-                val zones = area.zones
+                val area = areas[0].jsonObject
+                val zones = area["zones"]?.jsonArray
 
                 assertNotNull(zones)
                 assertEquals(1, zones.size)
 
-                val zone = zones[0]
-                val sectors = zone.sectors
+                val zone = zones[0].jsonObject
+                val sectors = zone["sectors"]?.jsonArray
                 assertNotNull(sectors)
                 assertEquals(1, sectors.size)
 
-                val sector = sectors[0]
-                val paths = sector.paths
+                val sector = sectors[0].jsonObject
+                val paths = sector["paths"]?.jsonArray
                 assertNotNull(paths)
                 assertEquals(1, paths.size)
             }
@@ -58,15 +64,17 @@ class TestTreeEndpoint : ApplicationTestBase() {
         assertNotNull(zoneId)
 
         get("/tree").apply {
-            assertSuccess<TreeResponseData> { data ->
+            assertSuccessRaw { data ->
+                val json = Json.decodeFromString<JsonElement>(data).jsonObject
+                val data = json["data"]?.jsonObject
                 assertNotNull(data)
 
-                val areas = data.areas
+                val areas = data["areas"]?.jsonArray
                 assertNotNull(areas)
                 assertEquals(1, areas.size)
-                val area = areas[0]
 
-                val zones = area.zones
+                val area = areas[0].jsonObject
+                val zones = area["zones"]?.jsonArray
                 assertNotNull(zones)
                 assertEquals(1, zones.size)
             }
