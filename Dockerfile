@@ -9,6 +9,7 @@ RUN ./gradlew buildFatJar --no-daemon
 
 FROM amazoncorretto:17-alpine AS runtime
 EXPOSE 8080:8080
+RUN apk add curl
 RUN mkdir /app
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/escalaralcoiaicomtat.jar
 ENTRYPOINT ["java","-jar","/app/escalaralcoiaicomtat.jar"]
