@@ -4,6 +4,7 @@ import assertions.assertSuccess
 import database.entity.Area
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.readRawBytes
+import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.readBuffer
 import java.awt.image.BufferedImage
@@ -17,6 +18,9 @@ import kotlinx.io.copyTo
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.base.StubApplicationTestBuilder
+import server.response.FileSource
+import server.response.FileUUID
+import storage.FileType
 import storage.Storage
 
 class TestFileDownloading : ApplicationTestBase() {
@@ -71,12 +75,14 @@ class TestFileDownloading : ApplicationTestBase() {
     fun `test downloading files`() = test {
         provideImageFile { image ->
             get("/download/$image").apply {
-                headers["Content-Type"].let { contentType ->
-                    assertEquals(
-                        "image/jpeg",
-                        contentType,
-                        "Content-Type header is not JPEG. Got: $contentType"
-                    )
+                headers[HttpHeaders.ContentType].let { contentType ->
+                    assertEquals("image/jpeg", contentType, "Content-Type header is not JPEG. Got: $contentType")
+                }
+                headers[HttpHeaders.FileUUID].let {
+                    assertEquals(image, it, "File UUID header is not correct. Got: $it")
+                }
+                headers[HttpHeaders.FileSource].let {
+                    assertEquals(FileType.IMAGE.headerValue, it, "File source header is not correct. Got: $it")
                 }
                 readRawBytes()
             }

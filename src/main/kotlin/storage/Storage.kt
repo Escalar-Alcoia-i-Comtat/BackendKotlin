@@ -17,7 +17,9 @@ object Storage {
     val ImagesDir by lazy { File(BaseDir, "images").also { if (!it.exists()) it.mkdirs() } }
     val TracksDir by lazy { File(BaseDir, "tracks").also { if (!it.exists()) it.mkdirs() } }
 
-    fun imageFile(path: String) = File(ImagesDir, path)
+    fun imageFile(uuid: String) = ImagesDir.listFiles().find { it.name.startsWith(uuid) }
+
+    fun trackFile(uuid: String) = TracksDir.listFiles().find { it.name.startsWith(uuid) }
 
     /**
      * Finds a file based on the given UUID.
