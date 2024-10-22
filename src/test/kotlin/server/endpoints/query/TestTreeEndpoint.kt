@@ -1,7 +1,14 @@
 package server.endpoints.query
 
+import ServerDatabase
 import assertions.assertSuccessRaw
+import database.entity.Area
+import database.entity.Path
+import database.entity.Sector
+import database.entity.Zone
 import database.serialization.Json
+import io.ktor.http.etag
+import io.ktor.http.lastModified
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -12,6 +19,7 @@ import server.DataProvider
 import server.base.ApplicationTestBase
 
 class TestTreeEndpoint : ApplicationTestBase() {
+    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun `test getting tree`() = test {
         val areaId = DataProvider.provideSampleArea(this)
@@ -25,6 +33,13 @@ class TestTreeEndpoint : ApplicationTestBase() {
 
         val pathId = DataProvider.provideSamplePath(this, sectorId)
         assertNotNull(pathId)
+
+        val area = ServerDatabase { Area[areaId] }
+        val zone = ServerDatabase { Zone[zoneId] }
+        val sector = ServerDatabase { Sector[sectorId] }
+        val path = ServerDatabase { Path[pathId] }
+        val lastUpdate = listOf(area, zone, sector, path).maxBy { it.timestamp.epochSecond }
+        val hashCode = ServerDatabase { lastUpdate.hashCode().toHexString() }
 
         get("/tree").apply {
             assertSuccessRaw { data ->
@@ -52,6 +67,9 @@ class TestTreeEndpoint : ApplicationTestBase() {
                 assertNotNull(paths)
                 assertEquals(1, paths.size)
             }
+
+            assertEquals(lastUpdate.timestamp.epochSecond, lastModified()?.toInstant()?.epochSecond)
+            assertEquals(hashCode, etag()?.trim('"'))
         }
     }
 

@@ -1,10 +1,14 @@
 package server.endpoints.query
 
+import ServerDatabase
 import assertions.assertFailure
 import assertions.assertIsUUID
 import assertions.assertSuccess
 import database.entity.Sector
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.etag
+import io.ktor.http.lastModified
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,10 +17,13 @@ import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
+import server.response.ResourceId
+import server.response.ResourceType
 import server.response.files.RequestFileResponseData
 import storage.Storage
 
 class TestSectorFetchingEndpoint : ApplicationTestBase() {
+    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun `test getting sector`() = test {
         val areaId = DataProvider.provideSampleArea(this)
@@ -47,6 +54,13 @@ class TestSectorFetchingEndpoint : ApplicationTestBase() {
                 image = data.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
                 gpx = data.gpx?.toRelativeString(Storage.TracksDir)?.substringBeforeLast('.')
             }
+
+            val sector = ServerDatabase { Sector[sectorId] }
+            val hashCode = ServerDatabase { sector.hashCode().toHexString() }
+            assertEquals("Sector", headers[HttpHeaders.ResourceType])
+            assertEquals(sectorId, headers[HttpHeaders.ResourceId]?.toIntOrNull())
+            assertEquals(sector.timestamp.epochSecond, lastModified()?.toInstant()?.epochSecond)
+            assertEquals(hashCode, etag()?.trim('"'))
         }
 
         assertNotNull(image)

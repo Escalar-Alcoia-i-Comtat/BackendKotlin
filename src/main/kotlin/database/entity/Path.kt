@@ -141,7 +141,7 @@ class Path(id: EntityID<Int>): BaseEntity(id), ResponseData {
         result = 31 * result + (builder?.hashCode() ?: 0)
         result = 31 * result + (reBuilder?.hashCode() ?: 0)
         result = 31 * result + (_images?.hashCode() ?: 0)
-        result = 31 * result + sector.hashCode()
+        result = 31 * result + sector.id.value.hashCode()
         return result
     }
 

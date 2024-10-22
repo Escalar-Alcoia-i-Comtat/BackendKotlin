@@ -88,7 +88,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
         result = 31 * result + (gpx?.hashCode() ?: 0)
         result = 31 * result + (point?.hashCode() ?: 0)
         result = 31 * result + (weight.hashCode())
-        result = 31 * result + zone.hashCode()
+        result = 31 * result + zone.id.value.hashCode()
         return result
     }
 
