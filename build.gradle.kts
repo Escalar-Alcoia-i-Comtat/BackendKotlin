@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
     // Ktor dependencies
+    implementation(libs.ktor.server.cachingHeaders)
     implementation(libs.ktor.server.conditionalHeaders)
     implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.ktor.server.core)
