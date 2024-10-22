@@ -15,3 +15,17 @@ val HttpHeaders.FileUUID: String get() = "X-File-UUID"
  * @see FileType
  */
 val HttpHeaders.FileSource: String get() = "X-File-Source"
+
+/**
+ * A header included in the responses of data requests, containing the type of the data. One of:
+ * - `Area`
+ * - `Zone`
+ * - `Sector`
+ * - `Path`
+ */
+val HttpHeaders.ResourceType: String get() = "X-Resource-Type"
+
+/**
+ * A header included in the responses of data requests, containing the ID of the data.
+ */
+val HttpHeaders.ResourceId: String get() = "X-Resource-Id"

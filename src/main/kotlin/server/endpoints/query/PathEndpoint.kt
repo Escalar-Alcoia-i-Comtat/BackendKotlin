@@ -5,11 +5,14 @@ import database.entity.Path
 import io.ktor.http.HttpHeaders
 import io.ktor.server.plugins.ParameterConversionException
 import io.ktor.server.request.header
+import io.ktor.server.response.header
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
 import localization.Localization
 import server.endpoints.EndpointBase
 import server.error.Errors
+import server.response.ResourceId
+import server.response.ResourceType
 import server.response.respondFailure
 import server.response.respondSuccess
 
@@ -36,6 +39,9 @@ object PathEndpoint : EndpointBase("/path/{pathId}") {
                 // TODO: Set localized description
             }
         }
+
+        call.response.header(HttpHeaders.ResourceType, "Path")
+        call.response.header(HttpHeaders.ResourceId, pathId.toString())
 
         respondSuccess(path)
     }

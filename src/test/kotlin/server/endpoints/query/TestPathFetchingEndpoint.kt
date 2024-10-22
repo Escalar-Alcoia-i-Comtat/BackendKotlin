@@ -4,7 +4,10 @@ import ServerDatabase
 import assertions.assertFailure
 import assertions.assertSuccess
 import database.entity.Path
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.etag
+import io.ktor.http.lastModified
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -15,10 +18,13 @@ import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
+import server.response.ResourceId
+import server.response.ResourceType
 import server.response.files.RequestFileResponseData
 import storage.Storage
 
 class TestPathFetchingEndpoint : ApplicationTestBase() {
+    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun `test getting path`() = test {
         val areaId = DataProvider.provideSampleArea(this)
@@ -69,6 +75,13 @@ class TestPathFetchingEndpoint : ApplicationTestBase() {
 
                 assertTrue(data.timestamp < Instant.now())
             }
+
+            val path = ServerDatabase { Path[pathId] }
+            val hashCode = ServerDatabase { path.hashCode().toHexString() }
+            assertEquals("Path", headers[HttpHeaders.ResourceType])
+            assertEquals(pathId, headers[HttpHeaders.ResourceId]?.toIntOrNull())
+            assertEquals(path.timestamp.epochSecond, lastModified()?.toInstant()?.epochSecond)
+            assertEquals(hashCode, etag()?.trim('"'))
         }
     }
 

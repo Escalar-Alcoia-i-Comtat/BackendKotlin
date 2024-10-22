@@ -100,7 +100,7 @@ class Zone(id: EntityID<Int>): DataEntity(id), ResponseData {
         result = 31 * result + webUrl.toString().hashCode()
         result = 31 * result + (point?.hashCode() ?: 0)
         result = 31 * result + points.hashCode()
-        result = 31 * result + area.hashCode()
+        result = 31 * result + area.id.value.hashCode()
         return result
     }
 
