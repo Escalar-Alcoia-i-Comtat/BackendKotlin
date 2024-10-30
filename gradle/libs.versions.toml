@@ -1,6 +1,6 @@
 [versions]
 crowdin = "1.18.1"
-exposed = "0.55.0"
+exposed = "0.56.0"
 firebase-admin = "9.4.1"
 imageio-webp = "0.1.6"
 kotlin = "2.0.21"
