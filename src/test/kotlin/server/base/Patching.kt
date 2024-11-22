@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import server.base.patch.PropertyValuePair
-import server.response.files.RequestFileResponseData
+import server.response.files.RequestFilesResponseData
 import storage.HashUtils
 import storage.MessageDigestAlgorithm
 import storage.Storage
@@ -156,7 +156,7 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
     // Only fetch file if the request was not a removal
     if (resourcePath != null) {
         get("/file/$elementFile").apply {
-            assertSuccess<RequestFileResponseData> { response ->
+            assertSuccess<RequestFilesResponseData> { response ->
                 val data = response?.files?.first()
                 assertNotNull(data)
                 val serverHash = data.hash
