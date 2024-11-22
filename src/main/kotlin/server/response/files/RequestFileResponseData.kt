@@ -6,16 +6,19 @@ import server.response.ResponseData
 
 @KoverIgnore
 @Serializable
+@Deprecated("This response shall be removed once the new client is deployed. See RequestFileEndpoint.")
 data class RequestFileResponseData(
-    val files: List<Data>
+    val uuid: String,
+    val hash: String,
+    val filename: String,
+    val download: String,
+    val size: Long
 ): ResponseData {
-    @KoverIgnore
-    @Serializable
-    data class Data(
-        val uuid: String,
-        val hash: String,
-        val filename: String,
-        val download: String,
-        val size: Long
+    constructor(data: RequestFilesResponseData.Data) : this(
+        data.uuid,
+        data.hash,
+        data.filename,
+        data.download,
+        data.size
     )
 }
