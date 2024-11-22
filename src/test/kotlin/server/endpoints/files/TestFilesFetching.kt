@@ -14,7 +14,7 @@ import server.error.Errors
 import server.response.files.RequestFileResponseData
 import server.response.files.RequestFilesResponseData
 
-class TestFileFetching : ApplicationTestBase() {
+class TestFilesFetching : ApplicationTestBase() {
     @Test
     fun `test data`() = test {
         val areaId = DataProvider.provideSampleArea(this)
@@ -23,7 +23,7 @@ class TestFileFetching : ApplicationTestBase() {
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
 
         get("/file/${area.image.name}").apply {
-            assertSuccess<RequestFileResponseData> { data ->
+            assertSuccess<RequestFilesResponseData> { data ->
                 assertNotNull(data)
             }
         }
@@ -37,7 +37,7 @@ class TestFileFetching : ApplicationTestBase() {
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
 
         get("/file/${area.image.nameWithoutExtension}").apply {
-            assertSuccess<RequestFileResponseData> { data ->
+            assertSuccess<RequestFilesResponseData> { data ->
                 assertNotNull(data)
             }
         }
