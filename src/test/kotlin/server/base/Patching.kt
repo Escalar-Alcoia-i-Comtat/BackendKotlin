@@ -7,17 +7,9 @@ import database.entity.BaseEntity
 import database.entity.info.LastUpdate
 import database.serialization.Json
 import distribution.Notifier
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.forms.submitFormWithBinaryData
-import io.ktor.client.request.header
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
-import java.io.File
-import java.security.MessageDigest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
@@ -26,6 +18,12 @@ import server.response.files.RequestFilesResponseData
 import storage.HashUtils
 import storage.MessageDigestAlgorithm
 import storage.Storage
+import java.io.File
+import java.security.MessageDigest
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
     type: EntityTypes<EntityType>,
@@ -155,7 +153,7 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
 
     // Only fetch file if the request was not a removal
     if (resourcePath != null) {
-        get("/file/$elementFile").apply {
+        get("/files/$elementFile").apply {
             assertSuccess<RequestFilesResponseData> { response ->
                 val data = response?.files?.first()
                 assertNotNull(data)
