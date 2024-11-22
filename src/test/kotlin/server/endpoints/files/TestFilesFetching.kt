@@ -5,16 +5,15 @@ import assertions.assertFailure
 import assertions.assertSuccess
 import database.entity.Area
 import database.entity.Zone
-import kotlin.test.Test
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.error.Errors
-import server.response.files.RequestFileResponseData
 import server.response.files.RequestFilesResponseData
+import kotlin.test.Test
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-class TestFileFetching : ApplicationTestBase() {
+class TestFilesFetching : ApplicationTestBase() {
     @Test
     fun `test data`() = test {
         val areaId = DataProvider.provideSampleArea(this)
@@ -22,8 +21,8 @@ class TestFileFetching : ApplicationTestBase() {
 
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
 
-        get("/file/${area.image.name}").apply {
-            assertSuccess<RequestFileResponseData> { data ->
+        get("/files/${area.image.name}").apply {
+            assertSuccess<RequestFilesResponseData> { data ->
                 assertNotNull(data)
             }
         }
@@ -36,8 +35,8 @@ class TestFileFetching : ApplicationTestBase() {
 
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
 
-        get("/file/${area.image.nameWithoutExtension}").apply {
-            assertSuccess<RequestFileResponseData> { data ->
+        get("/files/${area.image.nameWithoutExtension}").apply {
+            assertSuccess<RequestFilesResponseData> { data ->
                 assertNotNull(data)
             }
         }
@@ -45,7 +44,7 @@ class TestFileFetching : ApplicationTestBase() {
 
     @Test
     fun `test doesn't exist`() = test {
-        get("/file/unknown").apply {
+        get("/files/unknown").apply {
             assertFailure(Errors.FileNotFound)
         }
     }
@@ -60,7 +59,7 @@ class TestFileFetching : ApplicationTestBase() {
         val area: Area = ServerDatabase.instance.query { Area[areaId] }
         val zone: Zone = ServerDatabase.instance.query { Zone[zoneId] }
 
-        get("/file/${area.image.name},${zone.image.name}").apply {
+        get("/files/${area.image.name},${zone.image.name}").apply {
             assertSuccess<RequestFilesResponseData> { data ->
                 assertNotNull(data)
 

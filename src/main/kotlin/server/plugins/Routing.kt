@@ -23,6 +23,7 @@ import server.endpoints.delete.DeleteSectorEndpoint
 import server.endpoints.delete.DeleteZoneEndpoint
 import server.endpoints.files.DownloadFileEndpoint
 import server.endpoints.files.RequestFileEndpoint
+import server.endpoints.files.RequestFilesEndpoint
 import server.endpoints.info.ServerInfoEndpoint
 import server.endpoints.patch.PatchAreaEndpoint
 import server.endpoints.patch.PatchPathEndpoint
@@ -84,6 +85,7 @@ fun Application.configureEndpoints() {
         patch(PatchBlockEndpoint)
 
         get(RequestFileEndpoint)
+        get(RequestFilesEndpoint)
         get(DownloadFileEndpoint)
     }
 }
