@@ -1,8 +1,11 @@
 package server.endpoints.files
 
-import io.ktor.server.plugins.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.server.plugins.origin
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.util.getValue
+import java.io.FileNotFoundException
+import java.nio.file.Files
+import java.security.MessageDigest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import server.endpoints.EndpointBase
@@ -14,9 +17,6 @@ import server.response.respondSuccess
 import storage.HashUtils
 import storage.MessageDigestAlgorithm
 import storage.Storage
-import java.io.FileNotFoundException
-import java.nio.file.Files
-import java.security.MessageDigest
 
 @Deprecated("This endpoint shall be removed once the new client is deployed")
 object RequestFileEndpoint : EndpointBase("/file/{uuids}") {
