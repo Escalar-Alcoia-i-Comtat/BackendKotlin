@@ -1,7 +1,7 @@
 [versions]
 crowdin = "1.19.5"
 exposed = "0.57.0"
-firebase-admin = "9.4.1"
+firebase-admin = "9.4.2"
 imageio-webp = "0.1.6"
 kotlin = "2.1.0"
 kotlinx-kover = "0.8.3"
