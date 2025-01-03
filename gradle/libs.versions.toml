@@ -9,7 +9,7 @@ kotlin-serialization = "1.7.3"
 ktor = "3.0.3"
 postgresql = "42.7.4"
 progressbar = "0.10.1"
-sqlite = "3.47.1.0"
+sqlite = "3.47.2.0"
 
 [libraries]
 crowdin = { module = "com.github.crowdin:crowdin-api-client-java", version.ref = "crowdin" }
