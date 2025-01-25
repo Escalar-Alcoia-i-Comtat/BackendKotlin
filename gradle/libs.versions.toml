@@ -1,5 +1,5 @@
 [versions]
-crowdin = "1.21.0"
+crowdin = "1.22.0"
 exposed = "0.58.0"
 firebase-admin = "9.4.3"
 imageio-webp = "0.1.6"
