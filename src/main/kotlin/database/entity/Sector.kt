@@ -44,6 +44,8 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
         get() = _gpx?.let { findFileByUUID(it, Storage.TracksDir) }
         set(value) { _gpx = value?.toRelativeString(Storage.TracksDir) }
 
+    var tracks by Sectors.tracks
+
     var point: LatLng?
         get() = _latitude?.let { lat -> _longitude?.let { lon -> LatLng(lat, lon) } }
         set(value) { _latitude = value?.latitude; _longitude = value?.longitude }
@@ -86,6 +88,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
         result = 31 * result + (walkingTime?.hashCode() ?: 0)
         result = 31 * result + image.hashCode()
         result = 31 * result + (gpx?.hashCode() ?: 0)
+        result = 31 * result + (tracks?.hashCode() ?: 0)
         result = 31 * result + (point?.hashCode() ?: 0)
         result = 31 * result + (weight.hashCode())
         result = 31 * result + zone.id.value.hashCode()

@@ -1,6 +1,7 @@
 package database.serialization
 
 import ServerDatabase
+import data.ExternalTrack
 import data.LatLng
 import database.entity.Path
 import database.entity.Sector
@@ -22,6 +23,20 @@ import storage.Storage
 
 @OptIn(ExperimentalSerializationApi::class)
 object SectorSerializer : KSerializer<Sector> {
+    private const val IDX_ID = 0
+    private const val IDX_TIMESTAMP = 1
+    private const val IDX_DISPLAY_NAME = 2
+    private const val IDX_KIDS_APT = 3
+    private const val IDX_SUN_TIME = 4
+    private const val IDX_WALKING_TIME = 5
+    private const val IDX_IMAGE = 6
+    private const val IDX_GPX = 7
+    private const val IDX_TRACKS = 8
+    private const val IDX_POINT = 9
+    private const val IDX_WEIGHT = 10
+    private const val IDX_ZONE_ID = 11
+    private const val IDX_PATHS = 12
+
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Sector") {
         element<Int>("id")
         element<Long>("timestamp")
@@ -31,6 +46,7 @@ object SectorSerializer : KSerializer<Sector> {
         element<Long?>("walking_time")
         element<String>("image")
         element<String?>("gpx")
+        element<List<ExternalTrack>>("tracks")
         element<String>("point")
         element<String>("weight")
         element<Int>("zone_id")
@@ -39,29 +55,29 @@ object SectorSerializer : KSerializer<Sector> {
 
     @Suppress("MaxLineLength")
     override fun serialize(encoder: Encoder, value: Sector) = ServerDatabase.instance.querySync {
-        var idx = 0
         encoder.encodeStructure(descriptor) {
-            encodeIntElement(descriptor, idx++, value.id.value)
-            encodeLongElement(descriptor, idx++, value.timestamp.toEpochMilli())
-            encodeStringElement(descriptor, idx++, value.displayName)
-            encodeBooleanElement(descriptor, idx++, value.kidsApt)
-            encodeSerializableElement(descriptor, idx++, Sector.SunTime.serializer(), value.sunTime)
-            encodeNullableSerializableElement(descriptor, idx++, Long.serializer(), value.walkingTime?.toLong())
+            encodeIntElement(descriptor, IDX_ID, value.id.value)
+            encodeLongElement(descriptor, IDX_TIMESTAMP, value.timestamp.toEpochMilli())
+            encodeStringElement(descriptor, IDX_DISPLAY_NAME, value.displayName)
+            encodeBooleanElement(descriptor, IDX_KIDS_APT, value.kidsApt)
+            encodeSerializableElement(descriptor, IDX_SUN_TIME, Sector.SunTime.serializer(), value.sunTime)
+            encodeNullableSerializableElement(descriptor, IDX_WALKING_TIME, Long.serializer(), value.walkingTime?.toLong())
             encodeStringElement(
                 descriptor,
-                idx++,
+                IDX_IMAGE,
                 value.image.toRelativeString(Storage.ImagesDir).substringBeforeLast('.')
             )
             encodeNullableSerializableElement(
                 descriptor,
-                idx++,
+                IDX_GPX,
                 String.serializer(),
                 value.gpx?.toRelativeString(Storage.TracksDir)?.substringBeforeLast('.')
             )
-            encodeNullableSerializableElement(descriptor, idx++, LatLng.serializer(), value.point)
-            encodeStringElement(descriptor, idx++, value.weight)
-            encodeIntElement(descriptor, idx++, value.zone.id.value)
-            encodeNullableSerializableElement(descriptor, idx++, ListSerializer(Path.serializer()), value.paths)
+            encodeNullableSerializableElement(descriptor, IDX_TRACKS, ListSerializer(ExternalTrack.serializer()), value.tracks)
+            encodeNullableSerializableElement(descriptor, IDX_POINT, LatLng.serializer(), value.point)
+            encodeStringElement(descriptor, IDX_WEIGHT, value.weight)
+            encodeIntElement(descriptor, IDX_ZONE_ID, value.zone.id.value)
+            encodeNullableSerializableElement(descriptor, IDX_PATHS, ListSerializer(Path.serializer()), value.paths)
         }
     }
 
@@ -75,25 +91,27 @@ object SectorSerializer : KSerializer<Sector> {
         var walkingTime: UInt? = null
         var image = ""
         var gpx: String? = null
+        var tracks: List<ExternalTrack>? = null
         var point: LatLng? = null
-        var weight: String = ""
+        var weight = ""
         var zoneId = 0
 
         decoder.decodeStructure(descriptor) {
             loop@ while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
-                    0 -> id = decodeIntElement(descriptor, index)
-                    1 -> timestamp = decodeLongElement(descriptor, index)
-                    2 -> displayName = decodeStringElement(descriptor, index)
-                    3 -> kidsApt = decodeBooleanElement(descriptor, index)
-                    4 -> sunTime = decodeSerializableElement(descriptor, index, Sector.SunTime.serializer())
-                    5 -> walkingTime = decodeNullableSerializableElement(descriptor, index, Long.serializer())?.toUInt()
-                    6 -> image = decodeStringElement(descriptor, index)
-                    7 -> gpx = decodeNullableSerializableElement(descriptor, index, String.serializer())
-                    8 -> point = decodeNullableSerializableElement(descriptor, index, LatLng.serializer())
-                    9 -> weight = decodeStringElement(descriptor, index)
-                    10 -> zoneId = decodeIntElement(descriptor, index)
-                    11 -> break // Ignore paths
+                    IDX_ID -> id = decodeIntElement(descriptor, index)
+                    IDX_TIMESTAMP -> timestamp = decodeLongElement(descriptor, index)
+                    IDX_DISPLAY_NAME -> displayName = decodeStringElement(descriptor, index)
+                    IDX_KIDS_APT -> kidsApt = decodeBooleanElement(descriptor, index)
+                    IDX_SUN_TIME -> sunTime = decodeSerializableElement(descriptor, index, Sector.SunTime.serializer())
+                    IDX_WALKING_TIME -> walkingTime = decodeNullableSerializableElement(descriptor, index, Long.serializer())?.toUInt()
+                    IDX_IMAGE -> image = decodeStringElement(descriptor, index)
+                    IDX_GPX -> gpx = decodeNullableSerializableElement(descriptor, index, String.serializer())
+                    IDX_TRACKS -> tracks = decodeNullableSerializableElement(descriptor, index, ListSerializer(ExternalTrack.serializer()))
+                    IDX_POINT -> point = decodeNullableSerializableElement(descriptor, index, LatLng.serializer())
+                    IDX_WEIGHT -> weight = decodeStringElement(descriptor, index)
+                    IDX_ZONE_ID -> zoneId = decodeIntElement(descriptor, index)
+                    IDX_PATHS -> break // Ignore paths
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
                 }
@@ -109,6 +127,7 @@ object SectorSerializer : KSerializer<Sector> {
                 this.walkingTime = walkingTime
                 this.image = Storage.ImagesDir.resolve(image)
                 this.gpx = gpx?.let { Storage.TracksDir.resolve(it) }
+                this.tracks = tracks
                 this.point = point
                 this.weight = weight
                 this.zone = Zone[zoneId]
