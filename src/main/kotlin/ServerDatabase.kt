@@ -48,7 +48,7 @@ class ServerDatabase private constructor() {
          */
         val instance by lazy { ServerDatabase() }
 
-        const val VERSION = 1
+        val version = Migration.all.maxOf { it.to }
 
         /**
          * Configures the database connection parameters from the environment variables.
@@ -80,21 +80,37 @@ class ServerDatabase private constructor() {
         Database.connect(url, driver, username, password)
     }
 
+    private val tables = sequenceOf(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
+
     /**
      * Creates all the missing tables and columns for the database.
      * Should be run as soon as possible in the program's lifecycle.
      */
     suspend fun initialize() = invoke {
-        SchemaUtils.createMissingTablesAndColumns(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
+        val existingTables = SchemaUtils.listTables()
+        for (table in tables) {
+            val tableName = table.nameInDatabaseCase()
+            if (!existingTables.contains(tableName)) {
+                Logger.debug("Creating ${tableName}...")
+                execInBatch(table.createStatement())
+            } else {
+                Logger.debug("- $tableName already exists")
+            }
+        }
 
-        var loops = 0
-        while (Version.updateRequired()) {
-            check(loops++ <= VERSION) { "Version update loop detected" }
-            val version = Version.get()
-            val migration = Migration.all.find { it.from == version }
-                ?: error("No migration found for version $version")
-            Logger.info("Migrating database from version $version to ${migration.to}")
-            with(migration) { this@invoke() }
+        if (Version.isInitialized()) {
+            var loops = 0
+            while (Version.updateRequired()) {
+                check(loops++ <= version) { "Version update loop detected" }
+                val version = Version.get()
+                val migration = Migration.all.find { it.from == version }
+                    ?: error("No migration found for version $version")
+                Logger.info("Migrating database from version $version to ${migration.to}")
+                with(migration) { this@invoke() }
+            }
+        } else {
+            Logger.info("Version not initialized, setting to $version")
+            Version.set(version)
         }
     }
 

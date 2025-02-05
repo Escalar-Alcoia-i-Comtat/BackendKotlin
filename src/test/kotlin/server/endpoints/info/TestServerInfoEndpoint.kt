@@ -23,7 +23,7 @@ class TestServerInfoEndpoint : ApplicationTestBase() {
                 }
                 data.databaseVersion.let {
                     assertNotNull(it)
-                    assertEquals(ServerDatabase.VERSION, it)
+                    assertEquals(ServerDatabase.version, it)
                 }
             }
         }
