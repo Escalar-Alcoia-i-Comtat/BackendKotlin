@@ -1,6 +1,7 @@
 package server.endpoints.patch
 
 import ServerDatabase
+import data.ExternalTrack
 import data.LatLng
 import database.EntityTypes
 import database.entity.Sector
@@ -43,6 +44,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
         var sunTime: Sector.SunTime? = null
         var walkingTime: UInt? = null
         var weight: String? = null
+        var tracks: List<ExternalTrack>? = null
         var zone: Zone? = null
 
         var removePoint = false
@@ -63,6 +65,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                     "kidsApt" -> kidsApt = partData.value.toBoolean()
                     "sunTime" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
                     "weight" -> weight = partData.value
+                    "tracks" -> tracks = ExternalTrack.decodeFromPart(partData)
                     "zone" -> ServerDatabase.instance.query {
                         zone = Zone.findById(partData.value.toInt())
                             ?: return@query Errors.ParentNotFound.let { error = it }
@@ -116,7 +119,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         if (invalidFile) return respondFailure(Errors.InvalidFileType)
 
-        if (areAllNull(displayName, imageFile, gpxFile, kidsApt, point, sunTime, walkingTime, weight, zone) &&
+        if (areAllNull(displayName, imageFile, gpxFile, kidsApt, point, sunTime, walkingTime, weight, tracks, zone) &&
             areAllFalse(removePoint, removeWalkingTime, deleteGpx)
         ) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
@@ -131,6 +134,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             point?.let { sector.point = it }
             walkingTime?.let { sector.walkingTime = it }
             weight?.let { sector.weight = it }
+            tracks?.let { sector.tracks = it }
             zone?.let { sector.zone = it }
 
             if (removePoint) sector.point = null

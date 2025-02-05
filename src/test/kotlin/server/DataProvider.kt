@@ -8,6 +8,7 @@ import data.DataPoint
 import data.Ending
 import data.EndingInclination
 import data.EndingInfo
+import data.ExternalTrack
 import data.Grade
 import data.LatLng
 import data.PitchInfo
@@ -27,6 +28,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.Month
 import kotlin.test.assertNotNull
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToString
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import server.base.StubApplicationTestBuilder
@@ -160,6 +162,9 @@ object DataProvider {
         val kidsApt = true
         val sunTime = Sector.SunTime.Afternoon
         val walkingTime = 12U
+        val tracks = listOf(
+            ExternalTrack(ExternalTrack.Type.Wikiloc, "https://example.com")
+        )
     }
 
     suspend fun provideSampleSector(
@@ -169,6 +174,7 @@ object DataProvider {
         skipKidsApt: Boolean = false,
         skipSunTime: Boolean = false,
         skipImage: Boolean = false,
+        skipTracks: Boolean = false,
         skipGpx: Boolean = false,
         assertion: suspend HttpResponse.() -> Int? = {
             var sectorId: Int? = null
@@ -200,6 +206,8 @@ object DataProvider {
                     append("kidsApt", SampleSector.kidsApt)
                 if (!skipSunTime)
                     append("sunTime", SampleSector.sunTime.name)
+                if (!skipTracks)
+                    append("tracks", SampleSector.tracks.joinToString("\n") { "${it.type.name};${it.url}" })
                 append("walkingTime", SampleSector.walkingTime.toInt())
                 append("point", Json.encodeToString(SampleSector.point))
                 if (!skipImage)
