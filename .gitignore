@@ -42,9 +42,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-### Ignore testing database ###
-testing.db
-testing.db-journal
+### Ignore databases ###
+*.db
 
 ### Ignore secrets file ###
 local.properties
