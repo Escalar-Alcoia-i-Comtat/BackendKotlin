@@ -23,11 +23,15 @@ import system.EnvironmentVariables
  */
 class ServerDatabase private constructor() {
     companion object {
-        /** The URL of the target database. Defaults to an in-memory H2 database. **Doesn't work in production.** */
+        /**
+         * The URL of the target database. Defaults to an in-memory H2 database.
+         * **Doesn't work in production.**
+         */
         var url: String = "jdbc:h2:mem:regular;DB_CLOSE_DELAY=-1;"
 
         /**
-         * The driver to use for performing connections with the database. Defaults to H2. **Doesn't work in production.**
+         * The driver to use for performing connections with the database. Defaults to H2.
+         * **Doesn't work in production.**
          */
         var driver: String = "org.h2.Driver"
 
