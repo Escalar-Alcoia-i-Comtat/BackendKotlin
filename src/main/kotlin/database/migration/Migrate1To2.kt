@@ -1,5 +1,10 @@
 package database.migration
 
+import database.table.Areas
+import database.table.BlockingTable
+import database.table.Paths
+import database.table.Sectors
+import database.table.Zones
 import java.sql.Timestamp
 import org.jetbrains.exposed.sql.Transaction
 
@@ -9,7 +14,7 @@ object Migrate1To2 : Migration(from = 1, to = 2) {
         exec("ALTER TABLE Sectors ADD COLUMN tracks TEXT DEFAULT NULL;")
 
         // Change the default value of timestamp in all tables to be CURRENT_TIMESTAMP
-        val tables = ServerDatabase.tables.map { it.nameInDatabaseCase() }
+        val tables = sequenceOf(Areas, Zones, Sectors, Paths, BlockingTable).map { it.nameInDatabaseCase() }
         for (tableName in tables) {
             Logger.warn("Updating default value of timestamp for $tableName...")
 
