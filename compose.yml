@@ -10,9 +10,9 @@ services:
       DATABASE_DRIVER: "org.postgresql.Driver"
       DATABASE_URL: "jdbc:postgresql://db:5432/postgres"
       DATABASE_USERNAME: "postgres"
-      DATABASE_PASSWORD: "AbfEwudQ8AqhhVVqTiRURpbMmQTW46"
+      DATABASE_PASSWORD: "change-me!"
       # -- Configure Secure Endpoints
-      AUTH_TOKEN: "cwBsTxhjf8mFQrN8zPUpGstmtCeg3z"
+      AUTH_TOKEN: "token"
       # -- Enable Importer
       ENABLE_IMPORTER: "true"
       # -- Configure Crowdin
@@ -45,7 +45,7 @@ services:
     image: postgres
     container_name: escalaralcoiaicomtat_backend_db
     environment:
-      POSTGRES_PASSWORD: AbfEwudQ8AqhhVVqTiRURpbMmQTW46 # This should be modified
+      POSTGRES_PASSWORD: change-me! # This should be modified
       PGUSER: postgres
     networks:
       - escalaralcoiaicomtat_backend
