@@ -346,7 +346,7 @@ object DataProvider {
     }
 
     object SampleBlocking {
-        val timestamp: Instant = Instant.ofEpochMilli(1710086772)
+        val timestamp: Instant = Instant.ofEpochSecond(1710086772)
         val type: BlockingTypes = BlockingTypes.BIRD
         val recurrence: BlockingRecurrenceYearly = BlockingRecurrenceYearly(1U, Month.JANUARY, 2U, Month.FEBRUARY)
         val endDate: LocalDateTime = LocalDateTime.of(2024, 6, 5, 23, 59)
