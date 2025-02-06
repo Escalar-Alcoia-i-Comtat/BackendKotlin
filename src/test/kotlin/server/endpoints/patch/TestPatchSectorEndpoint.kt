@@ -1,9 +1,12 @@
 package server.endpoints.patch
 
+import data.ExternalTrack
 import data.LatLng
 import database.EntityTypes
 import database.entity.Sector
+import database.serialization.Json
 import kotlin.test.Test
+import kotlinx.serialization.builtins.ListSerializer
 import server.base.ApplicationTestBase
 import server.base.testPatching
 import server.base.testPatchingFile
@@ -53,6 +56,16 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
         "weight",
         "0123"
     ) { it.weight }
+
+    @Test
+    fun `test patching Sector - update tracks`() = testPatching(
+        EntityTypes.SECTOR,
+        "tracks",
+        Json.encodeToString(
+            ListSerializer(ExternalTrack.serializer()),
+            listOf(ExternalTrack(ExternalTrack.Type.Wikiloc, "https://example.com"))
+        )
+    ) { it.tracks }
 
     @Test
     fun `test patching Sector - update image`() = testPatchingFile(

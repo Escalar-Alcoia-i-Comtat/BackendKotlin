@@ -121,9 +121,10 @@ abstract class ApplicationTestBase(
      */
     fun test(block: suspend StubApplicationTestBuilder.() -> Unit) = runBlocking<Unit>(dispatcher) {
         // Configure database
-        ServerDatabase.url = "jdbc:sqlite:testing.db"
+        ServerDatabase.url = "jdbc:h2:./testing"
         ServerDatabase.logger = StdOutSqlLogger
-        File("testing.db").takeIf { it.exists() }?.delete()
+        File(".").listFiles { file: File -> file.extension == "db" && file.name.startsWith("testing") }
+            .forEach(File::delete)
 
         // Access the database once to initialize
         ServerDatabase.instance.initialize()

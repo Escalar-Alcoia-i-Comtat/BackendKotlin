@@ -1,7 +1,5 @@
 package database.entity.info
 
-import ServerDatabase.Companion.VERSION
-
 object Version: InfoEntryCompanion<Int> {
     private const val ID = "version"
 
@@ -21,5 +19,5 @@ object Version: InfoEntryCompanion<Int> {
 
     fun set(value: Int) = update(value)
 
-    fun updateRequired(): Boolean = get() != VERSION
+    fun updateRequired(): Boolean = get() != ServerDatabase.version
 }

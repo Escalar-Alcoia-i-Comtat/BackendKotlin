@@ -23,14 +23,17 @@ import system.EnvironmentVariables
  */
 class ServerDatabase private constructor() {
     companion object {
-        /** The URL of the target database. Defaults to an in-memory SQLite database. **Doesn't work in production.** */
-        var url: String = "jdbc:sqlite:file:test?mode=memory&cache=shared"
+        /**
+         * The URL of the target database. Defaults to an in-memory H2 database.
+         * **Doesn't work in production.**
+         */
+        var url: String = "jdbc:h2:mem:regular;DB_CLOSE_DELAY=-1;"
 
         /**
-         * The driver to use for performing connections with the database. Defaults to SQLite. **Doesn't work in
-         * production.**
+         * The driver to use for performing connections with the database. Defaults to H2.
+         * **Doesn't work in production.**
          */
-        var driver: String = "org.sqlite.JDBC"
+        var driver: String = "org.h2.Driver"
 
         /** The username to use for connecting to the database. */
         var username: String = ""
@@ -48,7 +51,7 @@ class ServerDatabase private constructor() {
          */
         val instance by lazy { ServerDatabase() }
 
-        const val VERSION = 1
+        val version = Migration.all.maxOf { it.to }
 
         /**
          * Configures the database connection parameters from the environment variables.
@@ -74,6 +77,8 @@ class ServerDatabase private constructor() {
         }
 
         suspend operator fun <T> invoke(block: suspend Transaction.() -> T): T = instance.query(block)
+
+        val tables = sequenceOf(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
     }
 
     private val database by lazy {
@@ -85,16 +90,30 @@ class ServerDatabase private constructor() {
      * Should be run as soon as possible in the program's lifecycle.
      */
     suspend fun initialize() = invoke {
-        SchemaUtils.createMissingTablesAndColumns(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
+        val existingTables = SchemaUtils.listTables()
+        for (table in tables) {
+            val tableName = table.nameInDatabaseCase()
+            if (!existingTables.contains(tableName)) {
+                Logger.debug("Creating ${tableName}...")
+                execInBatch(table.createStatement())
+            } else {
+                Logger.debug("- $tableName already exists")
+            }
+        }
 
-        var loops = 0
-        while (Version.updateRequired()) {
-            check(loops++ <= VERSION) { "Version update loop detected" }
-            val version = Version.get()
-            val migration = Migration.all.find { it.from == version }
-                ?: error("No migration found for version $version")
-            Logger.info("Migrating database from version $version to ${migration.to}")
-            with(migration) { this@invoke() }
+        if (Version.isInitialized()) {
+            var loops = 0
+            while (Version.updateRequired()) {
+                check(loops++ <= version) { "Version update loop detected" }
+                val version = Version.get()
+                val migration = Migration.all.find { it.from == version }
+                    ?: error("No migration found for version $version")
+                Logger.info("Migrating database from version $version to ${migration.to}")
+                with(migration) { this@invoke() }
+            }
+        } else {
+            Logger.info("Version not initialized, setting to $version")
+            Version.set(version)
         }
     }
 

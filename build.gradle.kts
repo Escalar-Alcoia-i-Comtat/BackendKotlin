@@ -42,7 +42,7 @@ dependencies {
 
     // Database engines
     implementation(libs.postgresql)
-    implementation(libs.sqlite)
+    implementation(libs.h2)
 
     // For displaying progress bar in terminal
     implementation(libs.progressbar)

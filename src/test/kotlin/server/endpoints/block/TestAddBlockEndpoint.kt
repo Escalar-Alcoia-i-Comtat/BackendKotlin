@@ -2,6 +2,7 @@ package server.endpoints.block
 
 import ServerDatabase
 import assertions.assertFailure
+import assertions.assertLocalDateEquals
 import assertions.assertSuccess
 import data.BlockingRecurrenceYearly
 import data.BlockingTypes
@@ -137,7 +138,7 @@ class TestAddBlockEndpoint : ApplicationTestBase() {
                 assertNotNull(it)
                 assertEquals(BlockingTypes.BUILD, it.element.type)
                 assertNull(it.element.recurrence)
-                assertEquals(endDate.truncatedTo(ChronoUnit.MILLIS), it.element.endDate)
+                assertLocalDateEquals(endDate, it.element.endDate)
             }
         }
 
@@ -149,7 +150,7 @@ class TestAddBlockEndpoint : ApplicationTestBase() {
             assertNotNull(block)
             assertEquals(BlockingTypes.BUILD, block.type)
             assertNull(block.recurrence)
-            assertEquals(endDate?.truncatedTo(ChronoUnit.MILLIS), block.endDate)
+            assertLocalDateEquals(endDate, block.endDate)
         }
 
         assertNotNull(blockId)

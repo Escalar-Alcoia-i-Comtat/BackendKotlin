@@ -168,7 +168,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
             }
         }
 
-        if (path.description != null) {
+        if (description != null) {
             Localization.synchronizePathDescription(path)
         }
 

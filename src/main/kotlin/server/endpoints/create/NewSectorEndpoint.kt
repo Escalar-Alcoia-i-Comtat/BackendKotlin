@@ -1,15 +1,18 @@
 package server.endpoints.create
 
 import ServerDatabase
+import data.ExternalTrack
 import data.LatLng
 import database.EntityTypes
 import database.entity.Sector
 import database.entity.Zone
 import database.entity.info.LastUpdate
+import database.serialization.Json
 import distribution.Notifier
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.RoutingContext
 import java.io.File
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import server.endpoints.SecureEndpointBase
 import server.error.Error
@@ -30,6 +33,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
         var sunTime: Sector.SunTime? = null
         var walkingTime: UInt? = null
         var weight: String? = null
+        var tracks: List<ExternalTrack>? = null
         var zone: Zone? = null
 
         var imageFile: File? = null
@@ -45,6 +49,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                     "sunTime" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
                     "walkingTime" -> walkingTime = partData.value.toUIntOrNull()
                     "weight" -> weight = partData.value
+                    "tracks" -> tracks = ExternalTrack.decodeFromPart(partData)
                     "zone" -> ServerDatabase.instance.query {
                         zone = Zone.findById(partData.value.toInt()) ?: return@query ParentNotFound.let { error = it }
                     }
@@ -77,6 +82,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                 this.walkingTime = walkingTime
                 this.image = imageFile!!
                 this.gpx = gpxFile
+                this.tracks = tracks
                 weight?.let { this.weight = it }
                 this.zone = zone!!
             }

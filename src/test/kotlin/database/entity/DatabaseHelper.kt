@@ -30,6 +30,8 @@ object DatabaseHelper {
         webUrl: String = DataProvider.SampleArea.webUrl
     ): Area = ServerDatabase.instance.query {
         Area.new {
+            this.timestamp = Instant.ofEpochSecond(1738829281)
+
             this.displayName = displayName
             this.webUrl = URI.create(webUrl).toURL()
 

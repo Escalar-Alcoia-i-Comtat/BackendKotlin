@@ -38,6 +38,7 @@ class TestSectorCreationEndpoint : ApplicationTestBase() {
             assertEquals(DataProvider.SampleSector.kidsApt, sector.kidsApt)
             assertEquals(DataProvider.SampleSector.walkingTime, sector.walkingTime)
             assertEquals(DataProvider.SampleSector.sunTime, sector.sunTime)
+            assertEquals(DataProvider.SampleSector.tracks, sector.tracks)
 
             val imageFile = sector.image
             assertTrue(imageFile.exists())
