@@ -1,4 +1,4 @@
-FROM amazoncorretto:17-alpine AS build
+FROM amazoncorretto:21-alpine AS build
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
 COPY --chown=gradle:gradle . /home/gradle/src
@@ -7,7 +7,7 @@ WORKDIR /home/gradle/src
 # and boot JAR by default.
 RUN ./gradlew buildFatJar --no-daemon
 
-FROM amazoncorretto:17-alpine AS runtime
+FROM amazoncorretto:21-alpine AS runtime
 EXPOSE 8080:8080
 RUN apk add curl
 RUN mkdir /app
