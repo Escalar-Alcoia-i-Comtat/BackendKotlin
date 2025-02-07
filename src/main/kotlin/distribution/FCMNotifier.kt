@@ -48,6 +48,7 @@ internal object FCMNotifier : Notifier {
     override fun notify(topic: String, type: EntityTypes<*>, id: Int) {
         // Run only if the app is initialized
         if (this::app.isInitialized) {
+            Logger.info("Sending push notification to $topic... Type: ${type.name}, ID: $id")
             val message = Message.builder()
                 .setTopic(topic)
                 .putData(DATA_TYPE, type.name)
