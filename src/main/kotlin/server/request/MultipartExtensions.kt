@@ -1,6 +1,7 @@
 package server.request
 
 import io.ktor.http.content.PartData
+import io.ktor.utils.io.jvm.javaio.copyTo
 import io.ktor.utils.io.readBuffer
 import java.io.File
 import java.io.IOException
@@ -27,10 +28,8 @@ suspend fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null, overwrite:
         targetFile.delete()
     }
 
-    provider().readBuffer().use { input ->
-        targetFile.outputStream().use { output ->
-            input.copyTo(output)
-        }
+    targetFile.outputStream().use { output ->
+        provider().copyTo(output)
     }
 
     return targetFile
