@@ -15,7 +15,9 @@ import system.Package
 class TestServerInfoEndpoint : ApplicationTestBase() {
     @Test
     fun `test server information`() = test {
-        LastUpdate.set(Instant.ofEpochSecond(1747072131))
+        ServerDatabase.instance {
+            LastUpdate.set(Instant.ofEpochSecond(1747072131))
+        }
 
         client.get("/info").apply {
             assertSuccess<ServerInfoResponseData> { data ->
