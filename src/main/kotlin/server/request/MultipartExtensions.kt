@@ -2,35 +2,38 @@ package server.request
 
 import io.ktor.http.content.PartData
 import io.ktor.utils.io.jvm.javaio.copyTo
-import io.ktor.utils.io.readBuffer
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
 import java.util.UUID
-import kotlinx.io.copyTo
+import kotlin.io.path.exists
+import kotlin.io.path.outputStream
 
 /**
  * Saves the FileItem to a specified root directory. Creates any necessary parent directories.
  *
  * @param rootDir The root directory to save the FileItem to.
  * @param uuid The UUID for the name of the file. Defaults to a random one.
- * @param overwrite If `true`, the file will be removed before writing if exists.
  *
  * @throws IOException If there's a problem while writing to the file system.
  */
-suspend fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null, overwrite: Boolean = true): File {
+suspend fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null): File {
     rootDir.mkdirs()
 
     val fileExtension = originalFileName?.takeLastWhile { it != '.' }
     val fileName = "${uuid ?: UUID.randomUUID()}.$fileExtension"
-    val targetFile = File(rootDir, fileName)
+    val targetFile = File(rootDir, fileName).toPath()
 
-    if (overwrite && targetFile.exists()) {
-        targetFile.delete()
+    if (targetFile.exists()) {
+        Files.delete(targetFile)
     }
+    Files.createDirectories(targetFile.parent)
 
     targetFile.outputStream().use { output ->
         provider().copyTo(output)
     }
 
-    return targetFile
+    assert(targetFile.exists())
+
+    return targetFile.toFile()
 }

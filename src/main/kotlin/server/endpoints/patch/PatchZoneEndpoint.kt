@@ -15,9 +15,8 @@ import io.ktor.server.util.getValue
 import java.io.File
 import java.net.URI
 import java.time.Instant
-import java.util.UUID
-import kotlinx.serialization.encodeToString
 import server.endpoints.SecureEndpointBase
+import server.error.Error
 import server.error.Errors
 import server.request.save
 import server.response.respondFailure
@@ -48,6 +47,7 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
         var imageFile: File? = null
         var kmzFile: File? = null
 
+        var error: Error? = null
         receiveMultipart(
             forEachFormItem = { partData ->
                 when (partData.name) {
@@ -73,16 +73,25 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
             forEachFileItem = { partData ->
                 when (partData.name) {
                     "image" -> {
-                        val uuid = ServerDatabase.instance.query { zone.image.nameWithoutExtension }
-                        imageFile = partData.save(Storage.ImagesDir, UUID.fromString(uuid))
+                        if (zone.image.exists() && !zone.image.delete()) {
+                            error = Errors.CouldNotOverride
+                            return@receiveMultipart
+                        }
+                        imageFile = partData.save(Storage.ImagesDir)
                     }
                     "kmz" -> {
-                        val uuid = ServerDatabase.instance.query { zone.kmz.nameWithoutExtension }
-                        kmzFile = partData.save(Storage.TracksDir, UUID.fromString(uuid))
+                        if (zone.kmz.exists() && !zone.kmz.delete()) {
+                            error = Errors.CouldNotOverride
+                            return@receiveMultipart
+                        }
+                        kmzFile = partData.save(Storage.TracksDir)
                     }
                 }
             }
         )
+        if (error != null) {
+            return respondFailure(error)
+        }
 
         points?.let { println("New Points: [${Json.encodeToString(it)}]") }
 
@@ -98,6 +107,9 @@ object PatchZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
             point?.let { zone.point = it }
             points?.let { zone.points = it }
             area?.let { zone.area = it }
+
+            imageFile?.let { zone.image = it }
+            kmzFile?.let { zone.kmz = it }
 
             if (removePoint) zone.point = null
 

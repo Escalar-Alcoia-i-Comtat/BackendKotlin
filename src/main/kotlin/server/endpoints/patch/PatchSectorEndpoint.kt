@@ -15,7 +15,6 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
 import java.io.File
 import java.time.Instant
-import java.util.UUID
 import server.endpoints.SecureEndpointBase
 import server.error.Error
 import server.error.Errors
@@ -87,8 +86,11 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             forEachFileItem = { partData ->
                 when (partData.name) {
                     "image" -> {
-                        val uuid = ServerDatabase.instance.query { sector.image.nameWithoutExtension }
-                        imageFile = partData.save(Storage.ImagesDir, UUID.fromString(uuid))
+                        if (sector.image.exists() && !sector.image.delete()) {
+                            error = Errors.CouldNotOverride
+                            return@receiveMultipart
+                        }
+                        imageFile = partData.save(Storage.ImagesDir)
                     }
                     "gpx" -> {
                         val contentType = partData.headers[HttpHeaders.ContentType]
@@ -102,11 +104,11 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                                 // If the size is 0, delete the gpx file
                                 deleteGpx = true
                             } else {
-                                val uuid = ServerDatabase.instance.query { sector.gpx?.nameWithoutExtension }
-                                gpxFile = partData.save(
-                                    rootDir = Storage.TracksDir,
-                                    uuid = uuid?.let(UUID::fromString) ?: UUID.randomUUID()
-                                )
+                                if (sector.gpx?.exists() == true && sector.gpx?.delete() != true) {
+                                    error = Errors.CouldNotOverride
+                                    return@receiveMultipart
+                                }
+                                gpxFile = partData.save(Storage.TracksDir)
                             }
                         }
                     }
@@ -136,6 +138,9 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             weight?.let { sector.weight = it }
             tracks?.let { sector.tracks = it }
             zone?.let { sector.zone = it }
+
+            imageFile?.let { sector.image = it }
+            gpxFile?.let { sector.gpx = it }
 
             if (removePoint) sector.point = null
             if (removeWalkingTime) sector.walkingTime = null
