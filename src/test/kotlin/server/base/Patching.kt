@@ -114,8 +114,16 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
     assertNotNull(oldElement)
     val oldFile = when (oldElement) {
         is Area -> if (propertyName == "image") oldElement.image else error("Invalid property name: $propertyName")
-        is Zone -> if (propertyName == "image") oldElement.image else if (propertyName == "kmz") oldElement.kmz else error("Invalid property name: $propertyName")
-        is Sector -> if (propertyName == "image") oldElement.image else if (propertyName == "gpx") oldElement.gpx else error("Invalid property name: $propertyName")
+        is Zone -> when(propertyName) {
+            "image" -> oldElement.image
+            "kmz" -> oldElement.kmz
+            else -> error("Invalid property name: $propertyName")
+        }
+        is Sector -> when(propertyName) {
+            "image" -> oldElement.image
+            "gpx" -> oldElement.gpx
+            else -> error("Invalid property name: $propertyName")
+        }
         else -> error("Invalid element type: ${oldElement::class.simpleName}")
     }
 
