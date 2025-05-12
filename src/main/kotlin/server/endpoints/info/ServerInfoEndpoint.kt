@@ -1,6 +1,7 @@
 package server.endpoints.info
 
 import ServerDatabase
+import database.entity.info.LastUpdate
 import database.entity.info.Version
 import io.ktor.server.routing.RoutingContext
 import server.endpoints.EndpointBase
@@ -14,9 +15,10 @@ object ServerInfoEndpoint : EndpointBase("/info") {
         val uuid = EnvironmentVariables.Environment.ServerUUID.value!!
         val version = Package.getVersion()
         val databaseVersion = ServerDatabase.instance { Version.get() }
+        val lastUpdate = ServerDatabase.instance { LastUpdate.get() }
 
         respondSuccess(
-            data = ServerInfoResponseData(version, uuid, databaseVersion)
+            data = ServerInfoResponseData(version, uuid, databaseVersion, lastUpdate)
         )
     }
 }
