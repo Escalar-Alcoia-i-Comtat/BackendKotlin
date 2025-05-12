@@ -31,7 +31,7 @@ class TestServerInfoEndpoint : ApplicationTestBase() {
                 }
                 data.lastUpdate.let {
                     assertNotNull(it)
-                    assertEquals(1747072131, it.toEpochMilli())
+                    assertEquals(1747072131, it.epochSecond)
                 }
             }
         }
