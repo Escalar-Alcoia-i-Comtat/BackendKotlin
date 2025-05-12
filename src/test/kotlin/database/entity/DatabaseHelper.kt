@@ -36,7 +36,7 @@ object DatabaseHelper {
             this.webUrl = URI.create(webUrl).toURL()
 
             // Required, but not used
-            image = createTestFile(Storage.ImagesDir, "abc")
+            image = createTestFile(Storage.ImagesDir, "8eb8e766-373a-43cd-9378-097b850a7b60")
         }
     }
 

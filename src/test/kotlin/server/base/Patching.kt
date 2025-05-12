@@ -3,7 +3,10 @@ package server.base
 import ServerDatabase
 import assertions.assertSuccess
 import database.EntityTypes
+import database.entity.Area
 import database.entity.BaseEntity
+import database.entity.Sector
+import database.entity.Zone
 import database.entity.info.LastUpdate
 import database.serialization.Json
 import distribution.Notifier
@@ -19,7 +22,6 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import server.base.patch.PropertyValuePair
 import server.response.files.RequestFilesResponseData
@@ -108,8 +110,17 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
     val elementId = type.provide(this)
     assertNotNull(elementId)
 
+    val oldElement = ServerDatabase.instance.query { type.getter(elementId) }
+    assertNotNull(oldElement)
+    val oldFile = when (oldElement) {
+        is Area -> if (propertyName == "image") oldElement.image else error("Invalid property name: $propertyName")
+        is Zone -> if (propertyName == "image") oldElement.image else if (propertyName == "kmz") oldElement.kmz else error("Invalid property name: $propertyName")
+        is Sector -> if (propertyName == "image") oldElement.image else if (propertyName == "gpx") oldElement.gpx else error("Invalid property name: $propertyName")
+        else -> error("Invalid element type: ${oldElement::class.simpleName}")
+    }
+
     val lastUpdate = ServerDatabase.instance.query { LastUpdate.get() }
-    val oldTimestamp = ServerDatabase.instance.query { type.getter(elementId).timestamp }
+    val oldTimestamp = oldElement.timestamp
 
     val fileBytes = if (resourcePath != null) this::class.java.getResourceAsStream(resourcePath)!!.use {
         it.readBytes()
@@ -135,9 +146,36 @@ fun <Type: BaseEntity> ApplicationTestBase.testPatchingFile(
 
     var elementFile: String? = null
 
+    assertTrue { oldFile?.exists() != true }
+
     ServerDatabase.instance.query {
         val element = type.getter(elementId)
         assertNotNull(element)
+        when(propertyName) {
+            "image" -> {
+                val newImage = when (element) {
+                    is Area -> element.image
+                    is Zone -> element.image
+                    is Sector -> element.image
+                    else -> error("Invalid element type: ${oldElement::class.simpleName}")
+                }
+                assertNotEquals(oldFile?.nameWithoutExtension, newImage.nameWithoutExtension)
+            }
+            "kmz" -> {
+                val newImage = when (element) {
+                    is Zone -> element.kmz
+                    else -> error("Invalid element type: ${oldElement::class.simpleName}")
+                }
+                assertNotEquals(oldFile?.nameWithoutExtension, newImage.nameWithoutExtension)
+            }
+            "gpx" -> {
+                val newImage = when (element) {
+                    is Sector -> element.gpx
+                    else -> error("Invalid element type: ${oldElement::class.simpleName}")
+                }
+                assertNotEquals(oldFile?.nameWithoutExtension, newImage?.nameWithoutExtension)
+            }
+        }
 
         val file = fileAccessor(element)
         if (resourcePath == null && file != null) {
