@@ -9,7 +9,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
-import server.endpoints.EndpointBase
+import server.endpoints.SecureEndpointBase
 import server.error.Errors
 import server.request.AddBlockRequest
 import server.response.respondFailure
@@ -17,7 +17,7 @@ import server.response.respondSuccess
 import server.response.update.UpdateResponseData
 import utils.areAllNull
 
-object PatchBlockEndpoint : EndpointBase("/block/{blockId}") {
+object PatchBlockEndpoint : SecureEndpointBase("/block/{blockId}") {
     override suspend fun RoutingContext.endpoint() {
         val blockId: Int by call.parameters
 
