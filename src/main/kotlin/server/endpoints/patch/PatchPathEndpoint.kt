@@ -17,7 +17,6 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
 import java.io.File
 import java.time.Instant
-import localization.Localization
 import server.endpoints.SecureEndpointBase
 import server.error.Error
 import server.error.Errors
@@ -287,10 +286,6 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
             }
 
             path.timestamp = Instant.now()
-        }
-
-        if (path.description != null) {
-            Localization.synchronizePathDescription(path)
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }

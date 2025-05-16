@@ -10,7 +10,6 @@ import distribution.Notifier
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
 import java.io.File
-import localization.Localization
 import server.endpoints.SecureEndpointBase
 import server.error.Errors
 import server.response.respondFailure
@@ -31,9 +30,6 @@ object DeletePathEndpoint : SecureEndpointBase("/path/{pathId}") {
                 Notifier.getInstance().notifyDeleted(EntityTypes.BLOCKING, it.id.value)
             }
         }
-
-        // Delete the path's description from Crowdin if any
-        Localization.deletePathDescription(path)
 
         // Delete the path's images if any
         path.images?.forEach(File::delete)

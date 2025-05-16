@@ -47,9 +47,6 @@ dependencies {
     // For displaying progress bar in terminal
     implementation(libs.progressbar)
 
-    // Crowdin localization
-    implementation(libs.crowdin)
-
     // WebP image support
     implementation(libs.imageio.webp)
 
