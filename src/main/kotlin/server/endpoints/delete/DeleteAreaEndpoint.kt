@@ -16,7 +16,7 @@ object DeleteAreaEndpoint : SecureEndpointBase("/area/{areaId}") {
     override suspend fun RoutingContext.endpoint() {
         val areaId: Int by call.parameters
 
-        val area = ServerDatabase.instance.query { Area.findById(areaId)?.also(Area::delete) }
+        val area = ServerDatabase.instance.query { Area.findById(areaId)?.also(Area::deleteRecursively) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
         // Delete the image file

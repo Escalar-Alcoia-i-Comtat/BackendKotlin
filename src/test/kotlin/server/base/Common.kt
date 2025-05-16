@@ -10,43 +10,52 @@ import database.entity.Zone
 import kotlin.test.assertNotNull
 import server.DataProvider
 
-suspend fun EntityTypes<*>.provide(builder: StubApplicationTestBuilder): Int? {
-    when (this) {
+suspend fun EntityTypes<*>.provide(
+    builder: StubApplicationTestBuilder,
+    provideParent: (suspend () -> Int?)? = null,
+    provideChildren: (suspend (parentId: Int) -> Int?)? = null,
+): Int? {
+    return when (this) {
         EntityTypes.AREA -> {
-            return DataProvider.provideSampleArea(builder)
+            DataProvider.provideSampleArea(builder)
         }
 
         EntityTypes.ZONE -> {
-            val areaId = DataProvider.provideSampleArea(builder)
+            val areaId = provideParent?.invoke() ?: DataProvider.provideSampleArea(builder)
             assertNotNull(areaId)
-            return DataProvider.provideSampleZone(builder, areaId)
+
+            DataProvider.provideSampleZone(builder, areaId)
         }
 
         EntityTypes.SECTOR -> {
-            val areaId = DataProvider.provideSampleArea(builder)
-            assertNotNull(areaId)
+            val zoneId = provideParent?.invoke() ?: run {
+                val areaId = DataProvider.provideSampleArea(builder)
+                assertNotNull(areaId)
 
-            val zoneId = DataProvider.provideSampleZone(builder, areaId)
+                DataProvider.provideSampleZone(builder, areaId)
+            }
             assertNotNull(zoneId)
 
-            return DataProvider.provideSampleSector(builder, zoneId)
+            DataProvider.provideSampleSector(builder, zoneId)
         }
 
         EntityTypes.PATH -> {
-            val areaId = DataProvider.provideSampleArea(builder)
-            assertNotNull(areaId)
+            val sectorId = provideParent?.invoke() ?: run {
+                val areaId = DataProvider.provideSampleArea(builder)
+                assertNotNull(areaId)
 
-            val zoneId = DataProvider.provideSampleZone(builder, areaId)
-            assertNotNull(zoneId)
+                val zoneId = DataProvider.provideSampleZone(builder, areaId)
+                assertNotNull(zoneId)
 
-            val sectorId = DataProvider.provideSampleSector(builder, zoneId)
+                DataProvider.provideSampleSector(builder, zoneId)
+            }
             assertNotNull(sectorId)
 
-            return DataProvider.provideSamplePath(builder, sectorId)
+            DataProvider.provideSamplePath(builder, sectorId)
         }
 
         else -> error("Not implemented")
-    }
+    }.also { id -> id?.let { provideChildren?.invoke(it) } }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -57,6 +66,5 @@ fun <Type : BaseEntity> EntityTypes<Type>.getter(id: Int): Type {
         EntityTypes.SECTOR -> Sector[id] as Type
         EntityTypes.PATH -> Path[id] as Type
         EntityTypes.BLOCKING -> Blocking[id] as Type
-        else -> error("Not implemented")
     }
 }

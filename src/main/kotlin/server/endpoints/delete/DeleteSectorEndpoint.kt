@@ -16,7 +16,7 @@ object DeleteSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
     override suspend fun RoutingContext.endpoint() {
         val sectorId: Int by call.parameters
 
-        val sector = ServerDatabase.instance.query { Sector.findById(sectorId)?.also(Sector::delete) }
+        val sector = ServerDatabase.instance.query { Sector.findById(sectorId)?.also(Sector::deleteRecursively) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
         // Delete the image file and GPX if exists
