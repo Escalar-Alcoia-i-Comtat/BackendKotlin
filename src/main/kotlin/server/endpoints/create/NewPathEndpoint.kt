@@ -15,7 +15,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.RoutingContext
 import java.io.File
 import kotlinx.serialization.json.Json
-import localization.Localization
 import server.endpoints.SecureEndpointBase
 import server.error.Error
 import server.error.Errors
@@ -166,10 +165,6 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
                 this.images = imageFiles
                 this.sector = sector!!
             }
-        }
-
-        if (description != null) {
-            Localization.synchronizePathDescription(path)
         }
 
         ServerDatabase.instance.query { LastUpdate.set() }

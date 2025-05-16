@@ -1,6 +1,5 @@
 package server.response
 
-import com.crowdin.client.core.http.exceptions.HttpBadRequestException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond
@@ -50,20 +49,6 @@ suspend fun ApplicationCall.respondFailure(throwable: Throwable) {
         ).copy(
             type = throwable::class.java.simpleName,
             stackTrace = throwable.stackTrace.map { it.toString() },
-            errors = if (throwable is HttpBadRequestException) {
-                throwable.errors.map { errorHolder ->
-                    val holdingError = errorHolder.error
-                    Error.ErrorMeta(
-                        key = holdingError.key,
-                        errors = holdingError.errors.map { error ->
-                            Error.ErrorMeta.Value(
-                                code = error.code,
-                                message = error.message
-                            )
-                        }
-                    )
-                }
-            } else null
         )
     )
 }

@@ -3,7 +3,6 @@ import io.ktor.server.application.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.runBlocking
-import localization.Localization
 import server.plugins.configureEndpoints
 import server.plugins.installPlugins
 import system.EnvironmentVariables
@@ -19,14 +18,7 @@ fun main() {
     Logger.info("Connecting to the database, and creating tables...")
     runBlocking { ServerDatabase.instance.initialize() }
 
-    Logger.info("Initializing Crowdin connection...")
-    Localization.init()
-
     Notifier.getInstance().initialize()
-
-    runBlocking {
-        Localization.synchronizePathDescriptions()
-    }
 
     Logger.info("Starting web server...")
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
