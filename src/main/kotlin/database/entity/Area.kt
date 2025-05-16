@@ -80,7 +80,7 @@ class Area(id: EntityID<Int>) : DataEntity(id), ResponseData {
     /** **Must be in a transaction.** */
     fun deleteRecursively() {
         for (zone in Zone.find { Zones.area eq id }) {
-            zone.delete()
+            zone.deleteRecursively()
         }
         delete()
     }
