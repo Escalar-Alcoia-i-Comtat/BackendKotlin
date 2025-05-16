@@ -12,8 +12,8 @@ import server.DataProvider
 
 suspend fun EntityTypes<*>.provide(
     builder: StubApplicationTestBuilder,
-    provideParent: (suspend () -> Int?)? = null,
-    provideChildren: (suspend (parentId: Int) -> Int?)? = null,
+    provideParent: (suspend StubApplicationTestBuilder.() -> Int?)? = null,
+    provideChildren: (suspend StubApplicationTestBuilder.(parentId: Int) -> Int?)? = null,
 ): Int? {
     return when (this) {
         EntityTypes.AREA -> {
@@ -21,14 +21,14 @@ suspend fun EntityTypes<*>.provide(
         }
 
         EntityTypes.ZONE -> {
-            val areaId = provideParent?.invoke() ?: DataProvider.provideSampleArea(builder)
+            val areaId = provideParent?.invoke(builder) ?: DataProvider.provideSampleArea(builder)
             assertNotNull(areaId)
 
             DataProvider.provideSampleZone(builder, areaId)
         }
 
         EntityTypes.SECTOR -> {
-            val zoneId = provideParent?.invoke() ?: run {
+            val zoneId = provideParent?.invoke(builder) ?: run {
                 val areaId = DataProvider.provideSampleArea(builder)
                 assertNotNull(areaId)
 
@@ -40,7 +40,7 @@ suspend fun EntityTypes<*>.provide(
         }
 
         EntityTypes.PATH -> {
-            val sectorId = provideParent?.invoke() ?: run {
+            val sectorId = provideParent?.invoke(builder) ?: run {
                 val areaId = DataProvider.provideSampleArea(builder)
                 assertNotNull(areaId)
 
@@ -55,7 +55,7 @@ suspend fun EntityTypes<*>.provide(
         }
 
         else -> error("Not implemented")
-    }.also { id -> id?.let { provideChildren?.invoke(it) } }
+    }.also { id -> id?.let { provideChildren?.invoke(builder, it) } }
 }
 
 @Suppress("UNCHECKED_CAST")

@@ -25,11 +25,7 @@ fun <EntityType: BaseEntity> ApplicationTestBase.testDeleting(
     provideParent: (suspend StubApplicationTestBuilder.() -> Int?)? = null,
     provideChildren: (suspend StubApplicationTestBuilder.(parentId: Int) -> Int?)? = null,
 ) = test {
-    val elementId = type.provide(
-        this,
-        provideParent?.let { func -> { func(this) } },
-        provideChildren?.let { func -> { func(this, it) } },
-    )
+    val elementId = type.provide(this, provideParent, provideChildren)
     assertNotNull(elementId)
 
     val element = ServerDatabase.instance.query { type.getter(elementId) }
