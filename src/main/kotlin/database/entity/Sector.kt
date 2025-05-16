@@ -2,6 +2,7 @@ package database.entity
 
 import data.LatLng
 import database.serialization.SectorSerializer
+import database.table.Paths
 import database.table.Sectors
 import java.io.File
 import java.time.Instant
@@ -93,6 +94,14 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
         result = 31 * result + (weight.hashCode())
         result = 31 * result + zone.id.value.hashCode()
         return result
+    }
+
+    /** **Must be in a transaction.** */
+    fun deleteRecursively() {
+        for (path in Path.find { Paths.sector eq id }) {
+            path.delete()
+        }
+        delete()
     }
 
 

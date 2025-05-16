@@ -21,9 +21,11 @@ import server.error.Errors
 
 fun <EntityType: BaseEntity> ApplicationTestBase.testDeleting(
     type: EntityTypes<EntityType>,
-    fileRemovals: List<FileRemoval<EntityType>> = emptyList()
+    fileRemovals: List<FileRemoval<EntityType>> = emptyList(),
+    provideParent: (suspend StubApplicationTestBuilder.() -> Int?)? = null,
+    provideChildren: (suspend StubApplicationTestBuilder.(parentId: Int) -> Int?)? = null,
 ) = test {
-    val elementId = type.provide(this)
+    val elementId = type.provide(this, provideParent, provideChildren)
     assertNotNull(elementId)
 
     val element = ServerDatabase.instance.query { type.getter(elementId) }

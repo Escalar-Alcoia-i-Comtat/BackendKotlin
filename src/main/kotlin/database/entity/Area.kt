@@ -2,6 +2,7 @@ package database.entity
 
 import database.serialization.AreaSerializer
 import database.table.Areas
+import database.table.Zones
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -75,4 +76,13 @@ class Area(id: EntityID<Int>) : DataEntity(id), ResponseData {
         result = 31 * result + webUrl.toString().hashCode()
         return result
     }
+
+    /** **Must be in a transaction.** */
+    fun deleteRecursively() {
+        for (zone in Zone.find { Zones.area eq id }) {
+            zone.deleteRecursively()
+        }
+        delete()
+    }
+
 }

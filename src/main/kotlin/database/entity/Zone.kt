@@ -3,6 +3,7 @@ package database.entity
 import data.DataPoint
 import data.LatLng
 import database.serialization.ZoneSerializer
+import database.table.Sectors
 import database.table.Zones
 import java.io.File
 import java.net.URL
@@ -104,5 +105,12 @@ class Zone(id: EntityID<Int>): DataEntity(id), ResponseData {
         return result
     }
 
+    /** **Must be in a transaction.** */
+    fun deleteRecursively() {
+        for (sector in Sector.find { Sectors.zone eq id }) {
+            sector.deleteRecursively()
+        }
+        delete()
+    }
 
 }

@@ -16,7 +16,7 @@ object DeleteZoneEndpoint : SecureEndpointBase("/zone/{zoneId}") {
     override suspend fun RoutingContext.endpoint() {
         val zoneId: Int by call.parameters
 
-        val zone = ServerDatabase.instance.query { Zone.findById(zoneId)?.also(Zone::delete) }
+        val zone = ServerDatabase.instance.query { Zone.findById(zoneId)?.also(Zone::deleteRecursively) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
         // Delete the image and KMX files
