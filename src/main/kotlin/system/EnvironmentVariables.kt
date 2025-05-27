@@ -89,10 +89,13 @@ object EnvironmentVariables {
     @KoverIgnore
     object Localization {
         @KoverIgnore
-        data object CrowdinToken : EnvironmentVariable("CROWDIN_TOKEN")
-        @KoverIgnore
-        data object CrowdinOrganization : EnvironmentVariable("CROWDIN_ORGANIZATION")
-        @KoverIgnore
-        data object CrowdinProjectId : EnvironmentVariable("CROWDIN_PROJECT_ID")
+        object Weblate {
+            @KoverIgnore
+            data object Url : EnvironmentVariable("WEBLATE_URL")
+            @KoverIgnore
+            data object ProjectSlug : EnvironmentVariable("WEBLATE_PROJECT_SLUG")
+            @KoverIgnore
+            data object PathsComponentSlug : EnvironmentVariable("WEBLATE_PATHS_COMPONENT_SLUG", "paths")
+        }
     }
 }
