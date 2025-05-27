@@ -84,6 +84,18 @@ object EnvironmentVariables {
                 "/var/lib/escalaralcoiaicomtat/google-services.json"
             )
         }
+
+        @KoverIgnore
+        object SendGrid {
+            @KoverIgnore
+            data object ApiKey : EnvironmentVariable("SENDGRID_API_KEY")
+
+            @KoverIgnore
+            data object FromEmail : EnvironmentVariable("FROM_EMAIL", "noreply@escalaralcoiaicomtat.org")
+
+            @KoverIgnore
+            data object ToEmail : EnvironmentVariable("TO_EMAIL", "report@escalaralcoiaicomtat.org")
+        }
     }
 
     @KoverIgnore
