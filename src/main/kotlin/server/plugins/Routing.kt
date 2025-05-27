@@ -13,6 +13,7 @@ import server.endpoints.blocking.DeleteBlockEndpoint
 import server.endpoints.blocking.GetAllBlocksEndpoint
 import server.endpoints.blocking.GetBlockEndpoint
 import server.endpoints.blocking.PatchBlockEndpoint
+import server.endpoints.contact.ReportIssueEndpoint
 import server.endpoints.create.NewAreaEndpoint
 import server.endpoints.create.NewPathEndpoint
 import server.endpoints.create.NewSectorEndpoint
@@ -87,5 +88,7 @@ fun Application.configureEndpoints() {
         get(RequestFileEndpoint)
         get(RequestFilesEndpoint)
         get(DownloadFileEndpoint)
+
+        post(ReportIssueEndpoint)
     }
 }

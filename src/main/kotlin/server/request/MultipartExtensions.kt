@@ -10,19 +10,16 @@ import kotlin.io.path.exists
 import kotlin.io.path.outputStream
 
 /**
- * Saves the FileItem to a specified root directory. Creates any necessary parent directories.
+ * Saves the FileItem to a specified file. Creates any necessary parent directories.
  *
- * @param rootDir The root directory to save the FileItem to.
- * @param uuid The UUID for the name of the file. Defaults to a random one.
+ * @param file The file to save the FileItem to.
  *
  * @throws IOException If there's a problem while writing to the file system.
  */
-suspend fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null): File {
-    rootDir.mkdirs()
+suspend fun PartData.FileItem.saveFile(file: File): File {
+    file.parentFile.mkdirs()
 
-    val fileExtension = originalFileName?.takeLastWhile { it != '.' }
-    val fileName = "${uuid ?: UUID.randomUUID()}.$fileExtension"
-    val targetFile = File(rootDir, fileName).toPath()
+    val targetFile = file.toPath()
 
     if (targetFile.exists()) {
         Files.delete(targetFile)
@@ -36,4 +33,22 @@ suspend fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null): File {
     assert(targetFile.exists())
 
     return targetFile.toFile()
+}
+
+/**
+ * Saves the FileItem to a specified root directory. Creates any necessary parent directories.
+ *
+ * @param rootDir The root directory to save the FileItem to.
+ * @param uuid The UUID for the name of the file. Defaults to a random one.
+ *
+ * @throws IOException If there's a problem while writing to the file system.
+ */
+suspend fun PartData.FileItem.save(rootDir: File, uuid: UUID? = null): File {
+    rootDir.mkdirs()
+
+    val fileExtension = originalFileName?.takeLastWhile { it != '.' }
+    val fileName = "${uuid ?: UUID.randomUUID()}.$fileExtension"
+    val targetFile = File(rootDir, fileName)
+
+    return saveFile(targetFile)
 }

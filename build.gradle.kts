@@ -53,6 +53,9 @@ dependencies {
     // Firebase
     implementation(libs.firebase.admin)
 
+    // For sending emails
+    implementation(libs.sendgrid)
+
 
     testImplementation(libs.kotlin.test)
 
