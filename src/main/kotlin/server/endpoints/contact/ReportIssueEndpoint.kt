@@ -29,7 +29,7 @@ object ReportIssueEndpoint : EndpointBase("/report") {
         var name: String? = null
         var email: String? = null
         var message: String? = null
-        val attachments = mutableListOf<File>()
+        val attachments = mutableMapOf<String, File>()
 
         receiveMultipart(
             forEachFormItem = { item ->
@@ -44,7 +44,7 @@ object ReportIssueEndpoint : EndpointBase("/report") {
                     deleteOnExit()
                 }
                 partData.saveFile(tempFile)
-                attachments.add(tempFile)
+                attachments.set(partData.name ?: tempFile.name, tempFile)
             },
         )
 
@@ -69,12 +69,12 @@ object ReportIssueEndpoint : EndpointBase("/report") {
                 name?.let { replyTo?.name = it }
                 replyTo?.let { setReplyTo(it) }
 
-                attachments.forEach { file ->
+                attachments.forEach { (name, file) ->
                     addAttachments(
                         Attachments().apply {
                             content = file.readBytes().encodeBase64()
                             type = "application/octet-stream"
-                            filename = file.name
+                            filename = name
                             disposition = "attachment"
                         }
                     )
