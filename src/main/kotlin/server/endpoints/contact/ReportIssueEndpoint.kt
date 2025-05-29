@@ -71,7 +71,7 @@ object ReportIssueEndpoint : EndpointBase("/report") {
             }
             pathId?.let { id ->
                 val path = ServerDatabase { Path.findById(id) }
-                val sector = ServerDatabase { Sector.findById(id) }
+                val sector = ServerDatabase { path?.sector }
                 val zone = ServerDatabase { sector?.zone }
                 append("Path: ${path?.displayName ?: "N/A"} ($id)")
                 append(" <- ")
