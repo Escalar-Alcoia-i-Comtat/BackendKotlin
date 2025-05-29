@@ -34,6 +34,7 @@ object PathSerializer : KSerializer<Path> {
 
         element<UInt?>("height")
         element<Grade?>("grade")
+        element<Grade?>("aid_grade")
         element<Ending?>("ending")
 
         element<List<PitchInfo>?>("pitches")
@@ -76,6 +77,7 @@ object PathSerializer : KSerializer<Path> {
 
             encodeNullableSerializableElement(descriptor, idx++, UInt.serializer(), value.height)
             encodeNullableSerializableElement(descriptor, idx++, Grade.serializer(), value.grade)
+            encodeNullableSerializableElement(descriptor, idx++, Grade.serializer(), value.aidGrade)
             encodeNullableSerializableElement(descriptor, idx++, Ending.serializer(), value.ending)
 
             encodeNullableSerializableElement(descriptor, idx++, ListSerializer(PitchInfo.serializer()), value.pitches)
@@ -115,6 +117,7 @@ object PathSerializer : KSerializer<Path> {
         var sketchId = 0u
         var height: UInt? = null
         var grade: Grade? = null
+        var aidGrade: Grade? = null
         var ending: Ending? = null
         var pitches: List<PitchInfo>? = null
         var stringCount: UInt? = null
@@ -145,26 +148,27 @@ object PathSerializer : KSerializer<Path> {
                     3 -> sketchId = decodeSerializableElement(descriptor, index, UInt.serializer())
                     4 -> height = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
                     5 -> grade = decodeNullableSerializableElement(descriptor, index, Grade.serializer())
-                    6 -> ending = decodeNullableSerializableElement(descriptor, index, Ending.serializer())
-                    7 -> pitches = decodeNullableSerializableElement(descriptor, index, ListSerializer(PitchInfo.serializer()))
-                    8 -> stringCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
-                    9 -> paraboltCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
-                    10 -> burilCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
-                    11 -> pitonCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
-                    12 -> spitCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
-                    13 -> tensorCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
-                    14 -> crackerRequired = decodeBooleanElement(descriptor, index)
-                    15 -> friendRequired = decodeBooleanElement(descriptor, index)
-                    16 -> lanyardRequired = decodeBooleanElement(descriptor, index)
-                    17 -> nailRequired = decodeBooleanElement(descriptor, index)
-                    18 -> pitonRequired = decodeBooleanElement(descriptor, index)
-                    19 -> stapesRequired = decodeBooleanElement(descriptor, index)
-                    20 -> showDescription = decodeBooleanElement(descriptor, index)
-                    21 -> description = decodeNullableSerializableElement(descriptor, index, String.serializer())
-                    22 -> builder = decodeNullableSerializableElement(descriptor, index, Builder.serializer())
-                    23 -> reBuilder = decodeNullableSerializableElement(descriptor, index, ListSerializer(Builder.serializer()))
-                    24 -> images = decodeNullableSerializableElement(descriptor, index, ListSerializer(String.serializer()))?.map { Storage.ImagesDir.resolve(it) }
-                    25 -> sectorId = decodeIntElement(descriptor, index)
+                    6 -> aidGrade = decodeNullableSerializableElement(descriptor, index, Grade.serializer())
+                    7 -> ending = decodeNullableSerializableElement(descriptor, index, Ending.serializer())
+                    8 -> pitches = decodeNullableSerializableElement(descriptor, index, ListSerializer(PitchInfo.serializer()))
+                    9 -> stringCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
+                    10 -> paraboltCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
+                    11 -> burilCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
+                    12 -> pitonCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
+                    13 -> spitCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
+                    14 -> tensorCount = decodeNullableSerializableElement(descriptor, index, UInt.serializer())
+                    15 -> crackerRequired = decodeBooleanElement(descriptor, index)
+                    16 -> friendRequired = decodeBooleanElement(descriptor, index)
+                    17 -> lanyardRequired = decodeBooleanElement(descriptor, index)
+                    18 -> nailRequired = decodeBooleanElement(descriptor, index)
+                    19 -> pitonRequired = decodeBooleanElement(descriptor, index)
+                    20 -> stapesRequired = decodeBooleanElement(descriptor, index)
+                    21 -> showDescription = decodeBooleanElement(descriptor, index)
+                    22 -> description = decodeNullableSerializableElement(descriptor, index, String.serializer())
+                    23 -> builder = decodeNullableSerializableElement(descriptor, index, Builder.serializer())
+                    24 -> reBuilder = decodeNullableSerializableElement(descriptor, index, ListSerializer(Builder.serializer()))
+                    25 -> images = decodeNullableSerializableElement(descriptor, index, ListSerializer(String.serializer()))?.map { Storage.ImagesDir.resolve(it) }
+                    26 -> sectorId = decodeIntElement(descriptor, index)
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
                 }
@@ -178,6 +182,7 @@ object PathSerializer : KSerializer<Path> {
                 this.sketchId = sketchId
                 this.height = height
                 this.grade = grade
+                this.aidGrade = aidGrade
                 this.ending = ending
                 this.pitches = pitches
                 this.stringCount = stringCount

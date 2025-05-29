@@ -43,6 +43,7 @@ class TestPathCreationEndpoint : ApplicationTestBase() {
 
             assertEquals(DataProvider.SamplePath.height, path.height)
             assertEquals(DataProvider.SamplePath.grade, path.grade)
+            assertEquals(DataProvider.SamplePath.aidGrade, path.aidGrade)
             assertEquals(DataProvider.SamplePath.ending, path.ending)
 
             assertContentEquals(DataProvider.SamplePath.pitches, path.pitches)

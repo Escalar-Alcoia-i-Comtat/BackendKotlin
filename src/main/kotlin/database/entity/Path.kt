@@ -11,7 +11,6 @@ import java.io.File
 import java.time.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.encodeToString
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -30,6 +29,9 @@ class Path(id: EntityID<Int>): BaseEntity(id), ResponseData {
     var grade: Grade?
         get() = _grade?.let { Grade.fromString(it) }
         set(value) { _grade = value?.name }
+    var aidGrade: Grade?
+        get() = _aidGrade?.let { Grade.fromString(it) }
+        set(value) { _aidGrade = value?.name }
     var ending: Ending?
         get() = _ending?.let { Ending.valueOf(it) }
         set(value) { _ending = value?.name }
@@ -91,6 +93,7 @@ class Path(id: EntityID<Int>): BaseEntity(id), ResponseData {
 
 
     private var _grade: String? by Paths.grade
+    private var _aidGrade: String? by Paths.aidGrade
     private var _ending: String? by Paths.ending
 
     @Suppress("VariableNaming", "PropertyName")
@@ -122,6 +125,7 @@ class Path(id: EntityID<Int>): BaseEntity(id), ResponseData {
         result = 31 * result + sketchId.hashCode()
         result = 31 * result + (height?.hashCode() ?: 0)
         result = 31 * result + (grade?.hashCode() ?: 0)
+        result = 31 * result + (aidGrade?.hashCode() ?: 0)
         result = 31 * result + (ending?.hashCode() ?: 0)
         result = 31 * result + (pitches?.hashCode() ?: 0)
         result = 31 * result + (stringCount?.hashCode() ?: 0)

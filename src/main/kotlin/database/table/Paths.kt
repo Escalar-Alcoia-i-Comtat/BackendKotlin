@@ -13,6 +13,7 @@ object Paths: BaseTable() {
 
     val height = uinteger("height").nullable()
     val grade = varchar("grade", SqlConsts.GRADE_LENGTH).nullable()
+    val aidGrade = varchar("aid_grade", SqlConsts.GRADE_LENGTH).nullable()
     val ending = varchar("ending", SqlConsts.ENDING_LENGTH).nullable()
 
     val pitches = varchar("pitches", SqlConsts.PITCH_INFO_LENGTH).nullable()

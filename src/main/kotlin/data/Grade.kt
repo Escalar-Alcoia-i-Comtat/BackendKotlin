@@ -15,7 +15,7 @@ enum class Grade {
     G8A, G8A_PLUS, G8B, G8B_PLUS, G8C, G8C_PLUS,
     G9A, G9A_PLUS, G9B, G9B_PLUS, G9C, G9C_PLUS,
 
-    // Artificial grades
+    // Aid grades
     A0,
     A1, A1_PLUS,
     A2, A2_PLUS,
