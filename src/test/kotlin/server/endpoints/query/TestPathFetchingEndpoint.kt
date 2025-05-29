@@ -51,6 +51,7 @@ class TestPathFetchingEndpoint : ApplicationTestBase() {
 
                 assertEquals(DataProvider.SamplePath.height, data.height)
                 assertEquals(DataProvider.SamplePath.grade, data.grade)
+                assertEquals(DataProvider.SamplePath.aidGrade, data.aidGrade)
                 assertEquals(DataProvider.SamplePath.ending, data.ending)
 
                 assertContentEquals(DataProvider.SamplePath.pitches, data.pitches)

@@ -36,13 +36,14 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
         val path = ServerDatabase.instance.query { Path.findById(pathId) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
-        // Nullable types: height, grade, ending, pitches, stringCount, paraboltCount, burilCount,
+        // Nullable types: height, grade, aidGrade, ending, pitches, stringCount, paraboltCount, burilCount,
         //                 pitonCount, spitCount, tensorCount, description, builder, reBuilder
 
         var displayName: String? = null
         var sketchId: UInt? = null
         var height: UInt? = null
         var grade: Grade? = null
+        var aidGrade: Grade? = null
         var ending: Ending? = null
         var pitches: List<PitchInfo>? = null
         var stringCount: UInt? = null
@@ -67,6 +68,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
 
         var removeHeight = false
         var removeGrade = false
+        var removeAidGrade = false
         var removeEnding = false
         var removePitches = false
         var removeStringCount = false
@@ -99,6 +101,13 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
                             removeGrade = true
                         else
                             grade = value.let(Grade::fromString)
+                    }
+
+                    "aidGrade" -> partData.value.let { value ->
+                        if (value == "\u0000")
+                            removeAidGrade = true
+                        else
+                            aidGrade = value.let(Grade::fromString)
                     }
 
                     "ending" -> partData.value.let { value ->
@@ -209,14 +218,14 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
         }
 
         if (areAllNull(
-                displayName, sketchId, height, grade, ending, pitches, stringCount, paraboltCount, burilCount,
+                displayName, sketchId, height, grade, aidGrade, ending, pitches, stringCount, paraboltCount, burilCount,
                 pitonCount, spitCount, tensorCount, crackerRequired, friendRequired, lanyardRequired, nailRequired,
                 pitonRequired, stapesRequired, showDescription, description, builder, reBuilder, imageFiles, sector
             ) &&
             areAllFalse(
-                removeHeight, removeGrade, removeEnding, removePitches, removeStringCount, removeParaboltCount,
-                removeBurilCount, removePitonCount, removeSpitCount, removeTensorCount, removeDescription,
-                removeBuilder, removeReBuilder
+                removeHeight, removeGrade, removeAidGrade, removeEnding, removePitches, removeStringCount,
+                removeParaboltCount, removeBurilCount, removePitonCount, removeSpitCount, removeTensorCount,
+                removeDescription, removeBuilder, removeReBuilder
             ) &&
             removeImages.isEmpty()
         ) {
@@ -246,6 +255,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
             sketchId?.let { path.sketchId = it }
             height?.let { path.height = it }
             grade?.let { path.grade = it }
+            aidGrade?.let { path.aidGrade = it }
             ending?.let { path.ending = it }
             pitches?.let { path.pitches = it }
             stringCount?.let { path.stringCount = it }
@@ -269,6 +279,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
 
             if (removeHeight) path.height = null
             if (removeGrade) path.grade = null
+            if (removeAidGrade) path.aidGrade = null
             if (removeEnding) path.ending = null
             if (removePitches) path.pitches = null
             if (removeStringCount) path.stringCount = null

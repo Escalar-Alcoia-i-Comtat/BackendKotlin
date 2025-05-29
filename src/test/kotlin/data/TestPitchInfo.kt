@@ -4,7 +4,6 @@ import database.serialization.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import kotlinx.serialization.encodeToString
 
 class TestPitchInfo {
     @Test
@@ -12,6 +11,7 @@ class TestPitchInfo {
         val pitchInfo = PitchInfo(
             1U,
             Grade.G7C,
+            Grade.A2,
             100U,
             Ending.CHAIN_CARABINER,
             EndingInfo.EQUIPPED,

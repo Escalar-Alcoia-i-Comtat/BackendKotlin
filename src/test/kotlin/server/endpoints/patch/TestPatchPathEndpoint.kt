@@ -72,6 +72,10 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
         testPatching(EntityTypes.PATH, "grade", Grade.G7C) { it.grade }
 
     @Test
+    fun `test patching Path - update aid grade`() =
+        testPatching(EntityTypes.PATH, "aidGrade", Grade.A2) { it.aidGrade }
+
+    @Test
     fun `test patching Path - update ending`() =
         testPatching(EntityTypes.PATH, "ending", Ending.NONE) { it.ending }
 
@@ -158,6 +162,9 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Path - remove grade`() = removeProperty("grade") { it.grade }
+
+    @Test
+    fun `test patching Path - remove aid grade`() = removeProperty("aidGrade") { it.aidGrade }
 
     @Test
     fun `test patching Path - remove ending`() = removeProperty("ending") { it.ending }

@@ -53,6 +53,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
         var sketchId: UInt? = null
         var height: UInt? = null
         var grade: Grade? = null
+        var aidGrade: Grade? = null
         var ending: Ending? = null
         var pitches: List<PitchInfo>? = null
         var stringCount: UInt? = null
@@ -76,6 +77,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
 
                     "height" -> height = value.toUIntOrNull()
                     "grade" -> grade = value.let { Grade.fromString(it) }
+                    "aidGrade" -> aidGrade = value.let { Grade.fromString(it) }
                     "ending" -> ending = value.let { Ending.valueOf(it) }
 
                     "pitches" -> pitches = Json.decodeFromString(value)
@@ -144,6 +146,7 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
                 this.sketchId = sketchId!!
                 this.height = height
                 this.grade = grade
+                this.aidGrade = aidGrade
                 this.ending = ending
                 this.pitches = pitches
                 this.stringCount = stringCount

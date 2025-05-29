@@ -65,6 +65,7 @@ class TestDatabase: ApplicationTestBase() {
 
                 assertEquals(it.height, DataProvider.SamplePath.height)
                 assertEquals(it.grade, DataProvider.SamplePath.grade)
+                assertEquals(it.aidGrade, DataProvider.SamplePath.aidGrade)
                 assertEquals(it.ending, DataProvider.SamplePath.ending)
 
                 assertEquals(it.pitches, DataProvider.SamplePath.pitches)

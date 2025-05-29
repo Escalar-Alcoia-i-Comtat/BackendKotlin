@@ -92,6 +92,7 @@ object DatabaseHelper {
         sketchId: UInt = DataProvider.SamplePath.sketchId,
         height: UInt = DataProvider.SamplePath.height,
         grade: Grade = DataProvider.SamplePath.grade,
+        aidGrade: Grade = DataProvider.SamplePath.aidGrade,
         ending: Ending = DataProvider.SamplePath.ending,
         pitches: List<PitchInfo> = DataProvider.SamplePath.pitches,
         stringCount: UInt = DataProvider.SamplePath.stringCount,
@@ -117,6 +118,7 @@ object DatabaseHelper {
 
             this.height = height
             this.grade = grade
+            this.aidGrade = aidGrade
             this.ending = ending
 
             this.pitches = pitches

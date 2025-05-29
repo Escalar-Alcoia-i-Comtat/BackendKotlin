@@ -28,8 +28,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.Month
 import kotlin.test.assertNotNull
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.encodeToString
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import server.base.StubApplicationTestBuilder
 import server.response.update.UpdateResponseData
@@ -236,12 +234,14 @@ object DataProvider {
 
         val height = 123U
         val grade = Grade.G6A
+        val aidGrade = Grade.A2
         val ending = Ending.CHAIN_CARABINER
 
         val pitches = listOf(
             PitchInfo(
                 1U,
                 Grade.G7A_PLUS,
+                Grade.A2,
                 12U,
                 Ending.CHAIN_CARABINER,
                 EndingInfo.EQUIPPED,
@@ -310,6 +310,7 @@ object DataProvider {
                     append("sketchId", SamplePath.sketchId.toInt())
                 append("height", SamplePath.height.toInt())
                 append("grade", SamplePath.grade.name)
+                append("aidGrade", SamplePath.aidGrade.name)
                 append("ending", SamplePath.ending.name)
                 append("pitches", Json.encodeToString(SamplePath.pitches))
                 append("stringCount", SamplePath.stringCount.toInt())
