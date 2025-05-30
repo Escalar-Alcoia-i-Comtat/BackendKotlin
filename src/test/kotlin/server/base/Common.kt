@@ -4,6 +4,7 @@ import database.EntityTypes
 import database.entity.Area
 import database.entity.BaseEntity
 import database.entity.Blocking
+import database.entity.BlogEntry
 import database.entity.Path
 import database.entity.Sector
 import database.entity.Zone
@@ -66,5 +67,6 @@ fun <Type : BaseEntity> EntityTypes<Type>.getter(id: Int): Type {
         EntityTypes.SECTOR -> Sector[id] as Type
         EntityTypes.PATH -> Path[id] as Type
         EntityTypes.BLOCKING -> Blocking[id] as Type
+        EntityTypes.BLOG_ENTRY -> BlogEntry[id] as Type
     }
 }

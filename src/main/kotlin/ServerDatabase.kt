@@ -1,7 +1,12 @@
+import ServerDatabase.Companion.driver
+import ServerDatabase.Companion.password
+import ServerDatabase.Companion.url
+import ServerDatabase.Companion.username
 import database.entity.info.Version
 import database.migration.Migration
 import database.table.Areas
 import database.table.BlockingTable
+import database.table.BlogEntriesTable
 import database.table.InfoTable
 import database.table.Paths
 import database.table.Sectors
@@ -78,7 +83,7 @@ class ServerDatabase private constructor() {
 
         suspend operator fun <T> invoke(block: suspend Transaction.() -> T): T = instance.query(block)
 
-        val tables = sequenceOf(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
+        val tables = sequenceOf(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable, BlogEntriesTable)
     }
 
     private val database by lazy {

@@ -3,6 +3,7 @@ package database
 import database.entity.Area
 import database.entity.BaseEntity
 import database.entity.Blocking
+import database.entity.BlogEntry
 import database.entity.Path
 import database.entity.Sector
 import database.entity.Zone
@@ -19,6 +20,7 @@ sealed class EntityTypes<Entity: BaseEntity>(
     data object SECTOR: EntityTypes<Sector>("sector")
     data object PATH: EntityTypes<Path>("path")
     data object BLOCKING: EntityTypes<Blocking>("blocking")
+    data object BLOG_ENTRY: EntityTypes<BlogEntry>("blog")
 
     val name = this::class.simpleName
 }
