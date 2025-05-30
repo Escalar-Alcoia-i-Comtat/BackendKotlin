@@ -20,7 +20,7 @@ object BlogEntrySerializer : KSerializer<BlogEntry> {
     private const val IDX_SUMMARY = 2
     private const val IDX_CONTENT = 3
 
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Blocking") {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("BlogEntry") {
         element<Int>("id")
         element("timestamp", InstantSerializer.descriptor)
         element<String>("summary")
