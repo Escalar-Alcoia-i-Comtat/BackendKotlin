@@ -1,10 +1,11 @@
 package server.endpoints.blog
 
 import ServerDatabase
+import assertions.assertSuccess
 import database.entity.BlogEntry
-import io.ktor.client.call.body
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import server.base.ApplicationTestBase
 import server.response.query.BlogEntriesData
 
@@ -23,7 +24,10 @@ class TestGetBlogEntryListEndpoint : ApplicationTestBase() {
         }
 
         get("/blog").apply {
-            body<BlogEntriesData>().entries.let { entries ->
+            assertSuccess<BlogEntriesData> { data ->
+                assertNotNull(data)
+
+                val entries = data.entries
                 assertEquals(2, entries.size)
                 assertEquals("Test Summary 1", entries[0].summary)
                 assertEquals("Test Content 1", entries[0].content)
