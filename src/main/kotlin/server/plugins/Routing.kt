@@ -13,6 +13,8 @@ import server.endpoints.blocking.DeleteBlockEndpoint
 import server.endpoints.blocking.GetAllBlocksEndpoint
 import server.endpoints.blocking.GetBlockEndpoint
 import server.endpoints.blocking.PatchBlockEndpoint
+import server.endpoints.blog.AddBlogEntryEndpoint
+import server.endpoints.blog.GetBlogEntryListEndpoint
 import server.endpoints.contact.ReportIssueEndpoint
 import server.endpoints.create.NewAreaEndpoint
 import server.endpoints.create.NewPathEndpoint
@@ -90,5 +92,8 @@ fun Application.configureEndpoints() {
         get(DownloadFileEndpoint)
 
         post(ReportIssueEndpoint)
+
+        post(AddBlogEntryEndpoint)
+        get(GetBlogEntryListEndpoint)
     }
 }
