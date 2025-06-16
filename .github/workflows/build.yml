@@ -40,7 +40,7 @@ jobs:
         run: echo ${{ github.event.release.tag_name }} > ./package/version.txt
       - name: Commit version.txt
         if: ${{ github.event_name == 'release' }}
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "Update version.txt"
           commit_options: "--no-verify"
