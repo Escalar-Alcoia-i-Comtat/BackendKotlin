@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class PhoneSignalStrength {
     NOT_AVAILABLE,
-    AVAILABLE,
-    LOW,
+    BAD_SIGNAL,
+    SIGNAL_3G,
+    SIGNAL_4G,
+    SIGNAL_5G,
 }
