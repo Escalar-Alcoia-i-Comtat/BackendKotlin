@@ -42,6 +42,7 @@ class TestSector: ApplicationTestBase() {
         assertTrue(json.containsKey("kids_apt"))
         assertTrue(json.containsKey("sun_time"))
         assertTrue(json.containsKey("walking_time"))
+        assertTrue(json.containsKey("phone_signal_availability"))
         assertTrue(json.containsKey("image"))
         assertTrue(json.containsKey("gpx"))
         assertTrue(json.containsKey("point"))

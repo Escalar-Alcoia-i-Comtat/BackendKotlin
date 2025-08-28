@@ -11,6 +11,9 @@ import data.EndingInfo
 import data.ExternalTrack
 import data.Grade
 import data.LatLng
+import data.PhoneCarrier
+import data.PhoneSignalAvailability
+import data.PhoneSignalStrength
 import data.PitchInfo
 import database.entity.Area
 import database.entity.Path
@@ -160,6 +163,13 @@ object DataProvider {
         val kidsApt = true
         val sunTime = Sector.SunTime.Afternoon
         val walkingTime = 12U
+
+        val phoneSignalAvailability = listOf(
+            PhoneSignalAvailability(PhoneSignalStrength.AVAILABLE, PhoneCarrier.MOVISTAR),
+            PhoneSignalAvailability(PhoneSignalStrength.NOT_AVAILABLE, PhoneCarrier.ORANGE),
+            PhoneSignalAvailability(PhoneSignalStrength.NOT_AVAILABLE, PhoneCarrier.VODAFONE),
+        )
+
         val tracks = listOf(
             ExternalTrack(ExternalTrack.Type.Wikiloc, "https://example.com")
         )

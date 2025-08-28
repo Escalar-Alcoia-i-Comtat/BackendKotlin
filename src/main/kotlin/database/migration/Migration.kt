@@ -14,7 +14,7 @@ abstract class Migration(
     val to: Int
 ) {
     companion object {
-        val all: List<Migration> = listOf(MigrateTo1, Migrate1To2)
+        val all: List<Migration> = listOf(MigrateTo1, Migrate1To2, Migrate2To3)
     }
 
     protected abstract suspend fun Transaction.migrate()

@@ -8,6 +8,7 @@ import data.DataPoint
 import data.Ending
 import data.Grade
 import data.LatLng
+import data.PhoneSignalAvailability
 import data.PitchInfo
 import java.io.File
 import java.net.URI
@@ -68,7 +69,8 @@ object DatabaseHelper {
         point: LatLng = DataProvider.SampleSector.point,
         kidsApt: Boolean = DataProvider.SampleSector.kidsApt,
         sunTime: Sector.SunTime = DataProvider.SampleSector.sunTime,
-        walkingTime: UInt = DataProvider.SampleSector.walkingTime
+        walkingTime: UInt = DataProvider.SampleSector.walkingTime,
+        phoneSignalAvailability: List<PhoneSignalAvailability>? = DataProvider.SampleSector.phoneSignalAvailability
     ): Sector = ServerDatabase.instance.query {
         Sector.new {
             this.displayName = displayName
@@ -76,6 +78,7 @@ object DatabaseHelper {
             this.kidsApt = kidsApt
             this.sunTime = sunTime
             this.walkingTime = walkingTime
+            this.phoneSignalAvailability = phoneSignalAvailability
 
             // Required, but not used
             image = createTestFile(Storage.ImagesDir, "abc")

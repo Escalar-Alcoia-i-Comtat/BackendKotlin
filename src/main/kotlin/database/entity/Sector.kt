@@ -1,6 +1,7 @@
 package database.entity
 
 import data.LatLng
+import data.PhoneSignalAvailability
 import database.serialization.SectorSerializer
 import database.table.Paths
 import database.table.Sectors
@@ -29,6 +30,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
     var kidsApt: Boolean by Sectors.kidsApt
     var sunTime: SunTime by Sectors.sunTime
     var walkingTime: UInt? by Sectors.walkingTime
+    var phoneSignalAvailability: List<PhoneSignalAvailability>? by Sectors.phoneSignalAvailability
     var weight: String by Sectors.weight
 
     private fun findFileByUUID(uuid: String, dir: File): File {
@@ -87,6 +89,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
         result = 31 * result + kidsApt.hashCode()
         result = 31 * result + sunTime.hashCode()
         result = 31 * result + (walkingTime?.hashCode() ?: 0)
+        result = 31 * result + (phoneSignalAvailability?.hashCode() ?: 0)
         result = 31 * result + image.hashCode()
         result = 31 * result + (gpx?.hashCode() ?: 0)
         result = 31 * result + (tracks?.hashCode() ?: 0)
