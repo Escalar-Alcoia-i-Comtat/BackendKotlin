@@ -3,6 +3,7 @@ package server.endpoints.patch
 import ServerDatabase
 import data.ExternalTrack
 import data.LatLng
+import data.PhoneSignalAvailability
 import database.EntityTypes
 import database.entity.Sector
 import database.entity.Zone
@@ -13,6 +14,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
+import kotlinx.serialization.builtins.ListSerializer
 import java.io.File
 import java.time.Instant
 import server.endpoints.SecureEndpointBase
@@ -34,7 +36,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
         val sector = ServerDatabase.instance.query { Sector.findById(sectorId) }
             ?: return respondFailure(Errors.ObjectNotFound)
 
-        // Nullable types: point, walkingTime
+        // Nullable types: point, walkingTime, phoneSignalAvailability
         // Nullable files: gpxFile
 
         var displayName: String? = null
@@ -42,6 +44,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
         var kidsApt: Boolean? = null
         var sunTime: Sector.SunTime? = null
         var walkingTime: UInt? = null
+        var phoneSignalAvailability: List<PhoneSignalAvailability>? = null
         var weight: String? = null
         var tracks: List<ExternalTrack>? = null
         var zone: Zone? = null
@@ -81,6 +84,10 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                         else
                             walkingTime = value.toUIntOrNull()
                     }
+                    "phoneSignalAvailability" -> phoneSignalAvailability = Json.decodeFromString(
+                        ListSerializer(PhoneSignalAvailability.serializer()),
+                        partData.value
+                    ).takeUnless { it.isEmpty() }
                 }
             },
             forEachFileItem = { partData ->
@@ -135,6 +142,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             sunTime?.let { sector.sunTime = it }
             point?.let { sector.point = it }
             walkingTime?.let { sector.walkingTime = it }
+            phoneSignalAvailability?.let { sector.phoneSignalAvailability = it }
             weight?.let { sector.weight = it }
             tracks?.let { sector.tracks = it }
             zone?.let { sector.zone = it }

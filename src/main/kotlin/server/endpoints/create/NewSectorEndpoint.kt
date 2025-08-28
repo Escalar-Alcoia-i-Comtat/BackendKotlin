@@ -3,6 +3,7 @@ package server.endpoints.create
 import ServerDatabase
 import data.ExternalTrack
 import data.LatLng
+import data.PhoneSignalAvailability
 import database.EntityTypes
 import database.entity.Sector
 import database.entity.Zone
@@ -32,6 +33,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
         var kidsApt: Boolean? = null
         var sunTime: Sector.SunTime? = null
         var walkingTime: UInt? = null
+        var phoneSignalAvailability: List<PhoneSignalAvailability>? = null
         var weight: String? = null
         var tracks: List<ExternalTrack>? = null
         var zone: Zone? = null
@@ -48,6 +50,10 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                     "kidsApt" -> kidsApt = partData.value.toBoolean()
                     "sunTime" -> sunTime = partData.value.let { Sector.SunTime.valueOf(it) }
                     "walkingTime" -> walkingTime = partData.value.toUIntOrNull()
+                    "phoneSignalAvailability" -> phoneSignalAvailability = Json.decodeFromString(
+                        ListSerializer(PhoneSignalAvailability.serializer()),
+                        partData.value
+                    )
                     "weight" -> weight = partData.value
                     "tracks" -> tracks = ExternalTrack.decodeFromPart(partData)
                     "zone" -> ServerDatabase.instance.query {
@@ -80,6 +86,7 @@ object NewSectorEndpoint : SecureEndpointBase("/sector") {
                 this.kidsApt = kidsApt!!
                 this.sunTime = sunTime!!
                 this.walkingTime = walkingTime
+                this.phoneSignalAvailability = phoneSignalAvailability
                 this.image = imageFile!!
                 this.gpx = gpxFile
                 this.tracks = tracks
