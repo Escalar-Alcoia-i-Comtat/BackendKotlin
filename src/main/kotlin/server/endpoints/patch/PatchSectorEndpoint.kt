@@ -128,7 +128,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         if (invalidFile) return respondFailure(Errors.InvalidFileType)
 
-        if (areAllNull(displayName, imageFile, gpxFile, kidsApt, point, sunTime, walkingTime, weight, tracks, zone) &&
+        if (areAllNull(displayName, imageFile, gpxFile, kidsApt, point, sunTime, walkingTime, phoneSignalAvailability, weight, tracks, zone) &&
             areAllFalse(removePoint, removeWalkingTime, deleteGpx)
         ) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
