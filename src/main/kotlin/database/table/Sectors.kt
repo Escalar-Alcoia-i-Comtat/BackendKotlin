@@ -23,7 +23,11 @@ object Sectors : BaseTable() {
     val walkingTime = uinteger("walking_time").nullable()
     val weight = varchar("weight", SqlConsts.WEIGHT_LENGTH).default("0000")
 
-    val phoneSignalAvailability = json("phone_signal_availability", Json, ListSerializer(PhoneSignalAvailability.serializer())).nullable().default(null)
+    val phoneSignalAvailability = json(
+        "phone_signal_availability",
+        Json,
+        ListSerializer(PhoneSignalAvailability.serializer())
+    ).nullable().default(null)
 
     val zone = reference("zone", Zones)
 }

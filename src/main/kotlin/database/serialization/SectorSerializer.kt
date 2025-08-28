@@ -115,7 +115,11 @@ object SectorSerializer : KSerializer<Sector> {
                     IDX_KIDS_APT -> kidsApt = decodeBooleanElement(descriptor, index)
                     IDX_SUN_TIME -> sunTime = decodeSerializableElement(descriptor, index, Sector.SunTime.serializer())
                     IDX_WALKING_TIME -> walkingTime = decodeNullableSerializableElement(descriptor, index, Long.serializer())?.toUInt()
-                    IDX_PHONE_SIGNAL_AVAILABILITY -> phoneSignalAvailability = decodeNullableSerializableElement(descriptor, index, ListSerializer(PhoneSignalAvailability.serializer()))
+                    IDX_PHONE_SIGNAL_AVAILABILITY -> phoneSignalAvailability = decodeNullableSerializableElement(
+                        descriptor,
+                        index,
+                        ListSerializer(PhoneSignalAvailability.serializer())
+                    )
                     IDX_IMAGE -> image = decodeStringElement(descriptor, index)
                     IDX_GPX -> gpx = decodeNullableSerializableElement(descriptor, index, String.serializer())
                     IDX_TRACKS -> tracks = decodeNullableSerializableElement(descriptor, index, ListSerializer(ExternalTrack.serializer()))
