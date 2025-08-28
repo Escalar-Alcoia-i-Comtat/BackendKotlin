@@ -2,6 +2,9 @@ package server.endpoints.patch
 
 import data.ExternalTrack
 import data.LatLng
+import data.PhoneCarrier
+import data.PhoneSignalAvailability
+import data.PhoneSignalStrength
 import database.EntityTypes
 import database.entity.Sector
 import database.serialization.Json
@@ -49,6 +52,18 @@ class TestPatchSectorEndpoint : ApplicationTestBase() {
         "walkingTime",
         9510U
     ) { it.walkingTime }
+
+    @Test
+    fun `test patching Sector - update phone signal availability`() = testPatching(
+        EntityTypes.SECTOR,
+        "phoneSignalAvailability",
+        Json.encodeToString(
+            ListSerializer(PhoneSignalAvailability.serializer()),
+            listOf(
+                PhoneSignalAvailability(PhoneSignalStrength.NOT_AVAILABLE, PhoneCarrier.MOVISTAR)
+            )
+        )
+    ) { it.phoneSignalAvailability }
 
     @Test
     fun `test patching Sector - update weight`() = testPatching(
