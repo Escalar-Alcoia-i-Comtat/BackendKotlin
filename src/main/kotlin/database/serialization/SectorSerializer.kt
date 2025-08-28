@@ -3,6 +3,7 @@ package database.serialization
 import ServerDatabase
 import data.ExternalTrack
 import data.LatLng
+import data.PhoneSignalAvailability
 import database.entity.Path
 import database.entity.Sector
 import database.entity.Zone
@@ -29,13 +30,14 @@ object SectorSerializer : KSerializer<Sector> {
     private const val IDX_KIDS_APT = 3
     private const val IDX_SUN_TIME = 4
     private const val IDX_WALKING_TIME = 5
-    private const val IDX_IMAGE = 6
-    private const val IDX_GPX = 7
-    private const val IDX_TRACKS = 8
-    private const val IDX_POINT = 9
-    private const val IDX_WEIGHT = 10
-    private const val IDX_ZONE_ID = 11
-    private const val IDX_PATHS = 12
+    private const val IDX_PHONE_SIGNAL_AVAILABILITY = 6
+    private const val IDX_IMAGE = 7
+    private const val IDX_GPX = 8
+    private const val IDX_TRACKS = 9
+    private const val IDX_POINT = 10
+    private const val IDX_WEIGHT = 11
+    private const val IDX_ZONE_ID = 12
+    private const val IDX_PATHS = 13
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Sector") {
         element<Int>("id")
@@ -44,6 +46,7 @@ object SectorSerializer : KSerializer<Sector> {
         element<Boolean>("kids_apt")
         element<String>("sun_time")
         element<Long?>("walking_time")
+        element<List<PhoneSignalAvailability>?>("phone_signal_availability")
         element<String>("image")
         element<String?>("gpx")
         element<List<ExternalTrack>>("tracks")
@@ -62,6 +65,12 @@ object SectorSerializer : KSerializer<Sector> {
             encodeBooleanElement(descriptor, IDX_KIDS_APT, value.kidsApt)
             encodeSerializableElement(descriptor, IDX_SUN_TIME, Sector.SunTime.serializer(), value.sunTime)
             encodeNullableSerializableElement(descriptor, IDX_WALKING_TIME, Long.serializer(), value.walkingTime?.toLong())
+            encodeNullableSerializableElement(
+                descriptor,
+                IDX_PHONE_SIGNAL_AVAILABILITY,
+                ListSerializer(PhoneSignalAvailability.serializer()),
+                value.phoneSignalAvailability
+            )
             encodeStringElement(
                 descriptor,
                 IDX_IMAGE,
@@ -89,6 +98,7 @@ object SectorSerializer : KSerializer<Sector> {
         var kidsApt = false
         var sunTime = Sector.SunTime.Morning
         var walkingTime: UInt? = null
+        var phoneSignalAvailability: List<PhoneSignalAvailability>? = null
         var image = ""
         var gpx: String? = null
         var tracks: List<ExternalTrack>? = null
@@ -105,6 +115,11 @@ object SectorSerializer : KSerializer<Sector> {
                     IDX_KIDS_APT -> kidsApt = decodeBooleanElement(descriptor, index)
                     IDX_SUN_TIME -> sunTime = decodeSerializableElement(descriptor, index, Sector.SunTime.serializer())
                     IDX_WALKING_TIME -> walkingTime = decodeNullableSerializableElement(descriptor, index, Long.serializer())?.toUInt()
+                    IDX_PHONE_SIGNAL_AVAILABILITY -> phoneSignalAvailability = decodeNullableSerializableElement(
+                        descriptor,
+                        index,
+                        ListSerializer(PhoneSignalAvailability.serializer())
+                    )
                     IDX_IMAGE -> image = decodeStringElement(descriptor, index)
                     IDX_GPX -> gpx = decodeNullableSerializableElement(descriptor, index, String.serializer())
                     IDX_TRACKS -> tracks = decodeNullableSerializableElement(descriptor, index, ListSerializer(ExternalTrack.serializer()))
@@ -125,6 +140,7 @@ object SectorSerializer : KSerializer<Sector> {
                 this.kidsApt = kidsApt
                 this.sunTime = sunTime
                 this.walkingTime = walkingTime
+                this.phoneSignalAvailability = phoneSignalAvailability
                 this.image = Storage.ImagesDir.resolve(image)
                 this.gpx = gpx?.let { Storage.TracksDir.resolve(it) }
                 this.tracks = tracks

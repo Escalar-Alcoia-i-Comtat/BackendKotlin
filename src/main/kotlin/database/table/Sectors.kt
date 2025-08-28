@@ -1,6 +1,7 @@
 package database.table
 
 import data.ExternalTrack
+import data.PhoneSignalAvailability
 import database.SqlConsts
 import database.entity.Sector
 import database.serialization.Json
@@ -21,6 +22,12 @@ object Sectors : BaseTable() {
     val sunTime = enumeration<Sector.SunTime>("sun_time")
     val walkingTime = uinteger("walking_time").nullable()
     val weight = varchar("weight", SqlConsts.WEIGHT_LENGTH).default("0000")
+
+    val phoneSignalAvailability = json(
+        "phone_signal_availability",
+        Json,
+        ListSerializer(PhoneSignalAvailability.serializer())
+    ).nullable().default(null)
 
     val zone = reference("zone", Zones)
 }
