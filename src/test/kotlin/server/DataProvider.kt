@@ -165,7 +165,7 @@ object DataProvider {
         val walkingTime = 12U
 
         val phoneSignalAvailability = listOf(
-            PhoneSignalAvailability(PhoneSignalStrength.AVAILABLE, PhoneCarrier.MOVISTAR),
+            PhoneSignalAvailability(PhoneSignalStrength.SIGNAL_4G, PhoneCarrier.MOVISTAR),
             PhoneSignalAvailability(PhoneSignalStrength.NOT_AVAILABLE, PhoneCarrier.ORANGE),
             PhoneSignalAvailability(PhoneSignalStrength.NOT_AVAILABLE, PhoneCarrier.VODAFONE),
         )
