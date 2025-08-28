@@ -87,7 +87,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                     "phoneSignalAvailability" -> phoneSignalAvailability = Json.decodeFromString(
                         ListSerializer(PhoneSignalAvailability.serializer()),
                         partData.value
-                    ).takeUnless { it.isEmpty() }
+                    )
                 }
             },
             forEachFileItem = { partData ->
@@ -142,7 +142,7 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             sunTime?.let { sector.sunTime = it }
             point?.let { sector.point = it }
             walkingTime?.let { sector.walkingTime = it }
-            phoneSignalAvailability?.let { sector.phoneSignalAvailability = it }
+            phoneSignalAvailability?.let { sector.phoneSignalAvailability = it.takeUnless { it.isEmpty() } }
             weight?.let { sector.weight = it }
             tracks?.let { sector.tracks = it }
             zone?.let { sector.zone = it }
