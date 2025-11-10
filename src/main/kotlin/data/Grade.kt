@@ -31,9 +31,8 @@ enum class Grade {
             val name = value
                 .uppercase()
                 .replace("+", "_PLUS")
-                .replace("E", "_EQUIPPED")
                 .replace("º", "A")
-            println("Looking for grade with name: $name")
+                .replace("AE", "A_EQUIPPED")
             return Grade.entries.find { it.name.endsWith(name) } ?: UNKNOWN
         }
     }

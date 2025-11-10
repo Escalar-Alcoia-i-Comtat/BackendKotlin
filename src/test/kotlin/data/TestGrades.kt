@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class TestGrades {
     @Test
-    fun `Test grade conversions`() {
+    fun `test fromString text`() {
         assertEquals(Grade.G4A, Grade.fromString("4º"))
         assertEquals(Grade.G5A, Grade.fromString("5º"))
         assertEquals(Grade.G5_PLUS, Grade.fromString("5+"))
@@ -16,5 +16,16 @@ class TestGrades {
         assertEquals(Grade.A2, Grade.fromString("A2"))
         assertEquals(Grade.A_EQUIPPED, Grade.fromString("Ae"))
         assertEquals(Grade.UNKNOWN, Grade.fromString("¿?"))
+    }
+
+    @Test
+    fun `test fromString name`() {
+        for (grade in Grade.entries) {
+            assertEquals(
+                grade,
+                Grade.fromString(grade.name),
+                "Conversion failed for name \"${grade.name}\" => $grade",
+            )
+        }
     }
 }
