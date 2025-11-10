@@ -22,6 +22,7 @@ enum class Grade {
     A3, A3_PLUS,
     A4, A4_PLUS,
     A5, A5_PLUS,
+    A_EQUIPPED,
 
     UNKNOWN;
 
@@ -30,6 +31,7 @@ enum class Grade {
             val name = value
                 .uppercase()
                 .replace("+", "_PLUS")
+                .replace("e", "_EQUIPPED")
                 .replace("º", "A")
             return Grade.entries.find { it.name.endsWith(name) } ?: UNKNOWN
         }

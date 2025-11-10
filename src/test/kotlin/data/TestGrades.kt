@@ -14,6 +14,7 @@ class TestGrades {
         assertEquals(Grade.G7C, Grade.fromString("7c"))
         assertEquals(Grade.G9C_PLUS, Grade.fromString("9c+"))
         assertEquals(Grade.A2, Grade.fromString("A2"))
+        assertEquals(Grade.A_EQUIPPED, Grade.fromString("Ae"))
         assertEquals(Grade.UNKNOWN, Grade.fromString("¿?"))
     }
 }
