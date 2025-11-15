@@ -27,13 +27,8 @@ enum class Grade {
     UNKNOWN;
 
     companion object {
-        fun fromString(value: String): Grade {
-            val name = value
-                .uppercase()
-                .replace("+", "_PLUS")
-                .replace("º", "A")
-                .replace("AE", "A_EQUIPPED")
-            return Grade.entries.find { it.name.endsWith(name) } ?: UNKNOWN
+        fun fromString(name: String): Grade {
+            return Grade.entries.find { it.name.equals(name, true) } ?: UNKNOWN
         }
     }
 }
