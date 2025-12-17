@@ -17,6 +17,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import server.DataProvider
 import server.base.ApplicationTestBase
 import server.base.patch.PropertyValuePair
@@ -88,7 +91,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
         testPatching(
             EntityTypes.PATH,
             listOf(
-                PropertyValuePair("pitches", listOf(PitchInfo(1U))) { it.pitches },
+                PropertyValuePair("pitches", listOf(PitchInfo(1U)), { Json.encodeToString(it) }) { it.pitches },
                 PropertyValuePair("grade", Grade.G7C) { it.grade }
             )
         )
@@ -155,7 +158,7 @@ class TestPatchPathEndpoint : ApplicationTestBase() {
 
     @Test
     fun `test patching Path - update reBuilder`() =
-        testPatching(EntityTypes.PATH, "reBuilder", listOf(Builder("new name", "new date"))) { it.reBuilder }
+        testPatching(EntityTypes.PATH, "reBuilder", listOf(Builder("new name", "new date")), { Json.encodeToString(it) }) { it.reBuilder }
 
     @Test
     fun `test patching Path - remove height`() = removeProperty("height") { it.height }

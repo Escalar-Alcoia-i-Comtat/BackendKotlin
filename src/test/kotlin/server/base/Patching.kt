@@ -22,6 +22,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationStrategy
 import server.base.ApplicationTestBase.Companion.AUTH_TOKEN
 import server.base.patch.PropertyValuePair
 import server.response.files.RequestFilesResponseData
@@ -33,8 +34,9 @@ fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching
     type: EntityTypes<EntityType>,
     propertyName: String,
     propertyValue: PropertyType?,
+    listToStringSerializer: ((PropertyType) -> String)? = null,
     propertyAccessor: (EntityType) -> PropertyType?
-) = testPatching(type, listOf(PropertyValuePair(propertyName, propertyValue, propertyAccessor)))
+) = testPatching(type, listOf(PropertyValuePair(propertyName, propertyValue, listToStringSerializer, propertyAccessor)))
 
 fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching(
     type: EntityTypes<EntityType>,
@@ -56,9 +58,9 @@ fun <EntityType: BaseEntity, PropertyType: Any> ApplicationTestBase.testPatching
                 when (newValue) {
                     null -> append(propertyName, "\u0000")
                     is Number -> append(propertyName, newValue)
-                    is Iterable<*> -> if (newValue.firstOrNull() is Serializable)
-                        append(propertyName, Json.encodeToString(newValue))
-                    else
+                    is Iterable<*> -> if (newValue.firstOrNull() is Serializable) {
+                        append(propertyName, property.listToStringSerializer!!(newValue))
+                    }else
                         append(propertyName, "[]")
 
                     else -> append(propertyName, newValue.toString())
