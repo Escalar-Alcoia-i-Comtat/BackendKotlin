@@ -7,7 +7,7 @@ kotlin = "2.3.10"
 kotlinx-kover = "0.9.7"
 kotlin-serialization = "1.10.0"
 ktor = "3.4.0"
-postgresql = "42.7.9"
+postgresql = "42.7.10"
 progressbar = "0.10.2"
 sendgrid = "4.10.3"
 
