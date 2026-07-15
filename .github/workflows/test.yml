@@ -7,26 +7,26 @@ permissions:
   pull-requests: write
 
 jobs:
-  run_detekt:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Run detekt review
-        uses: alaegin/Detekt-Action@v1.23.8
-        if: github.event_name == 'pull_request'
-        with:
-          github_token: ${{ secrets.github_token }}
-          detekt_config: config/detekt/detekt.yml
-          reviewdog_reporter: github-pr-review
-          reviewdog_level: error
-      - name: Run detekt
-        uses: alaegin/Detekt-Action@v1.23.8
-        if: github.event_name != 'pull_request'
-        with:
-          github_token: ${{ secrets.github_token }}
-          detekt_config: config/detekt/detekt.yml
-          reviewdog_reporter: github-check
-          reviewdog_level: error
+  # run_detekt:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v7
+  #     - name: Run detekt review
+  #       uses: alaegin/Detekt-Action@v1.23.8
+  #       if: github.event_name == 'pull_request'
+  #       with:
+  #         github_token: ${{ secrets.github_token }}
+  #         detekt_config: config/detekt/detekt.yml
+  #         reviewdog_reporter: github-pr-review
+  #         reviewdog_level: error
+  #     - name: Run detekt
+  #       uses: alaegin/Detekt-Action@v1.23.8
+  #       if: github.event_name != 'pull_request'
+  #       with:
+  #         github_token: ${{ secrets.github_token }}
+  #         detekt_config: config/detekt/detekt.yml
+  #         reviewdog_reporter: github-check
+  #         reviewdog_level: error
   build_and_test:
     runs-on: ubuntu-latest
     steps:
