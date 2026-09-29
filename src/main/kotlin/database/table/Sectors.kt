@@ -2,7 +2,7 @@ package database.table
 
 import data.ExternalTrack
 import data.PhoneSignalAvailability
-import data.Topo
+import org.escalaralcoiaicomtat.common.topo.Topo
 import database.SqlConsts
 import database.entity.Sector
 import database.serialization.Json

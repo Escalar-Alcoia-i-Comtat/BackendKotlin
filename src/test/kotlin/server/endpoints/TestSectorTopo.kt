@@ -3,8 +3,8 @@ package server.endpoints
 import ServerDatabase
 import assertions.assertFailure
 import assertions.assertSuccess
-import data.TestTopo
-import data.Topo
+import data.TopoSamples
+import org.escalaralcoiaicomtat.common.topo.Topo
 import database.EntityTypes
 import database.entity.Sector
 import io.ktor.client.request.forms.formData
@@ -74,12 +74,12 @@ class TestSectorTopo : ApplicationTestBase() {
         val (sectorId, pathId) = sectorWithPath()
         val oldImage = imageNameOf(sectorId)
 
-        patchSector(sectorId, topo = TestTopo.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
+        patchSector(sectorId, topo = TopoSamples.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
             .assertSuccess<UpdateResponseData<Sector>>()
 
         ServerDatabase.instance.query {
             val sector = Sector.findById(sectorId)!!
-            assertEquals(TestTopo.sampleTopo(pathId), sector.topo)
+            assertEquals(TopoSamples.sampleTopo(pathId), sector.topo)
             val background = assertNotNull(sector.topoImage)
             assertNotEquals(oldImage, sector.image.name)
             assertEquals("webp", sector.image.extension)
@@ -94,13 +94,13 @@ class TestSectorTopo : ApplicationTestBase() {
     @Test
     fun `test topo without background is rejected`() = test {
         val (sectorId, pathId) = sectorWithPath()
-        patchSector(sectorId, topo = TestTopo.sampleTopo(pathId).encode()).assertFailure(Errors.MissingData)
+        patchSector(sectorId, topo = TopoSamples.sampleTopo(pathId).encode()).assertFailure(Errors.MissingData)
     }
 
     @Test
     fun `test invalid topo is rejected`() = test {
         val (sectorId, _) = sectorWithPath()
-        val invalid = TestTopo.sampleTopo().copy(routes = listOf(Topo.Route(1, listOf("missing"))))
+        val invalid = TopoSamples.sampleTopo().copy(routes = listOf(Topo.Route(1, listOf("missing"))))
         patchSector(sectorId, topo = invalid.encode(), background = "/images/uixola.jpg")
             .assertFailure(Errors.InvalidData)
         patchSector(sectorId, topo = "not json", background = "/images/uixola.jpg")
@@ -112,7 +112,7 @@ class TestSectorTopo : ApplicationTestBase() {
         val (sectorId, pathId) = sectorWithPath()
         patchSector(
             sectorId,
-            topo = TestTopo.sampleTopo(pathId).encode(),
+            topo = TopoSamples.sampleTopo(pathId).encode(),
             background = "/images/uixola.jpg",
             image = "/images/desploms2.jpg"
         ).assertFailure(Errors.Conflict)
@@ -123,13 +123,13 @@ class TestSectorTopo : ApplicationTestBase() {
         val (sectorId, pathId) = sectorWithPath()
         get("/sector/$sectorId/topo").assertFailure(Errors.ObjectNotFound)
 
-        patchSector(sectorId, topo = TestTopo.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
+        patchSector(sectorId, topo = TopoSamples.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
             .assertSuccess<UpdateResponseData<Sector>>()
 
         val background = ServerDatabase.instance.query { Sector.findById(sectorId)!!.topoImage!!.nameWithoutExtension }
         get("/sector/$sectorId/topo").assertSuccess<TopoResponseData> { data ->
             assertNotNull(data)
-            assertEquals(TestTopo.sampleTopo(pathId), data.topo)
+            assertEquals(TopoSamples.sampleTopo(pathId), data.topo)
             assertEquals(background, data.topoImage)
         }
     }
@@ -137,7 +137,7 @@ class TestSectorTopo : ApplicationTestBase() {
     @Test
     fun `test changing a route re-renders the topo`() = test {
         val (sectorId, pathId) = sectorWithPath()
-        patchSector(sectorId, topo = TestTopo.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
+        patchSector(sectorId, topo = TopoSamples.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
             .assertSuccess<UpdateResponseData<Sector>>()
         val rendered = imageNameOf(sectorId)
 
@@ -154,7 +154,7 @@ class TestSectorTopo : ApplicationTestBase() {
     @Test
     fun `test uploading an image removes the topo`() = test {
         val (sectorId, pathId) = sectorWithPath()
-        patchSector(sectorId, topo = TestTopo.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
+        patchSector(sectorId, topo = TopoSamples.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
             .assertSuccess<UpdateResponseData<Sector>>()
 
         patchSector(sectorId, image = "/images/desploms2.jpg").assertSuccess<UpdateResponseData<Sector>>()
@@ -170,7 +170,7 @@ class TestSectorTopo : ApplicationTestBase() {
     @Test
     fun `test removing the topo keeps the rendered image`() = test {
         val (sectorId, pathId) = sectorWithPath()
-        patchSector(sectorId, topo = TestTopo.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
+        patchSector(sectorId, topo = TopoSamples.sampleTopo(pathId).encode(), background = "/images/uixola.jpg")
             .assertSuccess<UpdateResponseData<Sector>>()
         val rendered = imageNameOf(sectorId)
 

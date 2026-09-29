@@ -74,6 +74,10 @@ kotlin {
         all {
             resources.srcDir(file("package"))
         }
+        // Code shared with the app, from the common submodule (https://github.com/Escalar-Alcoia-i-Comtat/Common)
+        named("main") {
+            kotlin.srcDir("common/src/commonMain/kotlin")
+        }
     }
 }
 
