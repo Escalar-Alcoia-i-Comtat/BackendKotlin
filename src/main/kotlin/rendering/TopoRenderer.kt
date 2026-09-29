@@ -274,14 +274,17 @@ object TopoRenderer {
                 val textWidth = TextLayout(number, TopoFonts.number.deriveFont(textSize), g.fontRenderContext).bounds.width
                 // Wide numbers ("12a") get a wider badge
                 val radius = maxOf(size(BADGE_RADIUS).toDouble(), textWidth / 2 + size(BADGE_PADDING))
-                val badge = Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2)
+                // Routes starting at the edge of the photo would push the badge out of it
+                val centerX = position.x.coerceIn(radius, maxOf(radius, width - radius))
+                val centerY = position.y.coerceIn(radius, maxOf(radius, height - radius))
+                val badge = Ellipse2D.Double(centerX - radius, centerY - radius, radius * 2, radius * 2)
                 g.color = color
                 g.fill(badge)
                 // A thin white ring keeps the badge visible on dark rock
                 g.color = White
                 g.stroke = BasicStroke(size(BADGE_RING))
                 g.draw(badge)
-                drawText(number, position.x, position.y, textSize, White, null, TopoFonts.number)
+                drawText(number, centerX, centerY, textSize, White, null, TopoFonts.number)
             }
 
             val grade = info.displayGrade ?: return
