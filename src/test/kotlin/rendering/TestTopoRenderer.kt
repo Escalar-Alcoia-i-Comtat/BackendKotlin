@@ -64,6 +64,16 @@ class TestTopoRenderer {
     }
 
     @Test
+    fun `test bundled fonts are used`() {
+        // Static fonts include their weight in the family name, like "Source Sans 3 SemiBold"
+        assertTrue(TopoFonts.number.family.startsWith("Source Sans 3"), TopoFonts.number.family)
+        assertTrue(TopoFonts.grade.family.startsWith("Source Sans 3"), TopoFonts.grade.family)
+        assertTrue(TopoFonts.label.family.startsWith("Source Sans 3"), TopoFonts.label.family)
+        assertTrue(TopoFonts.copyright.family.startsWith("Signika"), TopoFonts.copyright.family)
+        assertTrue(TopoFonts.other.family.startsWith("Work Sans"), TopoFonts.other.family)
+    }
+
+    @Test
     fun `test routes without data are skipped`() {
         val background = grayBackground()
         val rendered = TopoRenderer.render(TestTopo.sampleTopo(pathId = 5), background, emptyMap())

@@ -177,7 +177,7 @@ object TopoRenderer {
             drawNodes()
             for ((route, info) in routes) drawRouteTexts(route, info)
             for (label in topo.labels) {
-                drawText(label.text, x(label.x), y(label.y), size(label.size ?: LABEL_SIZE), White, Dark)
+                drawText(label.text, x(label.x), y(label.y), size(label.size ?: LABEL_SIZE), White, Dark, TopoFonts.label)
             }
             topo.copyright?.let(::drawCopyright)
         }
@@ -205,7 +205,7 @@ object TopoRenderer {
                 g.stroke = BasicStroke(size(TEXT_OUTLINE))
                 g.draw(circle)
                 node.label?.let { label ->
-                    drawText(label, x(node.x) + radius * 2.4, y(node.y), size(LABEL_SIZE), White, Dark)
+                    drawText(label, x(node.x) + radius * 2.4, y(node.y), size(LABEL_SIZE), White, Dark, TopoFonts.label)
                 }
             }
         }
@@ -265,7 +265,7 @@ object TopoRenderer {
 
             val numberPosition = route.numberAt?.let { Point2D.Double(x(it.x), y(it.y)) }
                 ?: routeStart(route)?.let { Point2D.Double(it.x, it.y + size(NUMBER_OFFSET)) }
-            numberPosition?.let { drawText(info.sketchId.toString(), it.x, it.y, size(TEXT_SIZE), color, White) }
+            numberPosition?.let { drawText(info.sketchId.toString(), it.x, it.y, size(TEXT_SIZE), color, White, TopoFonts.number) }
 
             val grade = info.displayGrade ?: return
             val gradePosition = route.gradeAt?.let { Point2D.Double(x(it.x), y(it.y)) } ?: routeMiddle(route) ?: return
@@ -273,11 +273,11 @@ object TopoRenderer {
             val badge = Ellipse2D.Double(gradePosition.x - radius, gradePosition.y - radius, radius * 2, radius * 2)
             g.color = White
             g.fill(badge)
-            drawText(label(grade), gradePosition.x, gradePosition.y, size(TEXT_SIZE * 0.85), color, null)
+            drawText(label(grade), gradePosition.x, gradePosition.y, size(TEXT_SIZE * 0.85), color, null, TopoFonts.grade)
         }
 
         private fun drawCopyright(copyright: Topo.Copyright) {
-            val font = Font(Font.SANS_SERIF, Font.BOLD, 1).deriveFont(size(COPYRIGHT_SIZE))
+            val font = TopoFonts.copyright.deriveFont(size(COPYRIGHT_SIZE))
             val layout = TextLayout(copyright.text, font, g.fontRenderContext)
             val margin = size(COPYRIGHT_MARGIN).toDouble()
             val textWidth = layout.bounds.width
@@ -286,13 +286,21 @@ object TopoRenderer {
             val top = copyright.corner == Topo.Corner.TOP_LEFT || copyright.corner == Topo.Corner.TOP_RIGHT
             val centerX = if (left) margin + textWidth / 2 else width - margin - textWidth / 2
             val centerY = if (top) margin + textHeight / 2 else height - margin - textHeight / 2
-            drawText(copyright.text, centerX, centerY, size(COPYRIGHT_SIZE), White, Dark)
+            drawText(copyright.text, centerX, centerY, size(COPYRIGHT_SIZE), White, Dark, TopoFonts.copyright)
         }
 
-        /** Draws [text] centered on ([centerX], [centerY]), with an optional [outline] for legibility. */
-        private fun drawText(text: String, centerX: Double, centerY: Double, textSize: Float, fill: Color, outline: Color?) {
+        /** Draws [text] in [baseFont], centered on ([centerX], [centerY]), with an optional [outline] for legibility. */
+        private fun drawText(
+            text: String,
+            centerX: Double,
+            centerY: Double,
+            textSize: Float,
+            fill: Color,
+            outline: Color?,
+            baseFont: Font
+        ) {
             if (text.isBlank()) return
-            val font = Font(Font.SANS_SERIF, Font.BOLD, 1).deriveFont(textSize)
+            val font = baseFont.deriveFont(textSize)
             val layout = TextLayout(text, font, g.fontRenderContext)
             val bounds = layout.bounds
             val transform = AffineTransform.getTranslateInstance(
