@@ -51,7 +51,9 @@ object TopoRenderer {
     private const val COPYRIGHT_SIZE = 0.016
     private const val COPYRIGHT_MARGIN = 0.015
     private const val TEXT_OUTLINE = 0.003
-    private const val NUMBER_OFFSET = 0.022
+    private const val NUMBER_OFFSET = 0.028
+    private const val BADGE_PADDING = 0.004
+    private const val BADGE_RING = 0.0015
     private const val CURVE_STEPS = 16
 
     private val White = Color(0xFFFFFF)
@@ -263,9 +265,24 @@ object TopoRenderer {
         private fun drawRouteTexts(route: Topo.Route, info: RouteInfo) {
             val color = color(info.displayGrade)
 
+            // The route's number, in a badge of the route's colour
             val numberPosition = route.numberAt?.let { Point2D.Double(x(it.x), y(it.y)) }
                 ?: routeStart(route)?.let { Point2D.Double(it.x, it.y + size(NUMBER_OFFSET)) }
-            numberPosition?.let { drawText(info.sketchId.toString(), it.x, it.y, size(TEXT_SIZE), color, White, TopoFonts.number) }
+            numberPosition?.let { position ->
+                val number = info.sketchId.toString()
+                val textSize = size(TEXT_SIZE * 0.85)
+                val textWidth = TextLayout(number, TopoFonts.number.deriveFont(textSize), g.fontRenderContext).bounds.width
+                // Wide numbers ("12a") get a wider badge
+                val radius = maxOf(size(BADGE_RADIUS).toDouble(), textWidth / 2 + size(BADGE_PADDING))
+                val badge = Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2)
+                g.color = color
+                g.fill(badge)
+                // A thin white ring keeps the badge visible on dark rock
+                g.color = White
+                g.stroke = BasicStroke(size(BADGE_RING))
+                g.draw(badge)
+                drawText(number, position.x, position.y, textSize, White, null, TopoFonts.number)
+            }
 
             val grade = info.displayGrade ?: return
             val gradePosition = route.gradeAt?.let { Point2D.Double(x(it.x), y(it.y)) } ?: routeMiddle(route) ?: return
