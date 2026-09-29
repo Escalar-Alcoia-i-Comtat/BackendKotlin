@@ -25,6 +25,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Instant
 import java.util.UUID
+import kotlin.math.hypot
 import javax.imageio.ImageIO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -51,7 +52,6 @@ object TopoRenderer {
     private const val COPYRIGHT_SIZE = 0.016
     private const val COPYRIGHT_MARGIN = 0.015
     private const val TEXT_OUTLINE = 0.003
-    private const val NUMBER_OFFSET = 0.028
     private const val BADGE_PADDING = 0.004
     private const val BADGE_RING = 0.0015
     private const val CURVE_STEPS = 16
@@ -219,6 +219,24 @@ object TopoRenderer {
             return Point2D.Double(x(node.x), y(node.y))
         }
 
+        /** Unit vector of the direction the route's line leaves its start in, or null if it can't be told. */
+        private fun routeStartDirection(route: Topo.Route): Point2D? {
+            val start = routeStart(route) ?: return null
+            val first = route.edges.firstNotNullOfOrNull { edges[it] } ?: return null
+            // The first control point that isn't on the start gives the direction
+            val next = first.curves.asSequence()
+                .flatMap { sequenceOf(it.c1, it.c2, it.end) }
+                .map { Point2D.Double(x(it.x), y(it.y)) }
+                .firstOrNull { it.distance(start) > 0.5 }
+                ?: return null
+            return unit(next.x - start.x, next.y - start.y)
+        }
+
+        private fun unit(dx: Double, dy: Double): Point2D? {
+            val length = hypot(dx, dy)
+            return if (length < 1e-6) null else Point2D.Double(dx / length, dy / length)
+        }
+
         /** The point halfway along the route's line, measured on a flattened version of its curves. */
         private fun routeMiddle(route: Topo.Route): Point2D? {
             val points = mutableListOf<Point2D>()
@@ -265,15 +283,20 @@ object TopoRenderer {
         private fun drawRouteTexts(route: Topo.Route, info: RouteInfo) {
             val color = color(info.displayGrade)
 
-            // The route's number, in a badge of the route's colour
-            val numberPosition = route.numberAt?.let { Point2D.Double(x(it.x), y(it.y)) }
-                ?: routeStart(route)?.let { Point2D.Double(it.x, it.y + size(NUMBER_OFFSET)) }
-            numberPosition?.let { position ->
+            // The route's number, in a badge of the route's colour, touching the start of its line
+            routeStart(route)?.let { start ->
                 val number = info.sketchId.toString()
                 val textSize = size(TEXT_SIZE * 0.85)
                 val textWidth = TextLayout(number, TopoFonts.number.deriveFont(textSize), g.fontRenderContext).bounds.width
                 // Wide numbers ("12a") get a wider badge
                 val radius = maxOf(size(BADGE_RADIUS).toDouble(), textWidth / 2 + size(BADGE_PADDING))
+                // The badge goes towards the number's position in the drawing if there's one, and otherwise
+                // continues the line backwards (below the start, for a line going up)
+                val direction = route.numberAt
+                    ?.let { unit(x(it.x) - start.x, y(it.y) - start.y) }
+                    ?: routeStartDirection(route)?.let { Point2D.Double(-it.x, -it.y) }
+                    ?: Point2D.Double(0.0, 1.0)
+                val position = Point2D.Double(start.x + direction.x * radius, start.y + direction.y * radius)
                 // Routes starting at the edge of the photo would push the badge out of it
                 val centerX = position.x.coerceIn(radius, maxOf(radius, width - radius))
                 val centerY = position.y.coerceIn(radius, maxOf(radius, height - radius))

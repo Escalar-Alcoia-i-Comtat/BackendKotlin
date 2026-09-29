@@ -79,6 +79,21 @@ class TestTopoRenderer {
     }
 
     @Test
+    fun `test route number touches the start of its line`() {
+        // The sample route starts at (0.2, 0.9) and goes up, so its number badge continues the line downwards
+        val rendered = TopoRenderer.render(
+            TestTopo.sampleTopo(pathId = 5),
+            grayBackground(),
+            mapOf(5 to TopoRenderer.RouteInfo(sketchId = 1U, grade = Grade.G6A, aidGrade = null))
+        )
+        // Just below the start, on the left of the number: the badge's colour, not the background
+        val badge = rendered.colorAt(0.2 - 0.009, 0.9 + 0.012)
+        assertEquals(Color(0x0055D4), badge)
+        // Further down, past the badge, the background is untouched
+        assertEquals(Color(128, 128, 128), rendered.colorAt(0.2, 0.9 + 0.05))
+    }
+
+    @Test
     fun `test routes without data are skipped`() {
         val background = grayBackground()
         val rendered = TopoRenderer.render(TopoSamples.sampleTopo(pathId = 5), background, emptyMap())
