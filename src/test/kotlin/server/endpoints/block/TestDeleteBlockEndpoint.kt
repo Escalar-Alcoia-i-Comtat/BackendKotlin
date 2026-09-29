@@ -1,5 +1,6 @@
 package server.endpoints.block
 
+import org.jetbrains.exposed.v1.core.eq
 import ServerDatabase
 import assertions.assertSuccess
 import data.BlockingTypes

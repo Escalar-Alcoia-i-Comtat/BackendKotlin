@@ -6,7 +6,7 @@ import database.SqlConsts
 import database.entity.Sector
 import database.serialization.Json
 import kotlinx.serialization.builtins.ListSerializer
-import org.jetbrains.exposed.sql.json.json
+import org.jetbrains.exposed.v1.json.json
 
 object Sectors : BaseTable() {
     val displayName = varchar("display_name", SqlConsts.DISPLAY_NAME_LENGTH)

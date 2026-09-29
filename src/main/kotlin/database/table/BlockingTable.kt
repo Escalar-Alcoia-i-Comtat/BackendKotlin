@@ -2,7 +2,7 @@ package database.table
 
 import data.BlockingTypes
 import java.time.Month
-import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.v1.javatime.datetime
 
 object BlockingTable: BaseTable() {
     val type = enumeration<BlockingTypes>("type")

@@ -1,7 +1,7 @@
 package database.migration
 
 import database.entity.info.Version
-import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 /**
  * Defines how a migration between different versions of the database should be handled.
@@ -17,9 +17,9 @@ abstract class Migration(
         val all: List<Migration> = listOf(MigrateTo1, Migrate1To2, Migrate2To3)
     }
 
-    protected abstract suspend fun Transaction.migrate()
+    protected abstract suspend fun JdbcTransaction.migrate()
 
-    suspend operator fun Transaction.invoke() {
+    suspend operator fun JdbcTransaction.invoke() {
         migrate()
 
         // Update the version of the database

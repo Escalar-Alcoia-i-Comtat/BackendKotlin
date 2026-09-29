@@ -1,5 +1,6 @@
 package database.entity
 
+import org.jetbrains.exposed.v1.core.eq
 import database.serialization.AreaSerializer
 import database.table.Areas
 import database.table.Zones
@@ -10,8 +11,8 @@ import java.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import server.response.ResponseData
 import storage.Storage
 

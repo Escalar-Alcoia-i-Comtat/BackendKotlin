@@ -1,5 +1,6 @@
 package database.entity
 
+import org.jetbrains.exposed.v1.core.eq
 import data.LatLng
 import data.PhoneSignalAvailability
 import database.serialization.SectorSerializer
@@ -8,8 +9,8 @@ import database.table.Sectors
 import java.io.File
 import java.time.Instant
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import server.response.ResponseData
 import storage.Storage
 

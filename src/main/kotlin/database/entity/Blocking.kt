@@ -7,8 +7,8 @@ import database.table.BlockingTable
 import java.time.Instant
 import java.time.LocalDateTime
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import server.response.ResponseData
 
 @Serializable(with = BlockingSerializer::class)

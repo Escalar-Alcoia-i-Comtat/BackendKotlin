@@ -3,16 +3,16 @@ package database.migration
 import data.LatLng
 import database.entity.Zone
 import database.serialization.Json
-import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 @Suppress("DEPRECATION")
 object MigrateTo1 : Migration(null, 1) {
-    override suspend fun Transaction.migrate() {
+    override suspend fun JdbcTransaction.migrate() {
         // Migrate Zone members
         migrateZones()
     }
 
-    private fun Transaction.migrateZones() {
+    private fun JdbcTransaction.migrateZones() {
         Zone.all().forEach { zone ->
             // Move from latitude and longitude to point
             val lat = zone.latitude

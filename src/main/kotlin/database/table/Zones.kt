@@ -4,7 +4,7 @@ import data.DataPoint
 import data.LatLng
 import database.SqlConsts
 import database.serialization.Json
-import org.jetbrains.exposed.sql.json.json
+import org.jetbrains.exposed.v1.json.json
 
 object Zones : DataTable() {
     val imagePath = varchar("image", SqlConsts.FILE_LENGTH)
