@@ -100,3 +100,15 @@ kover {
         }
     }
 }
+
+// Renders topos from the command line, see RenderTopoCli.kt:
+// ./gradlew renderTopo -Pdir=<directory with topo.json, background.png and routes.json>
+tasks.register<JavaExec>("renderTopo") {
+    group = "topo"
+    description = "Renders topo.json on top of background.png, like the server does"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "rendering.RenderTopoCliKt"
+    workingDir = rootDir
+    jvmArgs("-Djava.awt.headless=true")
+    args(providers.gradleProperty("dir").orElse("").get())
+}
