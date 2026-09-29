@@ -87,9 +87,18 @@ data class Topo(
     @Serializable
     data class Bolt(val x: Double, val y: Double, val pathId: Int? = null)
 
-    /** Free text on the drawing, like a pitch length ("20 m"). [size] is the text height relative to the image width. */
+    /**
+     * Free text on the drawing, like a pitch length ("20 m"). [size] is the text height relative to the image width.
+     * [font] is the family to draw it with: "Source Sans 3" (the default), "Signika" or "Work Sans".
+     */
     @Serializable
-    data class Label(val x: Double, val y: Double, val text: String, val size: Double? = null)
+    data class Label(
+        val x: Double,
+        val y: Double,
+        val text: String,
+        val size: Double? = null,
+        val font: String? = null
+    )
 
     @Serializable
     data class Copyright(val text: String, val corner: Corner = Corner.BOTTOM_RIGHT)

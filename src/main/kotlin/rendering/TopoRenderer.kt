@@ -177,7 +177,7 @@ object TopoRenderer {
             drawNodes()
             for ((route, info) in routes) drawRouteTexts(route, info)
             for (label in topo.labels) {
-                drawText(label.text, x(label.x), y(label.y), size(label.size ?: LABEL_SIZE), White, Dark, TopoFonts.label)
+                drawText(label.text, x(label.x), y(label.y), size(label.size ?: LABEL_SIZE), White, Dark, TopoFonts.forFamily(label.font))
             }
             topo.copyright?.let(::drawCopyright)
         }

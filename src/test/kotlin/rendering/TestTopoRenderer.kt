@@ -71,6 +71,11 @@ class TestTopoRenderer {
         assertTrue(TopoFonts.label.family.startsWith("Source Sans 3"), TopoFonts.label.family)
         assertTrue(TopoFonts.copyright.family.startsWith("Signika"), TopoFonts.copyright.family)
         assertTrue(TopoFonts.other.family.startsWith("Work Sans"), TopoFonts.other.family)
+
+        // Labels use the font of their family, and Source Sans 3 by default
+        assertEquals(TopoFonts.other, TopoFonts.forFamily("Work Sans"))
+        assertEquals(TopoFonts.copyright, TopoFonts.forFamily("Signika"))
+        assertEquals(TopoFonts.label, TopoFonts.forFamily(null))
     }
 
     @Test

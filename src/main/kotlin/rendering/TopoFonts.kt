@@ -38,6 +38,14 @@ object TopoFonts {
     /** Other texts (Segoe UI). */
     val other: Font by lazy { load("WorkSans-Regular", Font.PLAIN) }
 
+    /** The font of the given replacement [family] ("Source Sans 3", "Signika" or "Work Sans"), for free labels. */
+    fun forFamily(family: String?): Font = when {
+        family == null -> label
+        family.startsWith("Signika", ignoreCase = true) -> copyright
+        family.startsWith("Work Sans", ignoreCase = true) -> other
+        else -> label
+    }
+
     private fun load(name: String, fallbackStyle: Int): Font = try {
         val stream = TopoFonts::class.java.getResourceAsStream("/fonts/$name.ttf")
             ?: error("Font $name not found in resources")
