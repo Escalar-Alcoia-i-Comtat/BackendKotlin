@@ -79,6 +79,14 @@ class TestTopoRenderer {
     }
 
     @Test
+    fun `test copyright uses the year the image is generated`() {
+        assertEquals("©ÀLEX MORA 2026 EscalarAlcoiaiComtat", TopoRenderer.copyrightText("©ÀLEX MORA 2020 EscalarAlcoiaiComtat", 2026))
+        assertEquals("© EscalarAlcoiaiComtat", TopoRenderer.copyrightText("© EscalarAlcoiaiComtat", 2026))
+        // Other numbers aren't years
+        assertEquals("Sector 12, 2026", TopoRenderer.copyrightText("Sector 12, 1999", 2026))
+    }
+
+    @Test
     fun `test routes without data are skipped`() {
         val background = grayBackground()
         val rendered = TopoRenderer.render(TopoSamples.sampleTopo(pathId = 5), background, emptyMap())

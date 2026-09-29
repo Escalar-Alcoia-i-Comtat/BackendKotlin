@@ -24,6 +24,7 @@ import java.awt.geom.Point2D
 import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Instant
+import java.time.Year
 import java.util.UUID
 import javax.imageio.ImageIO
 import kotlinx.coroutines.Dispatchers
@@ -103,11 +104,25 @@ object TopoRenderer {
         return string.lowercase()
     }
 
+    private val YEAR = Regex("""\b(19|20)\d{2}\b""")
+
+    /**
+     * The copyright [text] with its year replaced by [year], the year the image is generated. Texts without a year are
+     * returned unchanged.
+     */
+    fun copyrightText(text: String, year: Int): String = text.replace(YEAR, year.toString())
+
     /**
      * Draws [topo] on top of [background].
      * @param routes Data of the sector's routes, by path ID. Routes of the topo missing here are skipped.
+     * @param year The year shown in the copyright, the current one by default.
      */
-    fun render(topo: Topo, background: BufferedImage, routes: Map<Int, RouteInfo>): BufferedImage {
+    fun render(
+        topo: Topo,
+        background: BufferedImage,
+        routes: Map<Int, RouteInfo>,
+        year: Int = Year.now().value
+    ): BufferedImage {
         val width = background.width
         val height = background.height
         val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
@@ -119,7 +134,7 @@ object TopoRenderer {
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
             g.drawImage(background, 0, 0, null)
 
-            Drawing(g, topo, width.toDouble(), height.toDouble(), routes).draw()
+            Drawing(g, topo, width.toDouble(), height.toDouble(), routes, year).draw()
         } finally {
             g.dispose()
         }
@@ -131,7 +146,8 @@ object TopoRenderer {
         private val topo: Topo,
         private val width: Double,
         private val height: Double,
-        routes: Map<Int, RouteInfo>
+        routes: Map<Int, RouteInfo>,
+        private val year: Int
     ) {
         private val nodes = topo.nodes.associateBy { it.id }
         private val edges = topo.edges.associateBy { it.id }
@@ -297,8 +313,9 @@ object TopoRenderer {
         }
 
         private fun drawCopyright(copyright: Topo.Copyright) {
+            val text = copyrightText(copyright.text, year)
             val font = TopoFonts.copyright.deriveFont(size(COPYRIGHT_SIZE))
-            val layout = TextLayout(copyright.text, font, g.fontRenderContext)
+            val layout = TextLayout(text, font, g.fontRenderContext)
             val margin = size(COPYRIGHT_MARGIN).toDouble()
             val textWidth = layout.bounds.width
             val textHeight = layout.bounds.height
@@ -306,7 +323,7 @@ object TopoRenderer {
             val top = copyright.corner == Topo.Corner.TOP_LEFT || copyright.corner == Topo.Corner.TOP_RIGHT
             val centerX = if (left) margin + textWidth / 2 else width - margin - textWidth / 2
             val centerY = if (top) margin + textHeight / 2 else height - margin - textHeight / 2
-            drawText(copyright.text, centerX, centerY, size(COPYRIGHT_SIZE), White, Dark, TopoFonts.copyright)
+            drawText(text, centerX, centerY, size(COPYRIGHT_SIZE), White, Dark, TopoFonts.copyright)
         }
 
         /** Draws [text] in [baseFont], centered on ([centerX], [centerY]), with an optional [outline] for legibility. */
