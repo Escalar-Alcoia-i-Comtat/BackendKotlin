@@ -10,6 +10,8 @@ RUN ./gradlew buildFatJar --no-daemon
 FROM amazoncorretto:21-alpine AS runtime
 EXPOSE 8080:8080
 RUN apk add curl
+# Font support for drawing text when rendering topos. The fonts used are bundled; DejaVu is only a fallback
+RUN apk add fontconfig ttf-dejavu
 RUN mkdir /app
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/escalaralcoiaicomtat.jar
 ENTRYPOINT ["java","-jar","/app/escalaralcoiaicomtat.jar"]
