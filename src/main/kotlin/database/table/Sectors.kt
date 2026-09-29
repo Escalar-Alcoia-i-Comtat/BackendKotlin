@@ -2,6 +2,7 @@ package database.table
 
 import data.ExternalTrack
 import data.PhoneSignalAvailability
+import data.Topo
 import database.SqlConsts
 import database.entity.Sector
 import database.serialization.Json
@@ -13,6 +14,10 @@ object Sectors : BaseTable() {
 
     val imagePath = varchar("image", SqlConsts.FILE_LENGTH)
     val gpxPath = varchar("gpx", SqlConsts.FILE_LENGTH).nullable()
+
+    /** Route drawing as data. When set, the sector's image is rendered from it on top of [topoImagePath]. */
+    val topo = json("topo", Topo.json, Topo.serializer()).nullable().default(null)
+    val topoImagePath = varchar("topo_image", SqlConsts.FILE_LENGTH).nullable().default(null)
     val tracks = json("tracks", Json, ListSerializer(ExternalTrack.serializer())).nullable().default(null)
 
     val latitude = double("latitude").nullable()

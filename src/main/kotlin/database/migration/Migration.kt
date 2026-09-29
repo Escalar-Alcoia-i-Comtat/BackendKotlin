@@ -14,7 +14,7 @@ abstract class Migration(
     val to: Int
 ) {
     companion object {
-        val all: List<Migration> = listOf(MigrateTo1, Migrate1To2, Migrate2To3)
+        val all: List<Migration> = listOf(MigrateTo1, Migrate1To2, Migrate2To3, Migrate3To4)
     }
 
     protected abstract suspend fun JdbcTransaction.migrate()

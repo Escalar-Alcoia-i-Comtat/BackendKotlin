@@ -17,6 +17,7 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
 import java.io.File
 import java.time.Instant
+import rendering.TopoRenderer
 import server.endpoints.SecureEndpointBase
 import server.error.Error
 import server.error.Errors
@@ -65,6 +66,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
         var imageFiles: List<File>? = null
 
         var sector: Sector? = null
+        var previousSectorId: Int? = null
 
         var removeHeight = false
         var removeGrade = false
@@ -275,6 +277,7 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
             builder?.let { path.builder = it }
             reBuilder?.let { path.reBuilder = it }
             imageFiles?.let { path.images = it }
+            previousSectorId = path.sector.id.value
             sector?.let { path.sector = it }
 
             if (removeHeight) path.height = null
@@ -302,6 +305,10 @@ object PatchPathEndpoint : SecureEndpointBase("/path/{pathId}") {
         ServerDatabase.instance.query { LastUpdate.set() }
 
         Notifier.getInstance().notifyUpdated(EntityTypes.PATH, pathId)
+
+        // The route's number or grade may be drawn on its sector's topo, and it may have moved to another sector
+        val sectorIds = listOfNotNull(previousSectorId, sector?.id?.value).distinct()
+        sectorIds.forEach { TopoRenderer.rerenderIfNeeded(it) }
 
         respondSuccess(
             data = UpdateResponseData(path)

@@ -15,6 +15,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.RoutingContext
 import java.io.File
 import kotlinx.serialization.json.Json
+import rendering.TopoRenderer
 import server.endpoints.SecureEndpointBase
 import server.error.Error
 import server.error.Errors
@@ -173,6 +174,8 @@ object NewPathEndpoint : SecureEndpointBase("/path") {
         ServerDatabase.instance.query { LastUpdate.set() }
 
         Notifier.getInstance().notifyCreated(EntityTypes.PATH, path.id.value)
+
+        TopoRenderer.rerenderIfNeeded(sector!!.id.value)
 
         respondSuccess(
             data = UpdateResponseData(path),

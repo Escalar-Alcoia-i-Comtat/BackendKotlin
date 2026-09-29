@@ -11,6 +11,7 @@ import distribution.Notifier
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.util.getValue
 import java.io.File
+import rendering.TopoRenderer
 import server.endpoints.SecureEndpointBase
 import server.error.Errors
 import server.response.respondFailure
@@ -35,12 +36,14 @@ object DeletePathEndpoint : SecureEndpointBase("/path/{pathId}") {
         // Delete the path's images if any
         path.images?.forEach(File::delete)
 
-        // Now remove the path
-        ServerDatabase.instance.query { path.delete() }
+        // Now remove the path, keeping its sector to update the sector's topo
+        val sectorId = ServerDatabase.instance.query { path.sector.id.value.also { path.delete() } }
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
         Notifier.getInstance().notifyDeleted(EntityTypes.PATH, pathId)
+
+        TopoRenderer.rerenderIfNeeded(sectorId)
 
         respondSuccess()
     }

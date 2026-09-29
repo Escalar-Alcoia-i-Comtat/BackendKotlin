@@ -34,6 +34,7 @@ import server.endpoints.query.AreaEndpoint
 import server.endpoints.query.LastUpdateEndpoint
 import server.endpoints.query.PathEndpoint
 import server.endpoints.query.SectorEndpoint
+import server.endpoints.query.SectorTopoEndpoint
 import server.endpoints.query.TreeEndpoint
 import server.endpoints.query.ZoneEndpoint
 import system.EnvironmentVariables
@@ -70,6 +71,7 @@ fun Application.configureEndpoints() {
         delete(DeleteZoneEndpoint)
 
         get(SectorEndpoint)
+        get(SectorTopoEndpoint)
         post(NewSectorEndpoint)
         post(PatchSectorEndpoint)
         delete(DeleteSectorEndpoint)

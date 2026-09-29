@@ -1,9 +1,11 @@
 package server.endpoints.patch
 
+import Logger
 import ServerDatabase
 import data.ExternalTrack
 import data.LatLng
 import data.PhoneSignalAvailability
+import data.Topo
 import database.EntityTypes
 import database.entity.Sector
 import database.entity.Zone
@@ -17,6 +19,7 @@ import io.ktor.server.util.getValue
 import kotlinx.serialization.builtins.ListSerializer
 import java.io.File
 import java.time.Instant
+import rendering.TopoRenderer
 import server.endpoints.SecureEndpointBase
 import server.error.Error
 import server.error.Errors
@@ -55,6 +58,10 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
         var imageFile: File? = null
         var gpxFile: File? = null
 
+        var topo: Topo? = null
+        var removeTopo = false
+        var topoImageFile: File? = null
+
         var deleteGpx = false
 
         var invalidFile = false
@@ -88,6 +95,18 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                         ListSerializer(PhoneSignalAvailability.serializer()),
                         partData.value
                     )
+                    "topo" -> partData.value.let { value ->
+                        if (value == "\u0000") {
+                            removeTopo = true
+                        } else {
+                            val decoded = runCatching { Topo.json.decodeFromString(Topo.serializer(), value) }.getOrNull()
+                            if (decoded == null || decoded.validate().isNotEmpty()) {
+                                error = Errors.InvalidData
+                            } else {
+                                topo = decoded
+                            }
+                        }
+                    }
                 }
             },
             forEachFileItem = { partData ->
@@ -98,6 +117,9 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
                             return@receiveMultipart
                         }
                         imageFile = partData.save(Storage.ImagesDir)
+                    }
+                    "topoImage" -> {
+                        topoImageFile = partData.save(Storage.ImagesDir)
                     }
                     "gpx" -> {
                         val contentType = partData.headers[HttpHeaders.ContentType]
@@ -128,8 +150,15 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         if (invalidFile) return respondFailure(Errors.InvalidFileType)
 
-        if (areAllNull(displayName, imageFile, gpxFile, kidsApt, point, sunTime, walkingTime, phoneSignalAvailability, weight, tracks, zone) &&
-            areAllFalse(removePoint, removeWalkingTime, deleteGpx)
+        // A plain image replaces a rendered topo, so both can't be sent together
+        if (imageFile != null && (topo != null || topoImageFile != null)) return respondFailure(Errors.Conflict)
+        // A topo needs a background to be rendered on
+        if (topo != null && topoImageFile == null && ServerDatabase.instance.query { runCatching { sector.topoImage }.getOrNull() } == null) {
+            return respondFailure(Errors.MissingData)
+        }
+
+        if (areAllNull(displayName, imageFile, gpxFile, kidsApt, point, sunTime, walkingTime, phoneSignalAvailability, weight, tracks, zone, topo, topoImageFile) &&
+            areAllFalse(removePoint, removeWalkingTime, deleteGpx, removeTopo)
         ) {
             return respondSuccess(httpStatusCode = HttpStatusCode.NoContent)
         }
@@ -150,6 +179,18 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
             imageFile?.let { sector.image = it }
             gpxFile?.let { sector.gpx = it }
 
+            topo?.let { sector.topo = it }
+            topoImageFile?.let { newBackground ->
+                sector.topoImage?.takeIf { it != newBackground }?.delete()
+                sector.topoImage = newBackground
+            }
+            // Removing the topo, or uploading a plain image, stops rendering. The last rendered image is kept.
+            if (removeTopo || imageFile != null) {
+                sector.topo = null
+                sector.topoImage?.delete()
+                sector.topoImage = null
+            }
+
             if (removePoint) sector.point = null
             if (removeWalkingTime) sector.walkingTime = null
 
@@ -160,10 +201,20 @@ object PatchSectorEndpoint : SecureEndpointBase("/sector/{sectorId}") {
 
         ServerDatabase.instance.query { LastUpdate.set() }
 
+        if (topo != null || topoImageFile != null) {
+            try {
+                TopoRenderer.renderSector(sectorId, notify = false)
+            } catch (e: Exception) {
+                Logger.error("Could not render the topo of sector $sectorId", e)
+                return respondFailure(Errors.InvalidFileType)
+            }
+        }
+
         Notifier.getInstance().notifyUpdated(EntityTypes.SECTOR, sectorId)
 
+        val updated = ServerDatabase.instance.query { Sector.findById(sectorId) } ?: sector
         respondSuccess(
-            data = UpdateResponseData(sector)
+            data = UpdateResponseData(updated)
         )
     }
 }

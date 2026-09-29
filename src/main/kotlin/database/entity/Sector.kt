@@ -50,6 +50,14 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
 
     var tracks by Sectors.tracks
 
+    /** When not null, [image] is rendered from this topo on top of [topoImage]. See `rendering.TopoRenderer`. */
+    var topo by Sectors.topo
+
+    /** The background image [topo] is drawn on. */
+    var topoImage: File?
+        get() = _topoImage?.let { findFileByUUID(it, Storage.ImagesDir) }
+        set(value) { _topoImage = value?.toRelativeString(Storage.ImagesDir) }
+
     var point: LatLng?
         get() = _latitude?.let { lat -> _longitude?.let { lon -> LatLng(lat, lon) } }
         set(value) { _latitude = value?.latitude; _longitude = value?.longitude }
@@ -58,6 +66,7 @@ class Sector(id: EntityID<Int>): BaseEntity(id), ResponseData {
 
     private var _image: String by Sectors.imagePath
     private var _gpx: String? by Sectors.gpxPath
+    private var _topoImage: String? by Sectors.topoImagePath
 
     private var _latitude: Double? by Sectors.latitude
     private var _longitude: Double? by Sectors.longitude
