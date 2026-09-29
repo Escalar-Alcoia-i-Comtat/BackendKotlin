@@ -6,10 +6,10 @@ import database.table.Paths
 import database.table.Sectors
 import database.table.Zones
 import java.sql.Timestamp
-import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 object Migrate1To2 : Migration(from = 1, to = 2) {
-    override suspend fun Transaction.migrate() {
+    override suspend fun JdbcTransaction.migrate() {
         // Add the tracks column to the Sectors table
         exec("ALTER TABLE Sectors ADD COLUMN tracks TEXT DEFAULT NULL;")
 

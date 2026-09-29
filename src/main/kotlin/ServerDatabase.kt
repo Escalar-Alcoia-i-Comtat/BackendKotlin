@@ -7,13 +7,12 @@ import database.table.Paths
 import database.table.Sectors
 import database.table.Zones
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SqlLogger
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.addLogger
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.core.SqlLogger
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import system.EnvironmentVariables
 
 /**
@@ -76,7 +75,7 @@ class ServerDatabase private constructor() {
             EnvironmentVariables.Database.Password.value?.let { password = it }
         }
 
-        suspend operator fun <T> invoke(block: suspend Transaction.() -> T): T = instance.query(block)
+        suspend operator fun <T> invoke(block: suspend JdbcTransaction.() -> T): T = instance.query(block)
 
         val tables = sequenceOf(Areas, Zones, Sectors, Paths, BlockingTable, InfoTable)
     }
@@ -117,9 +116,9 @@ class ServerDatabase private constructor() {
         }
     }
 
-    suspend operator fun <T> invoke(block: suspend Transaction.() -> T): T = query(block)
+    suspend operator fun <T> invoke(block: suspend JdbcTransaction.() -> T): T = query(block)
 
-    suspend fun <T> query(block: suspend Transaction.() -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
+    suspend fun <T> query(block: suspend JdbcTransaction.() -> T): T = newSuspendedTransaction(Dispatchers.IO, database) {
         logger?.let { addLogger(it) }
 
         block()
@@ -130,7 +129,7 @@ class ServerDatabase private constructor() {
      *
      * @param block The block of code to run in the transaction.
      */
-    fun <T> querySync(block: Transaction.() -> T) = transaction(database) {
+    fun <T> querySync(block: JdbcTransaction.() -> T) = transaction(database) {
         logger?.let { addLogger(it) }
 
         block()

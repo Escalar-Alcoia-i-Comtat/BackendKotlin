@@ -1,5 +1,6 @@
 package server.endpoints.delete
 
+import org.jetbrains.exposed.v1.core.eq
 import ServerDatabase
 import database.EntityTypes
 import database.entity.Blocking

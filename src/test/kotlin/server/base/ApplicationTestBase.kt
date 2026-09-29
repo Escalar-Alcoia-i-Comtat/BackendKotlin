@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import module
-import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.v1.core.StdOutSqlLogger
 import storage.Storage
 import system.EnvironmentVariables
 

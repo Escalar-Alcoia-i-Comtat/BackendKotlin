@@ -2,9 +2,9 @@ package database.table
 
 import database.SqlConsts.INFO_ID_LENGTH
 import database.SqlConsts.INFO_VALUE_LENGTH
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.Column
 
 object InfoTable: IdTable<String>() {
     override val id: Column<EntityID<String>> = varchar("id", INFO_ID_LENGTH).entityId()

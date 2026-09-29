@@ -12,7 +12,7 @@ import database.table.Zones
 import io.ktor.http.HttpHeaders
 import io.ktor.server.response.header
 import io.ktor.server.routing.RoutingContext
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.v1.core.SortOrder
 import server.endpoints.EndpointBase
 import server.response.query.TreeResponseData
 import server.response.respondSuccess

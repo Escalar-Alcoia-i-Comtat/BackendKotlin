@@ -1,5 +1,6 @@
 package server.endpoints.blocking
 
+import org.jetbrains.exposed.v1.core.eq
 import ServerDatabase
 import database.entity.Blocking
 import database.entity.Path
