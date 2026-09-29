@@ -25,6 +25,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The code shared with the app
+          submodules: true
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
@@ -52,6 +55,8 @@ jobs:
         uses: docker/build-push-action@v7
         if: ${{ github.event_name == 'release' }}
         with:
+          # Build from the checkout, which includes the common submodule
+          context: .
           push: true
           tags: arnyminerz/escalaralcoiaicomtat:latest,arnyminerz/escalaralcoiaicomtat:${{ github.event.release.tag_name }}
       # Otherwise, build and push the development image, tagging it as development
@@ -59,5 +64,7 @@ jobs:
         uses: docker/build-push-action@v7
         if: ${{ github.event_name != 'release' }}
         with:
+          # Build from the checkout, which includes the common submodule
+          context: .
           push: true
           tags: arnyminerz/escalaralcoiaicomtat:development

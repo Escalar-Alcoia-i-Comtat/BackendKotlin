@@ -5,7 +5,7 @@ import ServerDatabase
 import data.ExternalTrack
 import data.LatLng
 import data.PhoneSignalAvailability
-import data.Topo
+import org.escalaralcoiaicomtat.common.topo.Topo
 import database.EntityTypes
 import database.entity.Sector
 import database.entity.Zone

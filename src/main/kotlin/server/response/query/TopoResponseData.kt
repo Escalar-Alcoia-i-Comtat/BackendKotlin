@@ -1,6 +1,6 @@
 package server.response.query
 
-import data.Topo
+import org.escalaralcoiaicomtat.common.topo.Topo
 import kotlinx.serialization.Serializable
 import server.response.ResponseData
 

@@ -2,10 +2,11 @@ package rendering
 
 import Logger
 import java.awt.Font
+import org.escalaralcoiaicomtat.common.topo.FontReplacements
 
 /**
  * Fonts used to draw text on topos. The original Illustrator topos use fonts that can't be distributed, so each one is
- * replaced by a free font with a similar look (all bundled in `resources/fonts`, under the SIL Open Font License):
+ * replaced by a free font with a similar look ([FontReplacements], bundled in `resources/fonts`):
  *
  * | Illustrator     | Replacement     | Used for                                |
  * |-----------------|-----------------|-----------------------------------------|
@@ -16,13 +17,6 @@ import java.awt.Font
  * Source Sans 3 is the current name of Source Sans Pro. If a font can't be loaded, a generic sans-serif font is used.
  */
 object TopoFonts {
-    /** Illustrator font families, and the family that replaces each one. */
-    val replacements = mapOf(
-        "Candara" to "Source Sans 3",
-        "Eras Medium ITC" to "Signika",
-        "Segoe UI" to "Work Sans"
-    )
-
     /** Route numbers (Candara). */
     val number: Font by lazy { load("SourceSans3-SemiBold", Font.BOLD) }
 
@@ -38,11 +32,10 @@ object TopoFonts {
     /** Other texts (Segoe UI). */
     val other: Font by lazy { load("WorkSans-Regular", Font.PLAIN) }
 
-    /** The font of the given replacement [family] ("Source Sans 3", "Signika" or "Work Sans"), for free labels. */
-    fun forFamily(family: String?): Font = when {
-        family == null -> label
-        family.startsWith("Signika", ignoreCase = true) -> copyright
-        family.startsWith("Work Sans", ignoreCase = true) -> other
+    /** The font of the given replacement [family] (one of [FontReplacements]), for free labels. */
+    fun forFamily(family: String?): Font = when (family) {
+        FontReplacements.SIGNIKA -> copyright
+        FontReplacements.WORK_SANS -> other
         else -> label
     }
 

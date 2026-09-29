@@ -1,7 +1,7 @@
 package rendering
 
 import data.Grade
-import data.Topo
+import org.escalaralcoiaicomtat.common.topo.Topo
 import java.io.File
 import javax.imageio.ImageIO
 import kotlin.system.exitProcess

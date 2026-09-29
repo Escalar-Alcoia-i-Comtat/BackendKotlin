@@ -1,7 +1,7 @@
 package rendering
 
 import data.Grade
-import data.TestTopo
+import data.TopoSamples
 import java.awt.Color
 import java.awt.image.BufferedImage
 import kotlin.test.Test
@@ -44,7 +44,7 @@ class TestTopoRenderer {
     fun `test rendering draws routes, bolts and copyright`() {
         val background = grayBackground()
         val rendered = TopoRenderer.render(
-            TestTopo.sampleTopo(pathId = 5),
+            TopoSamples.sampleTopo(pathId = 5),
             background,
             mapOf(5 to TopoRenderer.RouteInfo(sketchId = 1U, grade = Grade.G6A, aidGrade = null))
         )
@@ -81,7 +81,7 @@ class TestTopoRenderer {
     @Test
     fun `test routes without data are skipped`() {
         val background = grayBackground()
-        val rendered = TopoRenderer.render(TestTopo.sampleTopo(pathId = 5), background, emptyMap())
+        val rendered = TopoRenderer.render(TopoSamples.sampleTopo(pathId = 5), background, emptyMap())
         assertEquals(Color(128, 128, 128), rendered.colorAt(0.2, 0.35))
     }
 }

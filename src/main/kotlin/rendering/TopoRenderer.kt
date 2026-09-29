@@ -3,7 +3,7 @@ package rendering
 import Logger
 import ServerDatabase
 import data.Grade
-import data.Topo
+import org.escalaralcoiaicomtat.common.topo.Topo
 import database.EntityTypes
 import database.entity.Path
 import database.entity.Sector
