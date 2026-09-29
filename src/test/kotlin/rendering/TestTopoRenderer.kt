@@ -79,10 +79,20 @@ class TestTopoRenderer {
     }
 
     @Test
+    fun `test copyright shows the year the image is generated`() {
+        val routes = mapOf(1 to TopoRenderer.RouteInfo(sketchId = 1U, grade = Grade.G6A, aidGrade = null))
+        fun render(year: Int) = TopoRenderer.render(TopoSamples.sampleTopo(), grayBackground(), routes, year)
+        val a = render(2026)
+        val b = render(2027)
+        val differs = (0 until a.width).any { x -> (0 until a.height).any { y -> a.getRGB(x, y) != b.getRGB(x, y) } }
+        assertTrue(differs, "The copyright doesn't change with the year")
+    }
+
+    @Test
     fun `test route number touches the start of its line`() {
         // The sample route starts at (0.2, 0.9) and goes up, so its number badge continues the line downwards
         val rendered = TopoRenderer.render(
-            TestTopo.sampleTopo(pathId = 5),
+            TopoSamples.sampleTopo(pathId = 5),
             grayBackground(),
             mapOf(5 to TopoRenderer.RouteInfo(sketchId = 1U, grade = Grade.G6A, aidGrade = null))
         )

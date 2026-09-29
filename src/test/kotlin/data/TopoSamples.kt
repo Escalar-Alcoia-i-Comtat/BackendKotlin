@@ -24,6 +24,6 @@ object TopoSamples {
         routes = listOf(Topo.Route(pathId = pathId, edges = listOf("e1"))),
         bolts = listOf(Topo.Bolt(0.2, 0.5, pathId)),
         labels = listOf(Topo.Label(0.5, 0.5, "20 m")),
-        copyright = Topo.Copyright("© EscalarAlcoiaiComtat", Topo.Corner.BOTTOM_RIGHT)
+        copyright = Topo.Copyright(Topo.Corner.BOTTOM_RIGHT)
     )
 }
