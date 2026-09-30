@@ -1,6 +1,6 @@
 [versions]
 exposed = "1.5.0"
-firebase-admin = "9.10.0"
+firebase-admin = "9.11.0"
 h2 = "2.5.250"
 imageio-webp = "0.1.6"
 kotlin = "2.4.10"
