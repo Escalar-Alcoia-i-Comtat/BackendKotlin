@@ -66,9 +66,9 @@ jobs:
         java-version: '21'
         distribution: 'corretto'
     - name: Set up Gradle
-      uses: gradle/actions/setup-gradle@v6.3.0
+      uses: gradle/actions/setup-gradle@v6.4.0
     - name: Validate Gradle wrapper
-      uses: gradle/actions/wrapper-validation@v6.3.0
+      uses: gradle/actions/wrapper-validation@v6.4.0
     - name: Build with Gradle
       env:
         SENTRY_DISABLE: true
