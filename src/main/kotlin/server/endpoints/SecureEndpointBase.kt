@@ -1,7 +1,7 @@
 package server.endpoints
 
 import io.ktor.http.HttpHeaders
-import io.ktor.server.request.ContentTransformationException
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.header
 import io.ktor.server.routing.RoutingContext
 import server.error.Errors
@@ -37,7 +37,7 @@ abstract class SecureEndpointBase(endpoint: String) : EndpointModel(endpoint) {
 
             endpoint()
         }
-    } catch (_: ContentTransformationException) {
+    } catch (_: BadRequestException) {
         context.respondFailure(Errors.MissingData)
     }
 }
