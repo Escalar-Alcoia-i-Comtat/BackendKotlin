@@ -41,7 +41,7 @@ object DefaultResponseSerializer : KSerializer<Response> {
         var data: JsonElement? = null
         var error: Error? = null
 
-        decoder.decodeStructure(BlockingSerializer.descriptor) {
+        decoder.decodeStructure(descriptor) {
             loop@ while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> success = decodeBooleanElement(descriptor, index)
